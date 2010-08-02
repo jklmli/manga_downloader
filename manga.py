@@ -39,7 +39,8 @@ while (current_chapter <= chapter_end):
 		while i <= current_page:
 			z.write(str(current_page) + '.jpg')
 			i += 1
-		os.system('mv ' + str(manga).replace(' ', '_') + '_' + str(current_chapter) + '.cbz ' + download_path)
+		if download_path != '/':
+			os.system('mv ' + str(manga).replace(' ', '_') + '_' + str(current_chapter) + '.cbz ' + download_path)
 		current_page = 1
 		current_chapter += 1
 		os.system('rm *.jpg')
