@@ -31,6 +31,7 @@ h2. History
 
 h2. Upcoming Features
 
+Add -all option for downloading all mangas.
+Allow automatic manga downloading from other websites e.g. manga.animea.net, mangafox.com
 Add support for Windows.
 Add support for Mac.
-Allow automatic manga downloading from other websites e.g. manga.animea.net, mangafox.com
