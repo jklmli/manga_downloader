@@ -1,0 +1,29 @@
+h1. Manga Downloader
+
+Manga Downloader does what it says for mangavolume.com
+Currently only supports Linux/Unix.
+
+h2. Usage
+
+-n {name of manga}
+-s {starting chapter}
+-e {ending chapter}
+
+e.g. ./manga.py -n 'Air Gear' -s 1 -e 100
+
+The name of the manga can be enclosed in either single or double quotes.  Quotes are optional if manga name is only one word or if escaping spaces with a backslash.
+
+h3. Bugs
+
+* Currently removes all .jpg files in the same directory as it upon execution.
+* Does not use try/catch to catch AttributeException when manga does not exist or has been removed.
+
+h2. History
+
+* *0.01* Initial Commit (08/2010)
+
+h2. Upcoming Features
+
+Add support for Windows.
+Add support for Mac.
+Allow automatic manga downloading from other websites e.g. manga.animea.net, mangafox.com
