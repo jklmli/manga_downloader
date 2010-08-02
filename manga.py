@@ -5,6 +5,7 @@ import zipfile
 import os
 import sys
 index = 1
+download_path = '/'
 while index < len(sys.argv):
 	if sys.argv[index] == '-n':
 		manga = sys.argv[index + 1]
@@ -14,6 +15,9 @@ while index < len(sys.argv):
 		index += 1
 	elif sys.argv[index] == '-e':
 		chapter_end = int(sys.argv[index + 1])
+		index += 1
+	elif sys.argv[index] == '-d':
+		download_path = sys.argv[index + 1]
 		index += 1
 	index += 1
 current_chapter = chapter_start
@@ -35,6 +39,7 @@ while (current_chapter <= chapter_end):
 		while i <= current_page:
 			z.write(str(current_page) + '.jpg')
 			i += 1
+		os.system('mv ' + str(manga).replace(' ', '_') + '_' + str(current_chapter) + '.cbz ' + download_path)
 		current_page = 1
 		current_chapter += 1
 		os.system('rm *.jpg')

@@ -5,11 +5,15 @@ Currently only supports Linux/Unix.
 
 h2. Usage
 
+Mandatory:
 -n {name of manga}
 -s {starting chapter}
 -e {ending chapter}
 
-e.g. ./manga.py -n 'Air Gear' -s 1 -e 100
+Optional:
+-d {download path}
+
+e.g. ./manga.py -n 'Air Gear' -s 1 -e 100 -d ~/Manga
 
 The name of the manga can be enclosed in either single or double quotes.  Quotes are optional if manga name is only one word or if escaping spaces with a backslash.
 
@@ -17,6 +21,7 @@ h3. Bugs
 
 * Currently removes all .jpg files in the same directory as it upon execution.
 * Does not use try/catch to catch AttributeException when manga does not exist or has been removed.
+* Does not error check for invalid start/ending chapters
 
 h2. History
 
