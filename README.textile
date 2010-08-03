@@ -1,6 +1,6 @@
 h1. Manga Downloader
 
-Manga Downloader is a Windows/Linux python script that does what it says for mangavolume.com
+Manga Downloader is a Windows/Linux python script that does what it says for mangavolume.com and manga.animea.net
 Downloads into .cbz format, can optionally download into .zip instead.
 Untested on Windows/Mac OS.
 
@@ -44,8 +44,12 @@ Quotes can either be single or double quotes.
 h2. Bugs
 
 * Program crash if user specifies chapter 0 as starting chapter and it doesn't exist.
+* Can't avoid downloading source code for Animea
 
 h2. History
+
+*v0.1.6* (08/03/10)
++ Added manga.animea.net as another source
 
 *v0.1.5* (08/03/10)
 + now checks for valid starting/ending chapters
@@ -73,8 +77,7 @@ h2. History
 
 h2. Upcoming Features
 
-Allow automatic manga downloading from other websites e.g. manga.animea.net, mangafox.com if mangavolume.com doesn't have it.
-Add -all option for downloading all chapters in a series.
+Add support for mangareader.net - currently downloading is supporting, but the program is unable to parse the number of chapters it hosts, so it doesn't work right now.
 Allow download resumption when broken in middle of chapter.
 
 h2. Far-off Features
