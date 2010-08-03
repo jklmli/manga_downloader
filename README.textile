@@ -1,37 +1,59 @@
 h1. Manga Downloader
 
-Manga Downloader does what it says for mangavolume.com
-Downloads into .cbz format, which can be read with Evince or unpacked.
-Currently only supports Linux/Unix.
+Manga Downloader is a Windows/Linux python script that does what it says for mangavolume.com
+Downloads into .cbz format, can optionally download into .zip instead.
+Untested on Mac OS.
 
 h2. Usage
 
-Mandatory:
--n {name of manga}
--s {starting chapter}
--e {ending chapter}
+h3. Mandatory:
 
-Optional:
--d {download path}
-Uses current working directory by default.
+*-e {ending chapter}*
+
+*-n {name of manga}*
+
+*-s {starting chapter}*
+
+h3. Optional:
+
+*-d {download path}*
+Default behavior is to use current working directory.
+
+*-o*
+Overwrites downloaded chapters if it already exists.  Default behavior is to skip over it.
+
+*-z*
+Downloads into .zip format instead of .cbz
 
 e.g. ./manga.py -n 'Air Gear' -s 1 -e 100 -d ~/Manga
 
 The name of the manga can be enclosed in either single or double quotes.  Quotes are optional if manga name is only one word or if escaping spaces with a backslash.
 
-h3. Bugs
+h2. Bugs
 
-* Currently removes all .jpg files in the same directory as it upon execution.
-* Does not use try/catch to catch AttributeException when manga does not exist or has been removed.
-* Does not error check for invalid start/ending chapters
+* Does not error check for invalid starting/ending chapters.
+* .zip images are packaged inside a temp directory
 
 h2. History
 
-* *0.01* Initial Commit (08/2010)
+*v0.1*  (08/02/10)
++ fixed .cbz creation bug
++ fixed .jpeg deletion bug
++ fixed chapter redownloading if already complete from previous use
++ fixed program crash when manga doesn't exist or is misspelled
++ added Windows support
++ added .zip support
++ tweaked code to prepare for addition of other sites and improve loop structure
+
+*v0.01*  (08/02/10)
++ Initial Commit
 
 h2. Upcoming Features
 
-Add -all option for downloading all mangas.
-Allow automatic manga downloading from other websites e.g. manga.animea.net, mangafox.com
-Add support for Windows.
-Add support for Mac.
+Allow automatic manga downloading from other websites e.g. manga.animea.net, mangafox.com if mangavolume.com doesn't have it.
+Add -all option for downloading all chapters in a series.
+Allow download resumption when broken in middle of chapter.
+
+h2. Far-off Features
+
+Add Mac support.
