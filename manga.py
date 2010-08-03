@@ -89,8 +89,11 @@ for index in range(1, len(sys.argv)):
 	except KeyError:
 		pass
 
-if download_path.endswith('/') == False:
+if download_path.endswith('/') == False and download_path.find('\\') == -1:
 	download_path += '/'
+
+if download_path.endswith('\\') == False and download_path.find('/') == -1:
+	download_path += '\\'
 
 print('Selecting optimal site for download...')
 info = pickSite(manga)

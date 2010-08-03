@@ -33,10 +33,10 @@ If neither @-a@ or the combination of @-e / -s@ is used, the downloader will def
 
 Usage examples:
 
-@manga.py -n 'Air Gear' -d 'C:\Documents and Settings\admin\Documents\Manga'@
-On a Windows machine, downloads 'Air Gear' to the current directory from chapter 1 to latest, using .cbz compression
+@manga.py -n 'Air Gear' -d 'C:\Documents and Settings\admin\Documents\Manga\'@
+On a Windows machine, downloads 'Air Gear' to C:\Documents and Settings\admin\Documents\Manga\ from chapter 1 to latest, using .cbz compression
 
-@./manga.py -n 'Air Gear' -s 20 -d ~/Manga -z -o@
+@./manga.py -n 'Air Gear' -s 20 -d ~/Manga/ -z -o@
 On a Linux/Unix machine, downloads 'Air Gear' to ~/Manga from chapter 20 to latest, using .zip compression and overwriting previously downloaded chapters
 
 Quotes can either be single or double quotes.  
