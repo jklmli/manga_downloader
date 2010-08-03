@@ -2,39 +2,59 @@ h1. Manga Downloader
 
 Manga Downloader is a Windows/Linux python script that does what it says for mangavolume.com
 Downloads into .cbz format, can optionally download into .zip instead.
-Untested on Mac OS.
+Untested on Windows/Mac OS.
 
 h2. Usage
 
-h3. Mandatory:
+@-a@
+Downloads all chapters that have been released.  Takes precedence over @-e / -s@ if used together.
 
-*-e {ending chapter}*
+@-d {download path}@
+Quotes are optional if there are no spaces or if escaping spaces with a backslash.  Default behavior is to use current working directory.  
 
-*-n {name of manga}*
+@-e {ending chapter}@
+Should be used in conjunction with @-s@, will default to latest chapter if @-e@ is omitted but @-s@ is specified.
 
-*-s {starting chapter}*
+@-n {name of manga}@
+Quotes are optional if there are no spaces or if escaping spaces with a backslash.
 
-h3. Optional:
-
-*-d {download path}*
-Default behavior is to use current working directory.
-
-*-o*
+@-o@
 Overwrites downloaded chapters if it already exists.  Default behavior is to skip over it.
 
-*-z*
+@-s {starting chapter}@
+Should be used in conjunction with @-e@, will default to chapter 1 if @-s@ is omitted but @-e@ is specified.
+
+@-z@
 Downloads into .zip format instead of .cbz
 
-e.g. ./manga.py -n 'Air Gear' -s 1 -e 100 -d ~/Manga
+h3. Notes
 
-The name of the manga can be enclosed in either single or double quotes.  Quotes are optional if manga name is only one word or if escaping spaces with a backslash.
+If neither @-a@ or the combination of @-e / -s@ is used, the downloader will default to @-a@ behavior.
+
+Usage examples:
+
+@manga.py -n 'Air Gear' -d 'C:\Documents and Settings\admin\Documents\Manga'@
+On a Windows machine, downloads 'Air Gear' to the current directory from chapter 1 to latest, using .cbz compression
+
+@./manga.py -n 'Air Gear' -s 20 -d ~/Manga -z -o@
+On a Linux/Unix machine, downloads 'Air Gear' to ~/Manga from chapter 20 to latest, using .zip compression and overwriting previously downloaded chapters
+
+Quotes can either be single or double quotes.  
 
 h2. Bugs
 
-* Does not error check for invalid starting/ending chapters.
-* .zip images are packaged inside a temp directory
+* Program crash if user specifies chapter 0 as starting chapter and it doesn't exist.
 
 h2. History
+
+*v0.1.5* (08/03/10)
++ now checks for valid starting/ending chapters
++ images now no longer compressed inside a temp directory
++ optimized code; no longer wastes bandwidth or cycles redownloading pages for source code / checking manga validity
++ tweaked code so it's more object-oriented, support for other sites coming in next release
++ added option (-a) to download all chapters in a series
++ improved overall code readability
++ improved README readability
 
 *v0.1.1* (08/02/10)
 + fixed archive not getting moved out of temp directory and erased
