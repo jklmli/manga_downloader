@@ -44,7 +44,7 @@ Quotes can either be single or double quotes.
 h2. Bugs
 
 * Program crash if user specifies chapter 0 as starting chapter and it doesn't exist.
-* Can't avoid downloading source code for Animea
+* Animea is broken - redownloading source code every page causes anti-leeching to kick in
 
 h2. History
 
@@ -57,7 +57,7 @@ h2. History
 + optimized code; no longer wastes bandwidth or cycles redownloading pages for source code / checking manga validity
 + tweaked code so it's more object-oriented, support for other sites coming in next release
 + added option (-a) to download all chapters in a series
-+ improved overall code readability
++ improved code readability
 + improved README readability
 
 *v0.1.1* (08/02/10)

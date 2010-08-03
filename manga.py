@@ -166,5 +166,5 @@ if chapter_start != 0 and chapter_end == 0:
 checkValidity(chapter_start, chapter_end, total_chapters)
 
 cleanTmp()
-#useMangaReader(manga, chapter_start, chapter_end, download_path, download_format)
-exec( 'use' + site + '(manga, chapter_start, chapter_end, download_path, download_format)')
+useMangaVolume(manga, chapter_start, chapter_end, download_path, download_format)
+#exec( 'use' + site + '(manga, chapter_start, chapter_end, download_path, download_format)')
