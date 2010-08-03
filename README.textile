@@ -36,6 +36,9 @@ h2. Bugs
 
 h2. History
 
+*v0.1.1* (08/02/10)
++ fixed archive not getting moved out of temp directory and erased
+
 *v0.1*  (08/02/10)
 + fixed .cbz creation bug
 + fixed .jpeg deletion bug
@@ -45,7 +48,7 @@ h2. History
 + added .zip support
 + tweaked code to prepare for addition of other sites and improve loop structure
 
-*v0.01*  (08/02/10)
+*v0.0.1*  (08/02/10)
 + Initial Commit
 
 h2. Upcoming Features

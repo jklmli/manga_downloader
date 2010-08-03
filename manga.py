@@ -12,7 +12,7 @@ import shutil
 
 
 
-1
+
 def cleanTmp():
 	if os.path.exists('mangadl_tmp'):
 		shutil.rmtree('mangadl_tmp')
@@ -23,8 +23,7 @@ def compress(mangaChapterPrefix, current_chapter, download_path, current_page, d
 	z = zipfile.ZipFile('mangadl_tmp/' + mangaChapterPrefix + download_format, 'a')
 	for page in range(1, current_page + 1):
 		z.write('mangadl_tmp/' + mangaChapterPrefix + '_' + str(page).zfill(3) + '.jpg')
-	if download_path != '/':
-		shutil.move('mangadl_tmp/' + mangaChapterPrefix + download_format, download_path)
+	shutil.move('mangadl_tmp/' + mangaChapterPrefix + download_format, download_path)
 	cleanTmp()
 
 def useMangaVolume(manga, chapter_start, chapter_end, download_path, download_format):
@@ -58,7 +57,7 @@ def useMangaVolume(manga, chapter_start, chapter_end, download_path, download_fo
 
 
 
-download_path = '/'
+download_path = './'
 download_format = '.cbz'
 overwrite = False
 
