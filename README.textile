@@ -48,11 +48,13 @@ h2. Bugs
 h2. Issues
 
 * Animea forces downloading of source code on every page due to unpredictable image filenames, forcing an overhead of about 100 kB/page.
-* MangaVolume almost 5X faster than Animea without a hitch on same connection - maybe Animea is less flaky-connection-tolerant?
-* Downloading works on MangaReader, but can't grab max number of chapters (or even series homepage) due to urls with some hashed number?
-* MangaVolume doesn't carry any big-name mangas...really need to fix Animea/MangaReader
+* Downloading works on MangaReader, but can't grab max number of chapters (or even series homepage) due to urls with some hashed number - can fix by piping through bing search...
+* Considering pulling Animea out for now
 
 h2. History
+
+*v0.1.8* (08/03/10)
++ TESTED to work in windows (fixed zipfile.close() requirement in Windows)
 
 *v0.1.7* (08/03/10)
 + Should work flawlessly on Windows now as well (possibly broken before due to wrong direction of slashes)
@@ -88,8 +90,9 @@ h2. History
 
 h2. Upcoming Features
 
-Fix support for manga.animea.net
+Add support for mangashare.com
 Add support for mangareader.net
+Fix support for manga.animea.net
 Combine code so that there is only 1 method for downloading, instead of 1 per site.
 Allow download resumption when broken in middle of chapter.
 

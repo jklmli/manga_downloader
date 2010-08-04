@@ -31,6 +31,7 @@ def compress(manga_chapter_prefix, current_chapter, download_path, max_pages, do
 	z = zipfile.ZipFile( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), 'a')
 	for page in range(1, max_pages + 1):
 		z.write( os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg'), manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg')
+	z.close()
 	shutil.move( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), download_path)
 	cleanTmp()
 
