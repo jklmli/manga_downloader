@@ -1,8 +1,8 @@
 h1. Manga Downloader
 
-Manga Downloader is a Windows/Linux python script that does what it says for mangavolume.com and manga.animea.net
+Manga Downloader is a Windows/Linux python script that does what it says for mangavolume.com
 Downloads into .cbz format, can optionally download into .zip instead.
-Untested on Windows/Mac OS.
+Untested on Mac OS.
 
 h2. Usage
 
@@ -44,9 +44,20 @@ Quotes can either be single or double quotes.
 h2. Bugs
 
 * Program crash if user specifies chapter 0 as starting chapter and it doesn't exist.
-* Animea is broken - redownloading source code every page causes anti-leeching to kick in
+
+h2. Issues
+
+* Animea forces downloading of source code on every page due to unpredictable image filenames, forcing an overhead of about 100 kB/page.
+* MangaVolume almost 5X faster than Animea without a hitch on same connection - maybe Animea is less flaky-connection-tolerant?
+* Downloading works on MangaReader, but can't grab max number of chapters (or even series homepage) due to urls with some hashed number?
+* MangaVolume doesn't carry any big-name mangas...really need to fix Animea/MangaReader
 
 h2. History
+
+*v0.1.7* (08/03/10)
++ Should work flawlessly on Windows now as well (possibly broken before due to wrong direction of slashes)
++ Spoofed User-Agent as Firefox 2
+- Removed manga.animea.net as a source
 
 *v0.1.6* (08/03/10)
 + Added manga.animea.net as another source
@@ -77,7 +88,9 @@ h2. History
 
 h2. Upcoming Features
 
-Add support for mangareader.net - currently downloading is supporting, but the program is unable to parse the number of chapters it hosts, so it doesn't work right now.
+Fix support for manga.animea.net
+Add support for mangareader.net
+Combine code so that there is only 1 method for downloading, instead of 1 per site.
 Allow download resumption when broken in middle of chapter.
 
 h2. Far-off Features

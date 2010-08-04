@@ -9,6 +9,8 @@ import os
 import sys
 import shutil
 
+from urllib import FancyURLopener
+
 ##########
 
 def checkValidity(chapter_start, chapter_end, total_chapters):
@@ -26,10 +28,10 @@ def cleanTmp():
 
 def compress(manga_chapter_prefix, current_chapter, download_path, max_pages, download_format):
 	print('Compressing...')
-	z = zipfile.ZipFile('mangadl_tmp/' + manga_chapter_prefix + download_format, 'a')
+	z = zipfile.ZipFile( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), 'a')
 	for page in range(1, max_pages + 1):
-		z.write('mangadl_tmp/' + manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg', manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg')
-	shutil.move('mangadl_tmp/' + manga_chapter_prefix + download_format, download_path)
+		z.write( os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg'), manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg')
+	shutil.move( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), download_path)
 	cleanTmp()
 
 def pickSite(manga):
@@ -74,7 +76,7 @@ def useMangaVolume(manga, chapter_start, chapter_end, download_path, download_fo
 		for page in range(1, max_pages + 1):
 			print('Chapter ' + str(current_chapter) + ' / ' + 'Page ' + str(page))
 			print(img_url + '_' + str(chapter_base_CODE + page) + '.jpg')
-			urllib.urlretrieve(img_url + '_' + str(chapter_base_CODE + page) + '.jpg', 'mangadl_tmp/' + manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg')
+			urllib.urlretrieve(img_url + '_' + str(chapter_base_CODE + page) + '.jpg', os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg'))
 
 		compress(manga_chapter_prefix, current_chapter, download_path, max_pages, download_format)
 
@@ -93,10 +95,10 @@ def useAnimea(manga, chapter_start, chapter_end, download_path, download_format)
 		for page in range(1, max_pages + 1):
 			url = 'http://manga.animea.net/'+ str(manga).lower().replace(' ', '-') + '-chapter-' + str(current_chapter) + '-page-' + str(page) + '.html'
 			source_code = urllib.urlopen(url).read()
-			img_url = re.compile('img src="http(.*?).jpg"').search(source_code).group(0)[9:-1]
+			img_url = re.compile('img src="http(.*?).[jp][pn]g"').search(source_code).group(0)[9:-1]
 			print('Chapter ' + str(current_chapter) + ' / ' + 'Page ' + str(page))
 			print(img_url)
-			urllib.urlretrieve(img_url, 'mangadl_tmp/' + manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg')
+			urllib.urlretrieve(img_url, os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg'))
 
 		compress(manga_chapter_prefix, current_chapter, download_path, max_pages, download_format)
 
@@ -115,7 +117,7 @@ def useMangaReader(manga, chapter_start, chapter_end, download_path, download_fo
 			img_url = 'http://img1.mangareader.net/manga/' + str(manga).lower().replace(' ', '-') + '/' + str(current_chapter) + '-' + str(page) + '.jpg'
 			print('Chapter ' + str(current_chapter) + ' / ' + 'Page ' + str(page))
 			print(img_url)
-			urllib.urlretrieve(img_url, 'mangadl_tmp/' + manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg')
+			urllib.urlretrieve(img_url, os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg'))
 		compress(manga_chapter_prefix, current_chapter, download_path, page - 1, download_format)
 		
 ##########
@@ -126,6 +128,11 @@ chapter_start = 0
 chapter_end = 0
 all_chapters_FLAG = False
 overwrite_FLAG = False
+
+class spoofOpener(FancyURLopener):
+	version = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.11) Gecko/20071127 Firefox/2.0.0.11'
+
+urlretrieve = spoofOpener().retrieve
 
 for index in range(1, len(sys.argv)):
 	options = {	'-a' : 'all_chapters_FLAG = True',
@@ -166,5 +173,7 @@ if chapter_start != 0 and chapter_end == 0:
 checkValidity(chapter_start, chapter_end, total_chapters)
 
 cleanTmp()
+
+#useAnimea(manga, chapter_start, chapter_end, download_path, download_format)
 useMangaVolume(manga, chapter_start, chapter_end, download_path, download_format)
 #exec( 'use' + site + '(manga, chapter_start, chapter_end, download_path, download_format)')
