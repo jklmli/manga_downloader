@@ -1,6 +1,7 @@
 h1. Manga Downloader
 
-Manga Downloader is a Windows/Linux python script that does what it says for mangavolume.com
+Manga Downloader is a Windows/Linux python script that does what it says.  
+Currently supports mangavolume.com and cloudmanga.com, support for other sites to be added.
 Downloads into .cbz format, can optionally download into .zip instead.
 Untested on Mac OS.
 
@@ -10,7 +11,7 @@ h2. Usage
 Downloads all chapters that have been released.  Takes precedence over @-e / -s@ if used together.
 
 @-d {download path}@
-Quotes are optional if there are no spaces or if escaping spaces with a backslash.  Default behavior is to use current working directory.  
+Must be enclosed in double quotes.  Default behavior is to use current working directory.  
 
 @-e {ending chapter}@
 Should be used in conjunction with @-s@, will default to latest chapter if @-e@ is omitted but @-s@ is specified.
@@ -33,13 +34,11 @@ If neither @-a@ or the combination of @-e / -s@ is used, the downloader will def
 
 Usage examples:
 
-@manga.py -n 'Air Gear' -d 'C:\Documents and Settings\admin\Documents\Manga\'@
-On a Windows machine, downloads 'Air Gear' to C:\Documents and Settings\admin\Documents\Manga\ from chapter 1 to latest, using .cbz compression
+@manga.py -n "Air Gear" -d "C:\Documents and Settings\admin\Documents\Manga\" -z@
+On a Windows machine, downloads 'Air Gear' to C:\Documents and Settings\admin\Documents\Manga\ from chapter 1 to latest, using .zip compression
 
-@./manga.py -n 'Air Gear' -s 20 -d ~/Manga/ -z -o@
-On a Linux/Unix machine, downloads 'Air Gear' to ~/Manga from chapter 20 to latest, using .zip compression and overwriting previously downloaded chapters
-
-Quotes can either be single or double quotes.  
+@./manga.py -n "Air Gear" -s 20 -d "~/Manga/" -o@
+On a Linux/Unix machine, downloads 'Air Gear' to ~/Manga from chapter 20 to latest, using .cbz compression and overwriting previously downloaded chapters
 
 h2. Bugs
 
