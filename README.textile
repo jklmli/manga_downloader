@@ -16,7 +16,7 @@ Quotes are optional if there are no spaces or if escaping spaces with a backslas
 Should be used in conjunction with @-s@, will default to latest chapter if @-e@ is omitted but @-s@ is specified.
 
 @-n {name of manga}@
-Quotes are optional if there are no spaces or if escaping spaces with a backslash.
+Must be enclosed in double quotes.
 
 @-o@
 Overwrites downloaded chapters if it already exists.  Default behavior is to skip over it.
@@ -48,10 +48,16 @@ h2. Bugs
 h2. Issues
 
 * Animea forces downloading of source code on every page due to unpredictable image filenames, forcing an overhead of about 100 kB/page.
-* Downloading works on MangaReader, but can't grab max number of chapters (or even series homepage) due to urls with some hashed number - can fix by piping through bing search...
-* Considering pulling Animea out for now
+* "IOError: [Errno socket error] [Errno 104] Connection reset by peer" after downloading a series of images from Animea - much slower download rate then MV and CV...remove as a source?
+* Code is extremely disorganized.
 
 h2. History
+
+*v0.2.0* (08/04/10)
++ successfully spoofed downloader as Chrome 6/Ubuntu Lucid Lynx 
++ able to navigate site structures via Google now - this should make adding future sites much easier if needed and helps spell check (some overhead bandwidth might be in order though)
++ implemented auto-spell correction for cloudmanga + mangavolume + animea via Google
++ added cloudmanga.com as a source
 
 *v0.1.8* (08/03/10)
 + TESTED to work in windows (fixed zipfile.close() requirement in Windows)
@@ -76,7 +82,7 @@ h2. History
 *v0.1.1* (08/02/10)
 + fixed archive not getting moved out of temp directory and erased
 
-*v0.1*  (08/02/10)
+*v0.1.0*  (08/02/10)
 + fixed .cbz creation bug
 + fixed .jpeg deletion bug
 + fixed chapter redownloading if already complete from previous use
@@ -88,14 +94,15 @@ h2. History
 *v0.0.1*  (08/02/10)
 + Initial Commit
 
-h2. Upcoming Features
+h2. Upcoming Features in the Next Release
+
+Fix support for mangareader.net by using Google instead of Bing
+Fix support for manga.animea.net
+
+h2. Future Features
 
 Add support for mangashare.com
-Add support for mangareader.net
-Fix support for manga.animea.net
+Clean up code.
 Combine code so that there is only 1 method for downloading, instead of 1 per site.
 Allow download resumption when broken in middle of chapter.
-
-h2. Far-off Features
-
-Add Mac support.
+Add Mac support if it doesn't already work.
