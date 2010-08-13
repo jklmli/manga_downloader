@@ -1,7 +1,7 @@
 h1. Manga Downloader
 
 Manga Downloader is a Windows/Linux python script that does what it says.  
-Currently supports mangavolume.com and cloudmanga.com, support for other sites to be added.
+Currently supports mangavolume.com, cloudmanga.com, and otakuworks.com, with a total of over 3500 mangas.
 Downloads into .cbz format, can optionally download into .zip instead.
 Untested on Mac OS.
 
@@ -15,6 +15,9 @@ Must be enclosed in double quotes.  Default behavior is to use current working d
 
 @-e {ending chapter}@
 Should be used in conjunction with @-s@, will default to latest chapter if @-e@ is omitted but @-s@ is specified.
+
+@-f@
+Downloads chapters to a new directory in the current directory with the manga's name.
 
 @-n {name of manga}@
 Must be enclosed in double quotes.
@@ -43,14 +46,28 @@ On a Linux/Unix machine, downloads 'Air Gear' to ~/Manga from chapter 20 to late
 h2. Bugs
 
 * Program crash if user specifies chapter 0 as starting chapter and it doesn't exist.
+* Program crash if there's a decimal chapter.
+* Program crash if site is missing chapters in between.
 
 h2. Issues
 
-* Animea forces downloading of source code on every page due to unpredictable image filenames, forcing an overhead of about 100 kB/page.
-* "IOError: [Errno socket error] [Errno 104] Connection reset by peer" after downloading a series of images from Animea - much slower download rate then MV and CV...remove as a source?
+* (Animea, MangaReader) forces inefficient downloading of source code on every page due to unpredictable image filenames, forcing an overhead of about (100, 300) kB/page.
+* Otakuworks, and to a rarer extent CloudManga and MangaVolume, sometimes has non-sequential chapter numbering (e.g. Vol 08 for chapters XXX-YYY).  Workaround will probably require user input or specified option.
+* Cloudmanga downloader will download wrong manga (because of autocorrection) if given a more obscure manga - should be easy to fix, but the site search itself is down.
 * Code is extremely disorganized.
 
 h2. History
+
+*v0.2.5* (08/05/10)
++ added otakuworks.com as primary download engine - boasts over 3500 mangas!
++ changed compression so that .png automatically converts to .jpg
++ improved image searches
++ program will continue to run even if website tries to disconnect
++ improved bandwidth consumption by 2x on CloudManga
+
+*v0.2.1* (08/05/10)
++ added new download option -f
++ program will no longer crash with flaky connections, but will continue trying to download
 
 *v0.2.0* (08/04/10)
 + successfully spoofed downloader as Chrome 6/Ubuntu Lucid Lynx 
@@ -95,13 +112,8 @@ h2. History
 
 h2. Upcoming Features in the Next Release
 
-Fix support for mangareader.net by using Google instead of Bing
-Fix support for manga.animea.net
+Clean up code.
 
 h2. Future Features
 
-Add support for mangashare.com
-Clean up code.
-Combine code so that there is only 1 method for downloading, instead of 1 per site.
-Allow download resumption when broken in middle of chapter.
 Add Mac support if it doesn't already work.
