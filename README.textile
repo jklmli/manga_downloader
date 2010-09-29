@@ -50,6 +50,7 @@ h2. Issues
 * Code hasn't been tested on Windows in a while.
 
 h2. History
+
 *v0.3.0* (09/29/10)
 + redid manga search mechanism on OtakuWorks
 + redid manga chapter selection on OtakuWorks
@@ -57,7 +58,6 @@ h2. History
 + overhauled a lot of code
 - retired cloudmanga.com as a source permanently
 - retired mangavolume.com as a source permanently
-
 
 *v0.2.5* (08/12/10)
 + added otakuworks.com as primary download engine - boasts over 3500 mangas!
