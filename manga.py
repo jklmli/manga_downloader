@@ -30,7 +30,7 @@ def compress(manga_chapter_prefix, download_path, max_pages, download_format):
 	print('Compressing...')
 	z = zipfile.ZipFile( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), 'a')
 	for page in range(1, max_pages + 1):
-		z.write( os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)), manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg')
+		z.write( os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)), manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3))))
 	z.close()
 	shutil.move( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), download_path)
 	cleanTmp()
@@ -92,7 +92,7 @@ def pickSite(manga):
 #		print(url)
 #		url = re.sub('series', 'track', url)
 		source_code = getSourceCode(url)
-		chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*Chapter[^<]*)</a>' % '-'.join(matchedManga.lower().split())).findall(source_code)
+		chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(matchedManga.lower().split())).findall(source_code)
 #		print(chapters)
 		chapters.reverse()
 		for i in range(0, len(chapters)):
@@ -208,7 +208,6 @@ def useMangaReader(manga, chapter_start, chapter_end, download_path, download_fo
 ##########
 
 def useOtakuWorks(manga, chapters, chapters_to_download, download_path, download_format, misc):
-	source_code = getSourceCode(misc)
 	for current_chapter in chapters_to_download:
 		manga_chapter_prefix = fixFormatting(manga) + '_' + fixFormatting(chapters[current_chapter][1])
 		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and overwrite_FLAG == False:

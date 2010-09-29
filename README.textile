@@ -57,9 +57,10 @@ h2. History
 *v0.3.0* (09/29/10)
 + redid manga search mechanism on OtakuWorks
 + redid manga chapter selection on OtakuWorks
-+ improved bandwidth consumption on OtakuWorks by at least 2x
 + overhauled a lot of code
-- removed site structure via Google due to unpredictable results
++ fixed image creation bug if not type jpeg or png
++ fixed most known bugs
+- removed site structure search via Google due to unpredictable results
 - retired cloudmanga.com as a source permanently
 - retired mangavolume.com as a source permanently
 
