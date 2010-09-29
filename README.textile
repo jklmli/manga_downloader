@@ -25,7 +25,7 @@ Overwrites downloaded chapters if it already exists.  Default behavior is to ski
 @-z@
 Downloads into .zip format instead of .cbz
 
-The script will output a list of all chapters of the series it has found on OtakuWorks.  When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  See Notes for an example of an acceptable input.
+The script will output a list of all chapters of the series it has found on OtakuWorks.  When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','. You can also type 'all' if you did not specify -a before.  See Notes for an example of an acceptable input.
 
 h3. Notes
 
@@ -34,11 +34,14 @@ Usage examples:
 @manga.py -n "Bleach" -d "C:\Documents and Settings\admin\Documents\Manga\" -z@
 On a Windows machine, downloads 'Bleach' to C:\Documents and Settings\admin\Documents\Manga\, using .zip compression
 
-@./manga.py -n "Air Gear" -f -o@
+@./manga.py -n "Bleach" -f -o@
 On a Linux/Unix machine, downloads 'Bleach' to ./Bleach, using .cbz compression and overwriting previously downloaded chapters
 
 @1,2,9-12@
 Downloads chapters 1, 2, and 9 through 12
+
+@all@
+Downloads all chapters
 
 h2. Bugs
 
