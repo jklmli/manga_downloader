@@ -56,6 +56,7 @@ h2. History
 + redid manga chapter selection on OtakuWorks
 + improved bandwidth consumption on OtakuWorks by at least 2x
 + overhauled a lot of code
+- removed site structure via Google due to unpredictable results
 - retired cloudmanga.com as a source permanently
 - retired mangavolume.com as a source permanently
 

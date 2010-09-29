@@ -57,7 +57,7 @@ def getSourceCode(url):
 ##########
 
 def pickSite(manga):
-	total_chapters = []
+#	total_chapters = []
 	keywords = []
 	misc = []
 	websites = ['OtakuWorks']
@@ -76,8 +76,11 @@ def pickSite(manga):
 #		print(siteHome)
 #		print('done finding keyword')
 	except AttributeError:
-		total_chapters.append(0)
+#		total_chapters.append(0)
 		keywords.append('')
+		print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
+		sys.exit()
+		
 	else:
 		url = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').search(source_code).group(1)
 #		url = re.sub('series', 'track', url)
