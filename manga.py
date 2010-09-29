@@ -25,7 +25,7 @@ def cleanTmp():
 		shutil.rmtree('mangadl_tmp')
 	os.mkdir('mangadl_tmp')
 
-def compress(manga_chapter_prefix, current_chapter, download_path, max_pages, download_format):
+def compress(manga_chapter_prefix, download_path, max_pages, download_format):
 	print('Compressing...')
 	z = zipfile.ZipFile( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), 'a')
 	for page in range(1, max_pages + 1):
@@ -60,74 +60,59 @@ def pickSite(manga):
 	total_chapters = []
 	keywords = []
 	misc = []
-	websites = ['MangaVolume', 'CloudManga', 'OtakuWorks']
-	
-	#MangaVolume check
-	url = 'http://www.google.com/search?q=site:mangavolume.com+manga+' + '+'.join(manga.split())
-	source_code = getSourceCode(url)
-	try:
-		siteHome = re.compile('mangavolume.com/.*?/mangas-(.*?)/').search(source_code).group(0)
-	except:
-		total_chapters.append(0)
-		keywords.append('')
-	else:	
-		manga = re.compile('mangavolume.com/.*?/mangas-(.*?)/').search(source_code).group(1)
-		url = 'http://www.' + siteHome
-		source_code = getSourceCode(url)
-		try:
-			intermediate = re.compile('>(?!<a href)(.*?)</a> </td>').search(source_code).group(1)
-#			print(intermediate)
-			total_chapters.append(int(intermediate[len(manga): ]))
-#			print(int(intermediate[len(manga): ]))
-		except AttributeError:
-			total_chapters.append(0)
-		keywords.append(manga)
-	misc.append('')
-	
-	print('Finished MangaVolume check.')
-	
-	#CloudManga check
-	url = 'http://www.google.com/search?q=site:cloudmanga.com+manga+' + '+'.join(manga.split())
-	source_code = getSourceCode(url)
-#	print('done downloading google search code')
-	try:
-		manga = re.compile('cloudmanga.com/(.*?)/').search(source_code).group(1)
-#		print('done finding keyword')
-	except AttributeError:
-		total_chapters.append(0)
-		keywords.append('')
-	else:
-		url = 'http://www.cloudmanga.com/' + manga
-		source_code = getSourceCode(url)
-#		print('done downloading cloudmanga code')
-		total_chapters.append(int(re.compile(manga + '/([0-9]*?)/\'"').search(source_code).group(1)))
-#		print(int(re.compile(manga + '/([0-9]*?)/\'"').search(source_code).group(1)))
-		keywords.append(manga)
-	misc.append('')
-	print('Finished CloudManga check.')
+	websites = ['OtakuWorks']
 
 	#OtakuWorks check
-	url = 'http://www.google.com/search?q=site:otakuworks.com+manga+' + '+'.join(manga.split())
+	url = 'http://www.otakuworks.com/search/%s' % '+'.join(manga.split())
 	source_code = getSourceCode(url)	
 	try:
-		siteHome = re.compile('(otakuworks.com/series/[0-9]*?)/([^/]*?)"').search(source_code).group(1)
+		matchedManga = re.compile('>([^>]*?) \(Manga\)').search(source_code).group(1)
+		if(matchedManga.lower() != manga.lower()):
+			print('Did you mean: %s? (y/n)' % matchedManga)
+			answer = raw_input();
+			if (answer != 'y'):
+				print('Please retype your query.\n')
+				sys.exit()
 #		print(siteHome)
 #		print('done finding keyword')
 	except AttributeError:
 		total_chapters.append(0)
 		keywords.append('')
 	else:
-		manga = re.compile('(otakuworks.com/series/[0-9]*?)/([^/]*?)"').search(source_code).group(2)
-		url = 'http://www.' + siteHome
+		url = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').search(source_code).group(1)
+#		url = re.sub('series', 'track', url)
 		source_code = getSourceCode(url)
-#		print(url)
-		total_chapters.append(int(re.compile('"/view/(.*?)chp-(\d{1,3})(.*?)"').search(source_code).group(2)))
-#		print(int(re.compile('"http://www.otakuworks.com/view/.*?chp-(.*?)"').search(source_code).group(1)))
-#		print(manga)
-		keywords.append(manga)
-		misc.append('http://www.otakuworks.com' + re.compile('"(/view/.*?chp-\d{1,3}.*?)"').search(source_code).group(1))
-#	print('http://www.otakuworks.com/' + re.compile('"/view/(.*?)chp-(\d{1,3})(.*?)"').search(source_code).group(1))
-	print('Finished OtakuWorks check.')
+		chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*Chapter[^<]*)</a>' % matchedManga.lower()).findall(source_code)
+#		print(chapters)
+		chapters.reverse()
+		for i in range(0, len(chapters)):
+#			chapters[i][0] = 'http://www.otakuworks.com/' + chapters[i][0]
+			print('(%i) %s' % (i + 1, chapters[i][1]))
+		chapter_list_array_decrypted = []
+		chapter_list_string = ''
+		if(all_chapters_FLAG == False):
+			chapter_list_string = raw_input('Download which chapters?\n')
+		if(all_chapters_FLAG == True or chapter_list_string.lower() == 'all'):
+			print('Downloading all chapters...')
+			for i in range(0, len(chapters)):
+				chapter_list_array_decrypted.append(i)
+		else:
+			chapter_list_array = chapter_list_string.split(',')
+		
+			for i in chapter_list_array:
+				iteration = re.search('([0-9]*)-([0-9]*)', i)
+				if(iteration != None):
+					for j in range((int)(iteration.group(1)), (int)(iteration.group(2)) + 1):
+						chapter_list_array_decrypted.append(j - 1)
+	#					print(j)
+				else:
+					chapter_list_array_decrypted.append((int)(i) - 1)
+	#				print((int)(i))
+			
+		keywords.append(matchedManga)
+		misc.append('http://www.otakuworks.com/' + chapters[len(chapters) - 1][0])
+#		print(re.compile('Chapter #%i</title><link>([^<]*?)</link>' % max_chapters).search(source_code).group(1))
+#	print('Finished OtakuWorks check.')
 	
 
 	
@@ -161,8 +146,10 @@ def pickSite(manga):
 #	print('Finished Animea check.')
 	#return (site, total_chapters)
 	
-	winningIndex = total_chapters.index(max(total_chapters))
-	return (websites[winningIndex], max(total_chapters), keywords[winningIndex], misc[winningIndex])
+#	winningIndex = total_chapters.index(max(total_chapters))
+	winningIndex = 0
+#	return (websites[0], keywords[winningIndex], misc[0])
+	return (websites[winningIndex], keywords[winningIndex], misc[winningIndex], chapters, chapter_list_array_decrypted)
 	
 	
 ##########
@@ -185,59 +172,8 @@ def useAnimea(manga, chapter_start, chapter_end, download_path, download_format,
 			print(img_url)
 			downloadImage(img_url, os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)))
 
-		compress(manga_chapter_prefix, current_chapter, download_path, max_pages, download_format)
+		compress(manga_chapter_prefix, download_path, max_pages, download_format)
 		
-##########
-
-def useCloudManga(manga, chapter_start, chapter_end, download_path, download_format, misc):
-	manga_prefix = 'http://www.cloudmanga.com/' + manga + '/'
-	
-	url = manga_prefix + str(chapter_start) + '/'
-	source_code = getSourceCode(url)
-#	num_Pages = re.compile('option value').findall(source_code[source_code.find("Discussion"):])
-#	print(len(num_Pages))
-	img_url = re.compile('src="(http://.*?/.*?/.*?/)(.*?).jpg"').search(source_code)
-	img_url_prefix = img_url.group(1)
-	current_chapter_img_index = int(img_url.group(2))
-	noSkips = False
-	
-	for current_chapter in range(chapter_start, chapter_end + 1):
-		manga_chapter_prefix = manga.lower().replace('-', '_') + '_' + str(current_chapter).zfill(3)
-		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and overwrite_FLAG == False:
-			print('Chapter ' + str(current_chapter) + ' already downloaded, skipping to next chapter...')
-			noSkips = False
-			continue;
-		if noSkips == True:
-			current_chapter_img_index = next_chapter_img_index
-		else:
-			url = manga_prefix + str(current_chapter) + '/'
-			source_code = getSourceCode(url)
-			current_chapter_img_index = int(re.compile('src="(http://.*?/.*?/.*?/)(.*?).jpg"').search(source_code).group(2))
-		if (current_chapter != total_chapters):	
-			url = manga_prefix + str(current_chapter + 1) + '/'
-			source_code = getSourceCode(url)
-			next_chapter_img_index = int(re.compile('src="(http://.*?/.*?/.*?/)(.*?).jpg"').search(source_code).group(2))
-			max_pages = next_chapter_img_index - current_chapter_img_index
-					
-			for page in range(1, max_pages + 1):
-				print('Chapter ' + str(current_chapter) + ' / ' + 'Page ' + str(page))
-				print(img_url_prefix + str(current_chapter_img_index + page - 1) + '.jpg')
-				downloadImage(img_url_prefix + str(current_chapter_img_index + page - 1) + '.jpg', os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)))
-
-		else:
-			page = 0
-			nextPage = True
-			while nextPage == True:
-				page +=1
-				print('Chapter ' + str(current_chapter) + ' / ' + 'Page ' + str(page))
-				print(img_url_prefix + str(current_chapter_img_index + page - 1) + '.jpg')				
-				downloadImage(img_url_prefix + str(current_chapter_img_index + page - 1) + '.jpg', os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)))
-				if imghdr.what(os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3))) == None:
-					nextPage = False
-			max_pages = page - 1
-		compress(manga_chapter_prefix, current_chapter, download_path, max_pages, download_format)
-#		current_chapter_img_index = (next_chapter_img_index, current_chapter + 1)
-
 ##########
 
 def useMangaReader(manga, chapter_start, chapter_end, download_path, download_format, misc):
@@ -258,62 +194,38 @@ def useMangaReader(manga, chapter_start, chapter_end, download_path, download_fo
 			if imghdr.what(os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3) + '.jpg')) == None:
 				nextPage = False
 		compress(manga_chapter_prefix, current_chapter, download_path, page - 1, download_format)
-
-###########
-
-def useMangaVolume(manga, chapter_start, chapter_end, download_path, download_format, misc):
-	for current_chapter in range(chapter_start, chapter_end + 1):
-		manga_chapter_prefix = manga.lower().replace('-', '_') + '_' + str(current_chapter).zfill(3)
-		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and overwrite_FLAG == False:
-			print('Chapter ' + str(current_chapter) + ' already downloaded, skipping to next chapter...')
-			continue;
-		url = 'http://www.mangavolume.com/index.php?serie=' + manga + '&chapter=' + manga + '-' + str(current_chapter) + '&page_nr=' + str(1)
-		source_code = getSourceCode(url)
-		max_pages = int(re.compile('of <b>(.*?)</b>').search(source_code).group(1))
-		
-		img_url = re.compile('img src="(http.*?.jpg)"').search(source_code).group(1)
-		current_chapter_img_index = int(re.compile('http.*?_(.*?).jpg').search(img_url).group(1))
-		img_url_prefix = img_url[0:img_url.find('_') + 1]
-		
-		for page in range(1, max_pages + 1):
-			print('Chapter ' + str(current_chapter) + ' / ' + 'Page ' + str(page))
-			print(img_url_prefix + str(current_chapter_img_index + page - 1) + '.jpg')
-			downloadImage(img_url_prefix + str(current_chapter_img_index + page - 1) + '.jpg', os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)))
-
-		compress(manga_chapter_prefix, current_chapter, download_path, max_pages, download_format)
 		
 ##########
 
-def useOtakuWorks(manga, chapter_start, chapter_end, download_path, download_format, misc):
-	for current_chapter in range(chapter_start, chapter_end + 1):
-		manga_chapter_prefix = manga.lower().replace('-', '_') + '_' + str(current_chapter).zfill(3)
+def useOtakuWorks(manga, chapters, chapters_to_download, download_path, download_format, misc):
+	source_code = getSourceCode(misc)
+	for current_chapter in chapters_to_download:
+		manga_chapter_prefix = manga.lower().replace('-', '_') + '_' + chapters[current_chapter][1]
 		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and overwrite_FLAG == False:
-			print('Chapter ' + str(current_chapter) + ' already downloaded, skipping to next chapter...')
+			print(chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
 			continue;
 #		print('beginning download....')
-		source_code = getSourceCode(misc)
+		
 #		print('dl complete')
 #		print('http://www.otakuworks.com/(.*?)chp-' + str(current_chapter).zfill(3))\
 #		print(misc)
-		url = re.compile('view/[^/]*?/[^/]*?/[^/]*?chp-' + str(current_chapter).zfill(3)).search(source_code).group(0) + '/read'
-#		print(url)
-		url = 'http://www.otakuworks.com/' + url
+		url = 'http://www.otakuworks.com/' + chapters[current_chapter][0]
 		source_code = getSourceCode(url)
 		max_pages = 0
 		for page in re.compile('"([^"]*?)" rel="lightbox').findall(source_code):
 			max_pages += 1
-			print('Chapter ' + str(current_chapter) + ' / ' + 'Page ' + str(max_pages))
+			print(chapters[current_chapter][1] + ' / ' + 'Page ' + str(max_pages))
 			print(page)
 			downloadImage(page, os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(max_pages).zfill(3)))
 			
-		compress(manga_chapter_prefix, current_chapter, download_path, max_pages, download_format)
+		compress(manga_chapter_prefix, download_path, max_pages, download_format)
 ##########
 
 
 download_path = './'
 download_format = '.cbz'
-chapter_start = 0
-chapter_end = 0
+#chapter_start = 0
+#chapter_end = 0
 all_chapters_FLAG = False
 overwrite_FLAG = False
 
@@ -322,14 +234,16 @@ class AppURLopener(urllib.FancyURLopener):
 
 urllib._urlopener = AppURLopener()
 
-options = {	'-a' : 'all_chapters_FLAG = True',
+options = {
+		'-a' : 'all_chapters_FLAG = True',
 		'-d' : 'download_path = sys.argv[index + 1]',
-		'-e' : 'chapter_end = int(sys.argv[index + 1])',
+#		'-e' : 'chapter_end = int(sys.argv[index + 1])',
 		'-f' : 'download_path = "CURRENT_DIRECTORY"',
 		'-n' : 'manga = sys.argv[index + 1]',
-		'-s' : 'chapter_start = int(sys.argv[index + 1])',
+#		'-s' : 'chapter_start = int(sys.argv[index + 1])',
 		'-o' : 'overwrite_FLAG = True',
-		'-z' : 'download_format = ".zip"'	}
+		'-z' : 'download_format = ".zip"'	
+									}
 		
 for index in range(1, len(sys.argv)):
 
@@ -343,7 +257,7 @@ print('Selecting optimal site for download...')
 #info = pickSite(manga)
 
 
-site, total_chapters, manga, misc = pickSite(manga)
+site, manga, misc, chapters, chapters_to_download = pickSite(manga)
 #site = info[0]
 #total_chapters = info[1]
 #manga = info[2]
@@ -361,26 +275,24 @@ if download_path.endswith('/') == False and download_path.find('\\') == -1:
 if download_path.endswith('\\') == False and download_path.find('/') == -1:
 	download_path += '\\'
 
-print('Site found!\nUsing: ' + site)
+#print('Site found!\nUsing: ' + site)
 
-if all_chapters_FLAG == True or (chapter_start == 0 and chapter_end == 0):
-	chapter_start = 1
-	chapter_end = total_chapters
+#if all_chapters_FLAG == True or (chapter_start == 0 and chapter_end == 0):
+#	chapter_start = 1
+#	chapter_end = total_chapters
 
-if chapter_start == 0 and chapter_end != 0:
-	chapter_start = 1
+#if chapter_start == 0 and chapter_end != 0:
+#	chapter_start = 1
 	
-if chapter_start != 0 and chapter_end == 0:
-	chapter_end = total_chapters
+#if chapter_start != 0 and chapter_end == 0:
+#	chapter_end = total_chapters
 
 
-checkValidity(chapter_start, chapter_end, total_chapters)
+#checkValidity(chapter_start, chapter_end, total_chapters)
 
 cleanTmp()
 
 #useAnimea(manga, chapter_start, chapter_end, download_path, download_format, misc)
 #useMangaReader(manga, chapter_start, chapter_end, download_path, download_format, misc)
-#useMangaVolume(manga, chapter_start, chapter_end, download_path, download_format, misc)
-#useCloudManga(manga, chapter_start, chapter_end, download_path, download_format, misc)
 #useOtakuWorks(manga, chapter_start, chapter_end, download_path, download_format, misc)
-exec( 'use' + site + '(manga, chapter_start, chapter_end, download_path, download_format, misc)')
+exec( 'use' + site + '(manga, chapters, chapters_to_download, download_path, download_format, misc)')

@@ -1,20 +1,17 @@
 h1. Manga Downloader
 
 Manga Downloader is a Windows/Linux python script that does what it says.  
-Currently supports mangavolume.com, cloudmanga.com, and otakuworks.com, with a total of over 3500 mangas.
+Currently supports otakuworks.com, with a total of over 3500 mangas.
 Downloads into .cbz format, can optionally download into .zip instead.
 Untested on Mac OS.
 
 h2. Usage
 
 @-a@
-Downloads all chapters that have been released.  Takes precedence over @-e / -s@ if used together.
+Downloads all chapters that have been released.
 
 @-d {download path}@
 Must be enclosed in double quotes.  Default behavior is to use current working directory.  
-
-@-e {ending chapter}@
-Should be used in conjunction with @-s@, will default to latest chapter if @-e@ is omitted but @-s@ is specified.
 
 @-f@
 Downloads chapters to a new directory in the current directory with the manga's name.
@@ -25,40 +22,44 @@ Must be enclosed in double quotes.
 @-o@
 Overwrites downloaded chapters if it already exists.  Default behavior is to skip over it.
 
-@-s {starting chapter}@
-Should be used in conjunction with @-e@, will default to chapter 1 if @-s@ is omitted but @-e@ is specified.
-
 @-z@
 Downloads into .zip format instead of .cbz
 
-h3. Notes
+The script will output a list of all chapters of the series it has found on OtakuWorks.  When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  See Notes for an example of an acceptable input.
 
-If neither @-a@ or the combination of @-e / -s@ is used, the downloader will default to @-a@ behavior.
+h3. Notes
 
 Usage examples:
 
-@manga.py -n "Air Gear" -d "C:\Documents and Settings\admin\Documents\Manga\" -z@
-On a Windows machine, downloads 'Air Gear' to C:\Documents and Settings\admin\Documents\Manga\ from chapter 1 to latest, using .zip compression
+@manga.py -n "Bleach" -d "C:\Documents and Settings\admin\Documents\Manga\" -z@
+On a Windows machine, downloads 'Bleach' to C:\Documents and Settings\admin\Documents\Manga\, using .zip compression
 
-@./manga.py -n "Air Gear" -s 20 -d "~/Manga/" -o@
-On a Linux/Unix machine, downloads 'Air Gear' to ~/Manga from chapter 20 to latest, using .cbz compression and overwriting previously downloaded chapters
+@./manga.py -n "Air Gear" -f -o@
+On a Linux/Unix machine, downloads 'Bleach' to ./Bleach, using .cbz compression and overwriting previously downloaded chapters
+
+@1,2,9-12@
+Downloads chapters 1, 2, and 9 through 12
 
 h2. Bugs
 
-* Program crash if user specifies chapter 0 as starting chapter and it doesn't exist.
-* Program crash if there's a decimal chapter.
-* Program crash if site is missing chapters in between.
+* Typing in characters in between the "Selecting Optimal Site..." and "Download which chapters?" messages may cause a program crash.
 
 h2. Issues
 
-* (Animea, MangaReader) forces inefficient downloading of source code on every page due to unpredictable image filenames, forcing an overhead of about (100, 300) kB/page.
-* Otakuworks, and to a rarer extent CloudManga and MangaVolume, sometimes has non-sequential chapter numbering (e.g. Vol 08 for chapters XXX-YYY).  Workaround will probably require user input or specified option.
-* Cloudmanga downloader will download wrong manga (because of autocorrection) if given a more obscure manga - should be easy to fix, but the site search itself is down.
 * Code is extremely disorganized.
+* Code hasn't been tested on Windows in a while.
 
 h2. History
+*v0.3.0* (09/29/10)
++ redid manga search mechanism on OtakuWorks
++ redid manga chapter selection on OtakuWorks
++ improved bandwidth consumption on OtakuWorks by at least 2x
++ overhauled a lot of code
+- retired cloudmanga.com as a source permanently
+- retired mangavolume.com as a source permanently
 
-*v0.2.5* (08/05/10)
+
+*v0.2.5* (08/12/10)
 + added otakuworks.com as primary download engine - boasts over 3500 mangas!
 + changed compression so that .png automatically converts to .jpg
 + improved image searches
@@ -112,8 +113,10 @@ h2. History
 
 h2. Upcoming Features in the Next Release
 
+Add mangareader.net support.
 Clean up code.
 
 h2. Future Features
 
+Add manga.animea.net support.
 Add Mac support if it doesn't already work.
