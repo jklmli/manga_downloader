@@ -9,6 +9,7 @@ import os
 import sys
 import shutil
 import imghdr
+import string
 
 ##########
 
@@ -43,6 +44,11 @@ def downloadImage(img_url, download_location):
 		else:
 			break
 	return ret
+	
+def fixFormatting(s):
+	for i in string.punctuation:
+		s = s.replace(i, "")
+	return s.lower().replace(' ', '_')
 
 def getSourceCode(url):
 	while True:
@@ -83,9 +89,10 @@ def pickSite(manga):
 		
 	else:
 		url = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').search(source_code).group(1)
+#		print(url)
 #		url = re.sub('series', 'track', url)
 		source_code = getSourceCode(url)
-		chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*Chapter[^<]*)</a>' % matchedManga.lower()).findall(source_code)
+		chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*Chapter[^<]*)</a>' % '-'.join(matchedManga.lower().split())).findall(source_code)
 #		print(chapters)
 		chapters.reverse()
 		for i in range(0, len(chapters)):
@@ -94,9 +101,9 @@ def pickSite(manga):
 		chapter_list_array_decrypted = []
 		chapter_list_string = ''
 		if(all_chapters_FLAG == False):
-			chapter_list_string = raw_input('Download which chapters?\n')
+			chapter_list_string = raw_input('\nDownload which chapters?\n')
 		if(all_chapters_FLAG == True or chapter_list_string.lower() == 'all'):
-			print('Downloading all chapters...')
+			print('\nDownloading all chapters...')
 			for i in range(0, len(chapters)):
 				chapter_list_array_decrypted.append(i)
 		else:
@@ -203,7 +210,7 @@ def useMangaReader(manga, chapter_start, chapter_end, download_path, download_fo
 def useOtakuWorks(manga, chapters, chapters_to_download, download_path, download_format, misc):
 	source_code = getSourceCode(misc)
 	for current_chapter in chapters_to_download:
-		manga_chapter_prefix = manga.lower().replace('-', '_') + '_' + chapters[current_chapter][1]
+		manga_chapter_prefix = fixFormatting(manga) + '_' + fixFormatting(chapters[current_chapter][1])
 		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and overwrite_FLAG == False:
 			print(chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
 			continue;
@@ -267,7 +274,7 @@ site, manga, misc, chapters, chapters_to_download = pickSite(manga)
 #misc = info[3]
 
 if download_path == 'CURRENT_DIRECTORY':
-	download_path = './' + manga.lower().replace('-', '_')
+	download_path = './' + fixFormatting(manga)
 	if not(os.path.exists(download_path)):
 		os.mkdir(download_path)
 		
