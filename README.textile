@@ -56,7 +56,7 @@ h2. Issues
 
 h2. History
 
-*v0.3.2* (09/29/10)
+*v0.3.3* (09/29/10)
 + added mangareader.net as a source
 + fixed critical bug that occurs when trying to download an image the server no longer has
 - removed 'best site' rankings, user now selects site
