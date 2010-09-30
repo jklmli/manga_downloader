@@ -43,8 +43,6 @@ Downloads chapters 1, 2, and 9 through 12
 @all@
 Downloads all chapters
 
-MangaReader has more overhead bandwidth than OtakuWorks due to having to download the source_code every page; however, the OtakuWorks are slower, so the difference between the two is hardly noticeable.
-
 h2. Bugs
 
 * Input between the two prompts "Which site?" and "Download which chapters?" when the user is not supposed to may cause program crash.
@@ -55,6 +53,10 @@ h2. Issues
 * Code hasn't been tested on Windows in a while.
 
 h2. History
+
+*v0.3.4* (09/30/10)
++ fixed critical bug that occurs when a series only occurs on otakuworks as a manga
++ fixed critical bug when MangaReader tries to block fast requests for images.
 
 *v0.3.3* (09/29/10)
 + added mangareader.net as a source
