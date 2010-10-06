@@ -12,14 +12,6 @@ import imghdr
 import string
 
 ##########
-
-def checkValidity(chapter_start, chapter_end, total_chapters):
-	if total_chapters == 0:
-		print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
-		sys.exit()
-	if (chapter_end > total_chapters) or (chapter_start < 0) or (chapter_end < chapter_start):
-		print('Incorrect chapter start/end - most recent chapter is ' + str(total_chapters))
-		sys.exit()
 	
 def cleanTmp():
 	if os.path.exists('mangadl_tmp'):
@@ -65,17 +57,8 @@ def getSourceCode(url):
 
 ##########
 
-def pickSite(manga):
-#	keywords = []
-#	websites = ['OtakuWorks', 'MangaReader']
-#	chapter_list_array_decrypted = []
-#	chapters = []
-#	siteNumber = -1
-	return
-
-def checkOtakuWorks(manga):
+def parseOtakuWorks(manga):
 	#OtakuWorks check
-#	siteNumber += 1
 	print('Beginning OtakuWorks check...')
 	url = 'http://www.otakuworks.com/search/%s' % '+'.join(manga.split())
 	source_code = getSourceCode(url)	
@@ -90,9 +73,6 @@ def checkOtakuWorks(manga):
 #		print(siteHome)
 #		print('done finding keyword')
 	except AttributeError:
-#		total_chapters.append(0)
-#		keywords.append('')
-#		misc.append('')
 		print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
 		sys.exit()
 		
@@ -136,13 +116,12 @@ def checkOtakuWorks(manga):
 			
 		keywords = matchedManga
 		return ('OtakuWorks', keywords, chapters, chapter_list_array_decrypted)
-#		print(re.compile('Chapter #%i</title><link>([^<]*?)</link>' % max_chapters).search(source_code).group(1))
 #	print('Finished OtakuWorks check.')
 	
+##########
 
-def checkMangaReader(manga):
+def parseMangaReader(manga):
 	#MangaReader check
-#	siteNumber += 1
 	print('Beginning MangaReader check...')
 	url = 'http://www.mangareader.net/index.php?q=search&w=%s' % '+'.join(manga.split())
 #	print(url)
@@ -156,8 +135,6 @@ def checkMangaReader(manga):
 				print('Please retype your query.\n')
 				sys.exit()
 	except AttributeError:
-#		total_chapters.append(0)
-#		keywords.append('')
 		print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
 		sys.exit()
 	else:
@@ -193,6 +170,9 @@ def checkMangaReader(manga):
 			
 		keywords = matchedManga
 		return ('MangaReader', keywords, chapters, chapter_list_array_decrypted)
+		
+##########
+
 	#Animea check
 #	url = 'http://www.google.com/search?q=site:manga.animea.net+' + '+'.join(manga.split())
 #	source_code = urllib.urlopen(url).read()
@@ -219,7 +199,7 @@ def checkMangaReader(manga):
 	
 ##########
 
-def useAnimea(manga, chapter_start, chapter_end, download_path, download_format):
+def downloadAnimea(manga, chapter_start, chapter_end, download_path, download_format):
 	for current_chapter in range(chapter_start, chapter_end + 1):
 		manga_chapter_prefix = manga.lower().replace('-', '_') + '_' + str(current_chapter).zfill(3)
 		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and overwrite_FLAG == False:
@@ -241,7 +221,7 @@ def useAnimea(manga, chapter_start, chapter_end, download_path, download_format)
 		
 ##########
 
-def useMangaReader(manga, chapters, chapters_to_download, download_path, download_format):
+def downloadMangaReader(manga, chapters, chapters_to_download, download_path, download_format):
 	
 	for current_chapter in chapters_to_download:
 		manga_chapter_prefix = fixFormatting(manga) + '_' + fixFormatting(chapters[current_chapter][1])
@@ -276,7 +256,7 @@ def useMangaReader(manga, chapters, chapters_to_download, download_path, downloa
 		
 ##########
 
-def useOtakuWorks(manga, chapters, chapters_to_download, download_path, download_format):
+def downloadOtakuWorks(manga, chapters, chapters_to_download, download_path, download_format):
 	for current_chapter in chapters_to_download:
 		manga_chapter_prefix = fixFormatting(manga) + '_' + fixFormatting(chapters[current_chapter][1])
 		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and overwrite_FLAG == False:
@@ -342,10 +322,10 @@ if download_path == 'CURRENT_DIRECTORY':
 print('\nWhich site?\n(1) OtakuWorks\n(2) MangaReader\n')
 site = input()
 if site == 1:
-	site, manga, chapters, chapters_to_download = checkOtakuWorks(manga)
+	site, manga, chapters, chapters_to_download = parseOtakuWorks(manga)
 else:
 	if site == 2:
-		site, manga, chapters, chapters_to_download = checkMangaReader(manga)
+		site, manga, chapters, chapters_to_download = parseMangaReader(manga)
 	else:
 		print('Invalid selection.  Now exiting...')
 		sys.exit()
@@ -358,28 +338,9 @@ if download_path.endswith('\\') == False and download_path.find('/') == -1:
 
 cleanTmp()
 
-#site, manga, chapters, chapters_to_download = pickSite(manga)
-
-
-
-#print('Site found!\nUsing: ' + site)
-
-#if all_chapters_FLAG == True or (chapter_start == 0 and chapter_end == 0):
-#	chapter_start = 1
-#	chapter_end = total_chapters
-
-#if chapter_start == 0 and chapter_end != 0:
-#	chapter_start = 1
-	
-#if chapter_start != 0 and chapter_end == 0:
-#	chapter_end = total_chapters
-
-
-#checkValidity(chapter_start, chapter_end, total_chapters)
-
 
 
 #useAnimea(manga, chapter_start, chapter_end, download_path, download_format, misc)
 #useMangaReader(manga, chapter_start, chapter_end, download_path, download_format, misc)
 #useOtakuWorks(manga, chapter_start, chapter_end, download_path, download_format, misc)
-exec( 'use' + site + '(manga, chapters, chapters_to_download, download_path, download_format)')
+exec( 'download' + site + '(manga, chapters, chapters_to_download, download_path, download_format)')
