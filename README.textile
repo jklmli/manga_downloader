@@ -1,7 +1,7 @@
 h1. Manga Downloader
 
 Manga Downloader is a Windows/Linux python script that does what it says.  
-Currently supports mangafox.com and mangareader.net, with a total of over 3500 mangas.
+Currently supports mangafox.com, mangareader.net, and otakuworks.com, with a total of over 5000 mangas.
 Downloads into .cbz format, can optionally download into .zip instead.
 Untested on Mac OS.
 
@@ -46,16 +46,21 @@ Downloads all chapters
 h2. Bugs
 
 * Input between the two prompts "Which site?" and "Download which chapters?" when the user is not supposed to may cause program crash.
+* MangaFox hangs forever if trying to download a removed series.
 
 h2. Issues
 
-* OtakuWorks won't work for a while, a new parser for the website would be too slow to be worth using since the server itself is slow.
 * Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
 * Chapter numbering on MangaReader doesn't pad, i.e. 1, 2, 3 as opposed to 001, 002, 003.  If this is consistent, patch will be coming in next release.
-* Code is extremely disorganized.
 * Code hasn't been tested on Windows in a while.
 
 h2. History
+
+*v0.4.0* (10/13/10)
++ fixed bug with decimal chapters not being downloaded or ordered improperly
++ fixed bug in MangaFox chapter parsing with missing titles
++ restored OtakuWorks functionality
++ implemented more code reuse for easier adding of future sites
 
 *v0.3.7* (10/05/10)
 + added mangafox.com as primary download engine (extremely fast servers)
@@ -136,8 +141,8 @@ h2. History
 
 h2. Upcoming Features in the Next Release
 
+Standardize chapter downloads - allow chapter skipping if chapter already downloaded from another source.
 Clean up list of chapters from site - organize into columns...?
-Clean up code. (Extract repetitive code and put into single method)
 
 h2. Future Features
 
