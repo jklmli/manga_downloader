@@ -109,7 +109,7 @@ def parseMangaFox(manga):
 		source_code = getSourceCode(url)
 		info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
 	except AttributeError:
-		print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
+		print('Manga not found: it doesn\'t exist, or cannot be resolved by autocorrect.')
 		sys.exit()
 	else:
 		found = False
@@ -121,6 +121,12 @@ def parseMangaFox(manga):
 				found = True
 		if found == False:	
 			print('No strict match found; please retype your query.\n')
+			sys.exit()
+			
+		url = 'http://www.mangafox.com/manga/%s/' % keyword
+		source_code = getSourceCode(url)
+		if(source_code.find('it is not available in Manga Fox.') != -1):
+			print('Manga not found: it has been removed')
 			sys.exit()
 		
 		url = 'http://www.mangafox.com/cache/manga/%s/chapters.js' % keyword

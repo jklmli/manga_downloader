@@ -46,7 +46,6 @@ Downloads all chapters
 h2. Bugs
 
 * Input between the two prompts "Which site?" and "Download which chapters?" when the user is not supposed to may cause program crash.
-* MangaFox hangs forever if trying to download a removed series.
 
 h2. Issues
 
@@ -56,7 +55,10 @@ h2. Issues
 
 h2. History
 
-*v0.4.0* (10/13/10)
+*v0.4.1* (10/17/10)
++ fixed bug with removed series crash in MangaFox
+
+*v0.4.0* (10/17/10)
 + fixed bug with decimal chapters not being downloaded or ordered improperly
 + fixed bug in MangaFox chapter parsing with missing titles
 + restored OtakuWorks functionality
