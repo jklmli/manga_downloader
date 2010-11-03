@@ -3,7 +3,7 @@ h1. Manga Downloader
 Manga Downloader is a Windows/Linux python script that does what it says.  
 Currently supports mangafox.com, mangareader.net, and otakuworks.com, with a total of over 5000 mangas.
 Downloads into .cbz format, can optionally download into .zip instead.
-Untested on Mac OS.
+Tested on Mac OS.
 
 h2. Usage
 
@@ -25,6 +25,9 @@ Overwrites downloaded chapters if it already exists.  Default behavior is to ski
 @-z@
 Downloads into .zip format instead of .cbz
 
+@-x {xmlFile}@
+Parses XML File for the following infomration: Manga Name, Host Site, Last Chapter Downloaded, and Directory Path
+	
 The script will output a list of all chapters of the series it has found on OtakuWorks.  When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','. You can also type 'all' if you did not specify -a before.  See Notes for an example of an acceptable input.
 
 h3. Notes
@@ -42,6 +45,15 @@ Downloads chapters 1, 2, and 9 through 12
 
 @all@
 Downloads all chapters
+
+XML Node Example: 
+
+	<MangaSeries>
+		<name>Fate/Stay Night</name>
+		<HostSite>MangaFox</HostSite>
+		<LastChapterDownloaded>Vol.08 Ch.034</LastChapterDownloaded>
+		<downloadPath>/Volumes/MW-DRIVE/Michael/Video/anime/Manga/FateStay Night/</downloadPath>
+	</MangaSeries>
 
 h2. Bugs
 
@@ -149,4 +161,3 @@ Clean up list of chapters from site - organize into columns...?
 h2. Future Features
 
 Add manga.animea.net support.
-Add Mac support if it doesn't already work.
