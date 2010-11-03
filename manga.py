@@ -10,22 +10,33 @@ import sys
 import shutil
 import imghdr
 import string
+from xml.dom import minidom
 
 ##########
+
+class NoUpdates(Exception):
+	pass
 	
+class MangaNotFound(Exception):
+	pass
+
+##########
+
 def cleanTmp():
-	if os.path.exists('mangadl_tmp'):
-		shutil.rmtree('mangadl_tmp')
-	os.mkdir('mangadl_tmp')
+	if os.path.exists(mangdl_tmp_path):
+		shutil.rmtree(mangdl_tmp_path)
+	os.mkdir(mangdl_tmp_path)
 
 def compress(manga_chapter_prefix, download_path, max_pages, download_format):
 	print('Compressing...')
-	z = zipfile.ZipFile( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), 'a')
+	z = zipfile.ZipFile( os.path.join(mangdl_tmp_path, manga_chapter_prefix + download_format), 'a')
 	for page in range(1, max_pages + 1):
-		if imghdr.what(os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3))) != None:
-			z.write( os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)), manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3))))
+		temp_path = mangdl_tmp_path + "/" + manga_chapter_prefix + '_' + str(page).zfill(3)
+		
+		if imghdr.what(temp_path) != None:
+			z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
 	z.close()
-	shutil.move( os.path.join('mangadl_tmp', manga_chapter_prefix + download_format), download_path)
+	shutil.move( os.path.join(mangdl_tmp_path, manga_chapter_prefix + download_format), download_path)
 	cleanTmp()
 	
 def downloadImages(page, pageUrl, manga_chapter_prefix, stringQuery):
@@ -41,7 +52,7 @@ def downloadImages(page, pageUrl, manga_chapter_prefix, stringQuery):
 	print(img_url)
 	while True:
 		try:
-			urllib.urlretrieve(img_url, 'mangadl_tmp/' + manga_chapter_prefix + '_' + str(page).zfill(3))
+			urllib.urlretrieve(img_url, mangdl_tmp_path+ "//" + manga_chapter_prefix + '_' + str(page).zfill(3))
 		except IOError:
 			pass
 		else:
@@ -101,8 +112,8 @@ def selectChapters(chapters):
 	return chapter_list_array_decrypted
 
 ##########
-
-def parseMangaFox(manga):
+def parseMangaFox(manga, auto, lastDownloaded):
+	chapter_list_array_decrypted = []
 	print('Beginning MangaFox check...')
 	url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(manga.split())
 	try:
@@ -110,103 +121,207 @@ def parseMangaFox(manga):
 		info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
 	except AttributeError:
 		print('Manga not found: it doesn\'t exist, or cannot be resolved by autocorrect.')
-		sys.exit()
+		raise MangaNotFound
 	else:
 		found = False
 		for notes in info:
-#			print(notes[1])
+			if (not auto):
+				print(notes[1])
+				
 			if notes[1].lower() == manga.lower():
 				matchedManga = notes[1]
 				keyword = notes[0]
 				found = True
 		if found == False:	
 			print('No strict match found; please retype your query.\n')
-			sys.exit()
+			raise MangaNotFound
 			
 		url = 'http://www.mangafox.com/manga/%s/' % keyword
 		source_code = getSourceCode(url)
 		if(source_code.find('it is not available in Manga Fox.') != -1):
 			print('Manga not found: it has been removed')
-			sys.exit()
+			raise MangaNotFound
 		
 		url = 'http://www.mangafox.com/cache/manga/%s/chapters.js' % keyword
 		source_code = getSourceCode(url)
 		
 		chapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"').findall(source_code)
 
+		lowerRange = 0
+		upperRange = 0
+		
 		for i in range(0, len(chapters)):
 			chapters[i] = ('http://www.mangafox.com/manga/%s/' % keyword + chapters[i][1], chapters[i][0])
-			print('(%i) %s' % (i + 1, chapters[i][1]))
+			if (not auto):
+				print('(%i) %s' % (i + 1, chapters[i][1]))
+			
+			if (lastDownloaded == chapters[i][1]):
+				lowerRange = i + 1
+				
+		upperRange = i + 1
 		
-		chapter_list_array_decrypted = selectChapters(chapters)
+		#print str(lowerRange) +" - "+str(upperRange)
+		
+		if (not auto):
+			chapter_list_array_decrypted = selectChapters(chapters)
+		else:
+			if ( lowerRange == upperRange):
+				raise NoUpdates
+				
+			for i in range (lowerRange, upperRange):
+				chapter_list_array_decrypted.append(i)
 			
 		return ('MangaFox', matchedManga, chapters, chapter_list_array_decrypted)
 
 ##########
 
-def parseMangaReader(manga):
+def parseMangaReader(manga, auto, lastDownloaded):
+	
+	chapter_list_array_decrypted = []
 	print('Beginning MangaReader check...')
 	url = 'http://www.mangareader.net/index.php?q=search&w=%s' % '+'.join(manga.split())
 	try:
 		source_code = getSourceCode(url)
 		matchedManga = re.compile('<a href="([^"]*)" class="manga_close">([^<]*)</a>').search(source_code).group(2)
 		if(matchedManga.lower() != manga.lower()):
-			print('Did you mean: %s? (y/n)' % matchedManga)
-			answer = raw_input();
+			if (not auto):
+				print('Did you mean: %s? (y/n)' % matchedManga)
+				answer = raw_input();
+			else:
+				answer = 'n'
+				
 			if (answer != 'y'):
-				print('Please retype your query.\n')
-				sys.exit()
+				if (not auto):
+					print('Please retype your query.\n')
+					sys.exit()
+				else:
+					raise MangaNotFound
+					
 	except AttributeError:
-		print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
-		sys.exit()
+		if (not auto):
+			print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
+			sys.exit()
+		else:
+			raise MangaNotFound
 	else:
 		url = 'http://www.mangareader.net/' + re.compile('<a href="([^"]*)" class="manga_close">([^<]*)</a>').search(source_code).group(1)
 		source_code = getSourceCode(url)
 		
 		chapters = re.compile('<td> <a class="chico" href="([^"]*)">\n\s{8}%s ([^<]*?)\n\s{8}([0-9]*?)</a>' % matchedManga).findall(source_code)
 		
+		lowerRange = 0
+		upperRange = 0
+		
 		for i in range(0, len(chapters)):
 			chapters[i] = ('http://www.mangareader.net/' + chapters[i][0], '%s %s' % (chapters[i][1], chapters[i][2]))
-			print('(%i) %s' % (i + 1, chapters[i][1]))
+			if (not auto):
+				print('(%i) %s' % (i + 1, chapters[i][1]))
 
-		chapter_list_array_decrypted = selectChapters(chapters)
-			
+			if (lastDownloaded == chapters[i][1]):
+				lowerRange = i + 1
+				
+		upperRange = i + 1
+						
+		if (not auto):
+			chapter_list_array_decrypted = selectChapters(chapters)
+		else:
+			if ( lowerRange == upperRange):
+				raise NoUpdates
+				
+			for i in range (lowerRange, upperRange):
+				chapter_list_array_decrypted.append(i)
+				
 		return ('MangaReader', matchedManga, chapters, chapter_list_array_decrypted)
 
 ##########
 
-def parseOtakuWorks(manga):
+def parseOtakuWorks(manga, auto, lastDownloaded):
+	i = 0
+	chapter_list_array_decrypted = []
+	
 	print('Beginning OtakuWorks check...')
 	url = 'http://www.otakuworks.com/search/%s' % '+'.join(manga.split())
+	
 	try:
 		source_code = getSourceCode(url)
-		matchedManga = re.compile('>([^>]*?) \(Manga\)').search(source_code).group(1)
-		if(matchedManga.lower() != manga.lower()):
-			print('Did you mean: %s? (y/n)' % matchedManga)
-			answer = raw_input();
-			if (answer != 'y'):
+		info = re.compile('>([^>]*?) \(Manga\)').findall(source_code)
+		
+		found = False
+		
+		for notes in info:
+			i = i + 1
+			if (not auto):
+				print(notes)
+				
+			if notes.lower() == manga.lower():
+				matchedManga = notes
+				found = True
+				break
+			else:
+				if (not auto):
+					print('Did you mean: %s? (y/n)' % notes)
+					answer = raw_input();
+				else:
+					answer = 'n'
+				
+				if (answer == 'y'):
+					matchedManga = notes
+					found = True
+					break
+					
+		if (not found):
+			if (not auto):
 				print('Please retype your query.\n')
 				sys.exit()
+			else:
+				raise MangaNotFound
+					
 	except AttributeError:
-		print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
-		sys.exit()
+		if (not auto):
+			print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
+			sys.exit()
+		else:
+			raise MangaNotFound
 		
 	else:
 		try:
-			url = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').search(source_code).group(1)
+			FoundURLs = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').findall(source_code)
+			j = 0
+			for url in FoundURLs:
+				j = j+ 1
+				if (j >= i):
+					break
+				
 			source_code = getSourceCode(url)
+			
 		except AttributeError:
 			pass
 			
 		chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(matchedManga.lower().split())).findall(source_code)
 		chapters.reverse()
+
+		lowerRange = 0
+		upperRange = 0
 		
 		for i in range(0, len(chapters)):
 			chapters[i] = ('http://www.otakuworks.com' + chapters[i][0] + '/read', chapters[i][1])
-			print('(%i) %s' % (i + 1, chapters[i][1]))
+			if (not auto):
+				print('(%i) %s' % (i + 1, chapters[i][1]))
+				
+			if (lastDownloaded == chapters[i][1]):
+				lowerRange = i + 1
+				
+		upperRange = i + 1	
 		
-		chapter_list_array_decrypted = selectChapters(chapters)
-			
+		if (not auto):
+			chapter_list_array_decrypted = selectChapters(chapters)
+		else:
+			if ( lowerRange == upperRange):
+				raise NoUpdates
+				
+			for i in range (lowerRange, upperRange):
+				chapter_list_array_decrypted.append(i)
+				
 		return ('OtakuWorks', matchedManga, chapters, chapter_list_array_decrypted)
 	
 ##########
@@ -260,9 +375,7 @@ def downloadAnimea(manga, chapter_start, chapter_end, download_path, download_fo
 ##########
 
 def downloadMangaFox(manga, chapters, chapters_to_download, download_path, download_format):
-	
 	for current_chapter in chapters_to_download:
-	
 		manga_chapter_prefix, url, max_pages = prepareDownload(manga, chapters, current_chapter, download_path, 'var total_pages=([^;]*?);')
 		if url == None:
 			continue
@@ -309,10 +422,72 @@ def downloadOtakuWorks(manga, chapters, chapters_to_download, download_path, dow
 		
 ##########
 
+def getText(nodelist):
+    rc = []
+    for node in nodelist:
+        if node.nodeType == node.TEXT_NODE:
+            rc.append(node.data)
+    return ''.join(rc)
+
+############
+
+def setText(nodelist, text):
+    for node in nodelist:
+        if node.nodeType == node.TEXT_NODE:
+            node.data = text
+
+##########
+
+def ParseXMLFile(xmlFile):
+	
+	dom = minidom.parse(xmlFile)
+	for node in dom.getElementsByTagName("MangaSeries"):
+		iLastChap = 0;
+		name = getText(node.getElementsByTagName('name')[0].childNodes)
+		site = 	getText(node.getElementsByTagName('HostSite')[0].childNodes)
+		lastChapterDownloaded =	getText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes)
+		download_path =	getText(node.getElementsByTagName('downloadPath')[0].childNodes)
+		
+		execString = "site, manga, chapters, chapters_to_download = parse"+site+"(\""+name+"\", True, \""+lastChapterDownloaded+"\")"
+		
+		#print execString
+		
+		try:
+			exec(execString)
+		except MangaNotFound:
+			print ("Manga ("+name+") Missing. Check if still available")
+			continue
+			
+		except  NoUpdates:
+			print ("Manga ("+name+") up-to-date.\n")
+			continue
+		
+		
+		for current_chapter in chapters:
+			#print "Current Chapter =" + str(current_chapter[0])
+			iLastChap = current_chapter[1]
+		
+		try:
+			execString = 'download' + site + '(manga, chapters, chapters_to_download, download_path, download_format)'
+		
+			exec(execString)
+		except:
+			print "Error"
+			continue
+			
+		#print iLastChap
+		setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
+
+	f = open(xmlFile, 'w')
+	f.write(dom.toxml())
+	
+##########
 download_path = './'
 download_format = '.cbz'
 all_chapters_FLAG = False
 overwrite_FLAG = False
+xmlfile_path = ''
+mangdl_tmp_path = '.' 
 
 class AppURLopener(urllib.FancyURLopener):
 	version = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
@@ -325,7 +500,8 @@ options = {
 		'-f' : 'download_path = "CURRENT_DIRECTORY"',
 		'-n' : 'manga = sys.argv[index + 1]',
 		'-o' : 'overwrite_FLAG = True',
-		'-z' : 'download_format = ".zip"'	
+		'-z' : 'download_format = ".zip"',
+		'-x' : 'xmlfile_path = sys.argv[index + 1]'
 									}
 		
 for index in range(1, len(sys.argv)):
@@ -334,37 +510,44 @@ for index in range(1, len(sys.argv)):
 	except KeyError:
 		pass
 
-print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
-site = raw_input()
-if (site == ''):
-	site = 1
-site = (int)(site)
-if site == 1:
-	site, manga, chapters, chapters_to_download = parseMangaFox(manga)
-else:
-	if site == 2:
-		site, manga, chapters, chapters_to_download = parseOtakuWorks(manga)
-	else:
-		if site == 3:
-			site, manga, chapters, chapters_to_download = parseMangaReader(manga)
-		else:
-			print('Invalid selection.  Now exiting...')
-			sys.exit()
-
-if download_path == 'CURRENT_DIRECTORY':
-	download_path = './' + fixFormatting(manga)
-	if not(os.path.exists(download_path)):
-		os.mkdir(download_path)
-					
-if download_path.endswith('/') == False and download_path.find('\\') == -1:
-	download_path += '/'
-
-if download_path.endswith('\\') == False and download_path.find('/') == -1:
-	download_path += '\\'
-
+mangdl_tmp_path = sys.path[0]+"/mangadl_tmp"
 cleanTmp()
+
+if xmlfile_path != "":
+	print("parsing XML File")
+	ParseXMLFile(xmlfile_path)
+else:
+	print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
+	site = raw_input()
+	if (site == ''):
+		site = 1
+	site = (int)(site)
+	if site == 1:
+		site, manga, chapters, chapters_to_download = parseMangaFox(manga, False, 1)
+	else:
+		if site == 2:
+			site, manga, chapters, chapters_to_download = parseOtakuWorks(manga, False, 1)
+		else:
+			if site == 3:
+				site, manga, chapters, chapters_to_download = parseMangaReader(manga, False, 1)
+			else:
+				print('Invalid selection.  Now exiting...')
+				sys.exit()
+
+	if download_path == 'CURRENT_DIRECTORY':
+		download_path = './' + fixFormatting(manga)
+		if not(os.path.exists(download_path)):
+			os.mkdir(download_path)
+					
+	if download_path.endswith('/') == False and download_path.find('\\') == -1:
+		download_path += '/'
+
+	if download_path.endswith('\\') == False and download_path.find('/') == -1:
+		download_path += '\\'
+
+	cleanTmp()
 
 #useAnimea(manga, chapter_start, chapter_end, download_path, download_format, misc)
 #useMangaReader(manga, chapter_start, chapter_end, download_path, download_format, misc)
 #useOtakuWorks(manga, chapter_start, chapter_end, download_path, download_format, misc)
-exec( 'download' + site + '(manga, chapters, chapters_to_download, download_path, download_format)')
+	exec( 'download' + site + '(manga, chapters, chapters_to_download, download_path, download_format)')
