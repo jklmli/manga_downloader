@@ -46,15 +46,6 @@ Downloads chapters 1, 2, and 9 through 12
 @all@
 Downloads all chapters
 
-XML Node Example: 
-
-	<MangaSeries>
-		<name>Fate/Stay Night</name>
-		<HostSite>MangaFox</HostSite>
-		<LastChapterDownloaded>Vol.08 Ch.034</LastChapterDownloaded>
-		<downloadPath>/Volumes/MW-DRIVE/Michael/Video/anime/Manga/FateStay Night/</downloadPath>
-	</MangaSeries>
-
 h2. Bugs
 
 * Input between the two prompts "Which site?" and "Download which chapters?" when the user is not supposed to may cause program crash.
