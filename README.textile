@@ -47,7 +47,7 @@ Downloads chapters 1, 2, and 9 through 12
 Downloads all chapters
 
 @./manga.py -x example.xml@
-Parses example.xml and downloads new chapter for the listed mangas.
+Parses example.xml and downloads all chapters newer than the last chapter downloaded for the listed mangas.
  
 h2. Bugs
 
