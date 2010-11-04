@@ -47,7 +47,8 @@ Downloads chapters 1, 2, and 9 through 12
 Downloads all chapters
 
 @./manga.py -x example.xml@
-
+Parses example.xml and downloads new chapter for the listed mangas.
+ 
 h2. Bugs
 
 * Input between the two prompts "Which site?" and "Download which chapters?" when the user is not supposed to may cause program crash.
