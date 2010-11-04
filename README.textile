@@ -60,13 +60,13 @@ h2. Issues
 * Code hasn't been tested on Windows in a while.
 
 h2. History
+
 *v0.5.1* (11/3/10)
 - Removed absolute paths that were added in v0.5.0. Absolute paths increased complexity especially
   considering the multiple OS platforms. Used OS.chdir to change the working directory to the 
   directory containing the script file. Thus allowing relative paths. 
 + Modified the parse Manga Reader to find all entries returned by the search query
   instead of just the firts one. The other two parse functions already work this way.  
-
   
 *v0.5.0* (11/1/10)
 + Added XML File Feature
