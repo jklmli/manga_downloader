@@ -30,8 +30,8 @@ def cleanTmp():
 def compress(manga_chapter_prefix, download_path, max_pages, download_format):
 	print('Compressing...')
 	z = zipfile.ZipFile( os.path.join(mangdl_tmp_path, manga_chapter_prefix + download_format), 'a')
-	for page in range(1, max_pages + 1):
-		temp_path = mangdl_tmp_path + "/" + manga_chapter_prefix + '_' + str(page).zfill(3)
+	for page in range(1, max_pages + 1):	
+		temp_path = os.path.join(mangdl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
 		
 		if imghdr.what(temp_path) != None:
 			z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
@@ -52,7 +52,8 @@ def downloadImages(page, pageUrl, manga_chapter_prefix, stringQuery):
 	print(img_url)
 	while True:
 		try:
-			urllib.urlretrieve(img_url, mangdl_tmp_path+ "//" + manga_chapter_prefix + '_' + str(page).zfill(3))
+			temp_path = os.path.join(mangdl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
+			urllib.urlretrieve(img_url, temp_path)
 		except IOError:
 			pass
 		else:
@@ -176,26 +177,44 @@ def parseMangaFox(manga, auto, lastDownloaded):
 ##########
 
 def parseMangaReader(manga, auto, lastDownloaded):
-	
+	i = 0
 	chapter_list_array_decrypted = []
 	print('Beginning MangaReader check...')
 	url = 'http://www.mangareader.net/index.php?q=search&w=%s' % '+'.join(manga.split())
 	try:
 		source_code = getSourceCode(url)
-		matchedManga = re.compile('<a href="([^"]*)" class="manga_close">([^<]*)</a>').search(source_code).group(2)
-		if(matchedManga.lower() != manga.lower()):
+		
+		info = re.compile('<a href="([^"]*)" class="manga_close">([^<]*)</a>').findall(source_code)
+		
+		found = False
+		
+		for notes in info:
+			i = i + 1
 			if (not auto):
-				print('Did you mean: %s? (y/n)' % matchedManga)
-				answer = raw_input();
+				print(notes[1])
+			
+			if notes[1].lower() == manga.lower():
+				matchedManga = notes[1]
+				found = True
+				break
 			else:
-				answer = 'n'
-				
-			if (answer != 'y'):
 				if (not auto):
-					print('Please retype your query.\n')
-					sys.exit()
+					print('Did you mean: %s? (y/n)' % notes[1])
+					answer = raw_input();
 				else:
-					raise MangaNotFound
+					answer = 'n'
+				
+				if (answer == 'y'):
+					matchedManga = notes[1]
+					found = True
+					break
+						
+		if (not found):
+			if (not auto):
+				print('Please retype your query.\n')
+				sys.exit()
+			else:
+				raise MangaNotFound
 					
 	except AttributeError:
 		if (not auto):
@@ -487,7 +506,7 @@ download_format = '.cbz'
 all_chapters_FLAG = False
 overwrite_FLAG = False
 xmlfile_path = ''
-mangdl_tmp_path = '.' 
+mangdl_tmp_path = "mangadl_tmp" 
 
 class AppURLopener(urllib.FancyURLopener):
 	version = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
@@ -510,7 +529,9 @@ for index in range(1, len(sys.argv)):
 	except KeyError:
 		pass
 
-mangdl_tmp_path = sys.path[0]+"/mangadl_tmp"
+# Changes the working directory to the script location
+if (os.path.dirname(sys.argv[0]) != ""):
+	os.chdir(os.path.dirname(sys.argv[0]))
 cleanTmp()
 
 if xmlfile_path != "":
