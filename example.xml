@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<root>
+	<MangaSeries>
+		<name>Exact Name of Manga Series</name>
+		<HostSite>One of the following casesensitive (MangaFox, OtakuWorks, MangaReader)</HostSite>
+		<LastChapterDownloaded>
+			Chapter Name
+			  The format is site Dependent. If the last chapter does not match any on the site
+			  the script will try to download all available chapters. This field is updated by
+			  the script so that the next time the script runs only the newest chapters are
+			  retrieved. 
+		</LastChapterDownloaded>
+		<downloadPath>Path to save the downloaded chapters</downloadPath>
+	</MangaSeries>
+		
+	<MangaSeries>
+		<name>naruto</name>
+		<HostSite>MangaFox</HostSite>
+		<LastChapterDownloaded>Vol.52 Ch.514</LastChapterDownloaded>
+		<downloadPath>./naruto/</downloadPath>
+	</MangaSeries>
+
+</root>
