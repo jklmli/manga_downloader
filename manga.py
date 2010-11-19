@@ -101,7 +101,7 @@ def selectChapters(chapters):
 		for i in range(0, len(chapters)):
 			chapter_list_array_decrypted.append(i)
 	else:
-		chapter_list_array = chapter_list_string.split(',')
+		chapter_list_array = chapter_list_string.replace(' ', '').split(',')
 	
 		for i in chapter_list_array:
 			iteration = re.search('([0-9]*)-([0-9]*)', i)
@@ -522,6 +522,13 @@ options = {
 		'-z' : 'download_format = ".zip"',
 		'-x' : 'xmlfile_path = sys.argv[index + 1]'
 									}
+									
+siteDict = {
+		''  : 'MangaFox',
+		'1' : 'MangaFox',
+		'2' : 'OtakuWorks',
+		'3' : 'MangaReader'
+					}
 		
 for index in range(1, len(sys.argv)):
 	try:
@@ -540,20 +547,12 @@ if xmlfile_path != "":
 else:
 	print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
 	site = raw_input()
-	if (site == ''):
-		site = 1
-	site = (int)(site)
-	if site == 1:
-		site, manga, chapters, chapters_to_download = parseMangaFox(manga, False, 1)
-	else:
-		if site == 2:
-			site, manga, chapters, chapters_to_download = parseOtakuWorks(manga, False, 1)
-		else:
-			if site == 3:
-				site, manga, chapters, chapters_to_download = parseMangaReader(manga, False, 1)
-			else:
-				print('Invalid selection.  Now exiting...')
-				sys.exit()
+	
+	try:
+		exec('site, manga, chapters, chapters_to_download = parse' + siteDict[site] + '(manga, False, 1)')
+	except KeyError:
+		print('Invalid selection. Now exiting...')
+		sys.exit()
 
 	if download_path == 'CURRENT_DIRECTORY':
 		download_path = './' + fixFormatting(manga)
@@ -568,7 +567,7 @@ else:
 
 	cleanTmp()
 
-#useAnimea(manga, chapter_start, chapter_end, download_path, download_format, misc)
-#useMangaReader(manga, chapter_start, chapter_end, download_path, download_format, misc)
-#useOtakuWorks(manga, chapter_start, chapter_end, download_path, download_format, misc)
+	#useAnimea(manga, chapter_start, chapter_end, download_path, download_format, misc)
+	#useMangaReader(manga, chapter_start, chapter_end, download_path, download_format, misc)
+	#useOtakuWorks(manga, chapter_start, chapter_end, download_path, download_format, misc)
 	exec( 'download' + site + '(manga, chapters, chapters_to_download, download_path, download_format)')
