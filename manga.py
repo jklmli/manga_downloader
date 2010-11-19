@@ -559,11 +559,8 @@ else:
 		if not(os.path.exists(download_path)):
 			os.mkdir(download_path)
 					
-	if download_path.endswith('/') == False and download_path.find('\\') == -1:
-		download_path += '/'
-
-	if download_path.endswith('\\') == False and download_path.find('/') == -1:
-		download_path += '\\'
+	download_path = os.path.realpath(download_path) + os.sep
+	
 
 	cleanTmp()
 
