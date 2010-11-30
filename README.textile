@@ -111,8 +111,8 @@ h2. History
 + fixed image creation bug if not type jpeg or png
 + fixed most known bugs
 - removed site structure search via Google due to unpredictable results
-- retired cloudmanga.com as a source permanently
-- retired mangavolume.com as a source permanently
+- permanently retired cloudmanga.com as a source
+- permanently retired mangavolume.com as a source
 
 *v0.2.5* (08/12/10)
 + added otakuworks.com as primary download engine - boasts over 3500 mangas!
@@ -149,7 +149,7 @@ h2. History
 + tweaked code so it's more object-oriented, support for other sites coming in next release
 + added option (-a) to download all chapters in a series
 + improved code readability
-+ improved README readability
++ improved readme readability
 
 *v0.1.1* (08/02/10)
 + fixed archive not getting moved out of temp directory and erased
