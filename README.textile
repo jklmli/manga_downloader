@@ -27,7 +27,9 @@ Parses XML File for the following infomration: Manga Name, Host Site, Last Chapt
 @-z@
 Downloads into .zip format instead of .cbz
 	
-The script will output a list of all chapters of the series it has found on OtakuWorks.  When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','. You can also type 'all' if you did not specify -a before.  See Notes for an example of an acceptable input.
+The script will output a list of all chapters of the series it has found on the site you selected.  When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','. You can also type 'all' if you did not specify -a before.  
+
+See Notes for an example of an acceptable input.
 
 h3. Notes
 
