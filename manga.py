@@ -63,7 +63,7 @@ def fixFormatting(s):
 	for i in string.punctuation:
 		if(i != '-' and i != '.'):
 			s = s.replace(i, "")
-	return s.lower().replace(' ', '_')
+	return s.lower().lstrip('.').strip().replace(' ', '_')
 
 def getSourceCode(url):
 	while True:
@@ -83,6 +83,7 @@ def prepareDownload(manga, chapters, current_chapter, download_path, queryString
 	while True:
 		try:
 			url = chapters[current_chapter][0]
+			print(url)
 			source_code = getSourceCode(url)
 			max_pages = int(re.compile(queryString).search(source_code).group(1))
 		except AttributeError:
@@ -193,12 +194,11 @@ def parseMangaReader(manga, auto, lastDownloaded):
 	i = 0
 	chapter_list_array_decrypted = []
 	print('Beginning MangaReader check...')
-	url = 'http://www.mangareader.net/index.php?q=search&w=%s' % '+'.join(manga.split())
+	url = 'http://www.mangareader.net/search/?q=%s&radio_group=any' % '+'.join(manga.split())
 	try:
 		source_code = getSourceCode(url)
 		
-		info = re.compile('<a href="([^"]*)" class="manga_close">([^<]*)</a>').findall(source_code)
-		
+		info = re.compile('<a href="([^"]*)"[^>]*><strong>([^<]*)</strong></a>').findall(source_code)
 		found = False
 		
 		for notes in info:
@@ -208,6 +208,7 @@ def parseMangaReader(manga, auto, lastDownloaded):
 			
 			if notes[1].lower() == manga.lower():
 				matchedManga = notes[1]
+				keyword = notes[0]
 				found = True
 				break
 			else:
@@ -219,6 +220,7 @@ def parseMangaReader(manga, auto, lastDownloaded):
 				
 				if (answer == 'y'):
 					matchedManga = notes[1]
+					keyword = notes[0]
 					found = True
 					break
 						
@@ -236,16 +238,17 @@ def parseMangaReader(manga, auto, lastDownloaded):
 		else:
 			raise MangaNotFound
 	else:
-		url = 'http://www.mangareader.net/' + re.compile('<a href="([^"]*)" class="manga_close">([^<]*)</a>').search(source_code).group(1)
+		url = 'http://www.mangareader.net%s' % keyword
 		source_code = getSourceCode(url)
+#		print(url)
 		
-		chapters = re.compile('<td> <a class="chico" href="([^"]*)">\n\s{8}%s ([^<]*?)\n\s{8}([0-9]*?)</a>' % matchedManga).findall(source_code)
+		chapters = re.compile('<tr><td><a href="([^"]*)" class="chico">([^<]*)</a>([^<]*)</td>').findall(source_code)
 		
 		lowerRange = 0
 		upperRange = 0
 		
 		for i in range(0, len(chapters)):
-			chapters[i] = ('http://www.mangareader.net/' + chapters[i][0], '%s %s' % (chapters[i][1], chapters[i][2]))
+			chapters[i] = ('http://www.mangareader.net' + chapters[i][0], '%s%s' % (chapters[i][1], chapters[i][2]))
 			if (not auto):
 				print('(%i) %s' % (i + 1, chapters[i][1]))
 
@@ -419,14 +422,16 @@ def downloadMangaReader(manga, chapters, chapters_to_download, download_path, do
 	
 	for current_chapter in chapters_to_download:
 	
-		manga_chapter_prefix, url, max_pages = prepareDownload(manga, chapters, current_chapter, download_path, 'of\n\s*?(\d*)\s*?<a href="[^"]*" class="button next_page">')
+		manga_chapter_prefix, url, max_pages = prepareDownload(manga, chapters, current_chapter, download_path, '</select> of (\d*)            </div>')
+		
+		manga_chapter_prefix = fixFormatting(chapters[current_chapter][1])
 		if url == None:
 			continue
 			
-		for page in re.compile('<option value="([^"]*?)"[^>]*?>(\d*)</option>').findall(getSourceCode(url)):
+		for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
 			print(chapters[current_chapter][1] + ' / ' + 'Page ' + page[1])
 			pageUrl = 'http://www.mangareader.net' + page[0]
-			downloadImages(page[1], pageUrl, manga_chapter_prefix, 'img  src="([^"]*)"')
+			downloadImages(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
 			
 		compress(manga_chapter_prefix, download_path, (int)(page[1]), download_format)
 		

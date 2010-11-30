@@ -22,11 +22,11 @@ Must be enclosed in double quotes.
 @-o@
 Overwrites downloaded chapters if it already exists.  Default behavior is to skip over it.
 
-@-z@
-Downloads into .zip format instead of .cbz
-
 @-x {xmlFile}@
 Parses XML File for the following infomration: Manga Name, Host Site, Last Chapter Downloaded, and Directory Path
+
+@-z@
+Downloads into .zip format instead of .cbz
 	
 The script will output a list of all chapters of the series it has found on OtakuWorks.  When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','. You can also type 'all' if you did not specify -a before.  See Notes for an example of an acceptable input.
 
@@ -60,6 +60,10 @@ h2. Issues
 * Code hasn't been tested on Windows in a while.
 
 h2. History
+
+*v0.5.4* (11/30/10)
++ Fixed MangaReader (new site format)
++ Removed trailing spaces in saved .cbz + .zip, additional file/folder name compatibility
 
 *v0.5.2* (11/30/10)
 + Minor code cleanup and bugfixes for special characters
