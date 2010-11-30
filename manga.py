@@ -128,11 +128,24 @@ def parseMangaFox(manga, auto, lastDownloaded):
 		for notes in info:
 			if (not auto):
 				print(notes[1])
-				
+			
 			if notes[1].lower() == manga.lower():
 				matchedManga = notes[1]
 				keyword = notes[0]
 				found = True
+				break
+			else:
+				if (not auto):
+					print('Did you mean: %s? (y/n)' % notes[1])
+					answer = raw_input();
+				else:
+					answer = 'n'
+				
+				if (answer == 'y'):
+					matchedManga = notes[1]
+					keyword = notes[0]
+					found = True
+					break
 		if found == False:	
 			print('No strict match found; please retype your query.\n')
 			raise MangaNotFound
@@ -211,7 +224,7 @@ def parseMangaReader(manga, auto, lastDownloaded):
 						
 		if (not found):
 			if (not auto):
-				print('Please retype your query.\n')
+				print('No strict match found; please retype your query.\n')
 				sys.exit()
 			else:
 				raise MangaNotFound
@@ -290,7 +303,7 @@ def parseOtakuWorks(manga, auto, lastDownloaded):
 					
 		if (not found):
 			if (not auto):
-				print('Please retype your query.\n')
+				print('No strict match found; please retype your query.\n')
 				sys.exit()
 			else:
 				raise MangaNotFound
@@ -302,46 +315,40 @@ def parseOtakuWorks(manga, auto, lastDownloaded):
 		else:
 			raise MangaNotFound
 		
-	else:
-		try:
-			FoundURLs = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').findall(source_code)
-			j = 0
-			for url in FoundURLs:
-				j = j+ 1
-				if (j >= i):
-					break
-				
-			source_code = getSourceCode(url)
-			
-		except AttributeError:
-			pass
-			
-		chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(matchedManga.lower().split())).findall(source_code)
-		chapters.reverse()
+#	else:
+	try:
+		FoundURLs = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').findall(source_code)
+		source_code = getSourceCode(FoundURLs[i-1])
+		
+	except AttributeError:
+		pass
+	except IndexError:
+		pass
+	
+	chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(fixFormatting(matchedManga).replace('_', ' ').split())).findall(source_code)
+	chapters.reverse()
 
-		lowerRange = 0
-		upperRange = 0
-		
-		for i in range(0, len(chapters)):
-			chapters[i] = ('http://www.otakuworks.com' + chapters[i][0] + '/read', chapters[i][1])
-			if (not auto):
-				print('(%i) %s' % (i + 1, chapters[i][1]))
-				
-			if (lastDownloaded == chapters[i][1]):
-				lowerRange = i + 1
-				
-		upperRange = i + 1	
-		
+	lowerRange = 0
+	upperRange = 0
+	for i in range(0, len(chapters)):
+		chapters[i] = ('http://www.otakuworks.com' + chapters[i][0] + '/read', chapters[i][1])
 		if (not auto):
-			chapter_list_array_decrypted = selectChapters(chapters)
-		else:
-			if ( lowerRange == upperRange):
-				raise NoUpdates
-				
-			for i in range (lowerRange, upperRange):
-				chapter_list_array_decrypted.append(i)
-				
-		return ('OtakuWorks', matchedManga, chapters, chapter_list_array_decrypted)
+			print('(%i) %s' % (i + 1, chapters[i][1]))
+		if (lastDownloaded == chapters[i][1]):
+			lowerRange = i + 1
+			
+	upperRange = i + 1	
+	
+	if (not auto):
+		chapter_list_array_decrypted = selectChapters(chapters)
+	else:
+		if ( lowerRange == upperRange):
+			raise NoUpdates
+			
+		for i in range (lowerRange, upperRange):
+			chapter_list_array_decrypted.append(i)
+			
+	return ('OtakuWorks', matchedManga, chapters, chapter_list_array_decrypted)
 	
 ##########
 

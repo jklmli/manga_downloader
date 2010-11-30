@@ -61,21 +61,19 @@ h2. Issues
 
 h2. History
 
+*v0.5.2* (11/30/10)
++ Minor code cleanup and bugfixes for special characters
+
 *v0.5.1* (11/3/10)
-- Removed absolute paths that were added in v0.5.0. Absolute paths increased complexity especially
-  considering the multiple OS platforms. Used OS.chdir to change the working directory to the 
-  directory containing the script file. Thus allowing relative paths. 
-+ Modified the parse Manga Reader to find all entries returned by the search query
-  instead of just the first one. The other two parse functions already work this way.  
++ Modified the parse Manga Reader to find all entries returned by the search query instead of just the first one. The other two parse functions already work this way.  
+- Removed absolute paths that were added in v0.5.0 due to increased complexity especially considering the multiple OS platforms. Relative paths enabled via os.chdir.
   
 *v0.5.0* (11/1/10)
 + Added XML File Feature
 + New Command-line Flag added (-x)
 + Added internal flag to automate the parse functions
-+ Modified the parse OtakuWorks to find all entries returned by the search query
-  instead of just the first one. 
-+ Modified script to use absolute paths to remove the built in limitation that the 
-  initial working directory is the directory the script is located. 
++ Modified the OtakuWorks parse function to find all entries returned by the search query instead of just the first one. 
++ Modified script to use absolute paths to remove the built in limitation that the initial working directory is the directory the script is located. 
 
 *v0.4.1* (10/17/10)
 + fixed bug with removed series crash in MangaFox
