@@ -191,37 +191,36 @@ def parseMangaFox(manga, auto, lastDownloaded):
 ##########
 
 def parseMangaReader(manga, auto, lastDownloaded):
-	i = 0
 	chapter_list_array_decrypted = []
 	print('Beginning MangaReader check...')
-	url = 'http://www.mangareader.net/search/?q=%s&radio_group=any' % '+'.join(manga.split())
+	url = 'http://www.mangareader.net/alphabetical'
 	try:
 		source_code = getSourceCode(url)
 		
-		info = re.compile('<a href="([^"]*)"[^>]*><strong>([^<]*)</strong></a>').findall(source_code)
+		info = re.compile('<li><a href="([^"]*)">([^<]*)</a>').findall(source_code[source_code.find('series_col'):])
 		found = False
 		
 		for notes in info:
-			i = i + 1
-			if (not auto):
-				print(notes[1])
-			
-			if notes[1].lower() == manga.lower():
-				matchedManga = notes[1]
-				keyword = notes[0]
-				found = True
-				break
-			else:
+			if notes[1].lower().find(manga.lower()) != -1:
 				if (not auto):
-					print('Did you mean: %s? (y/n)' % notes[1])
-					answer = raw_input();
-				else:
-					answer = 'n'
-				
-				if (answer == 'y'):
+					print(notes[1])
+			
+				if notes[1].lower() == manga.lower():
 					matchedManga = notes[1]
 					keyword = notes[0]
 					found = True
+					break
+				else:
+					if (not auto):
+						print('Did you mean: %s? (y/n)' % notes[1])
+						answer = raw_input();
+					else:
+						answer = 'n'
+				
+					if (answer == 'y'):
+						matchedManga = notes[1]
+						keyword = notes[0]
+						found = True
 					break
 						
 		if (not found):

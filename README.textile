@@ -62,6 +62,9 @@ h2. Issues
 
 h2. History
 
+*v0.5.5* (12/1/10)
++ Implemented own search for MangaReader, fixes non-alphabetical characters
+
 *v0.5.4* (11/30/10)
 + Fixed MangaReader (new site format)
 + Removed trailing spaces in saved .cbz + .zip, additional file/folder name compatibility
