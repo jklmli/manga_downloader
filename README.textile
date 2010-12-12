@@ -61,6 +61,8 @@ h2. Issues
 * Code hasn't been tested on Windows in a while.
 
 h2. History
+*v0.6.0a*
++Initial Check-in with Kindle Conversion code.
 
 *v0.6.0* (12/11/10)
 + Begin Modulazition of the code base

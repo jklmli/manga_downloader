@@ -7,6 +7,7 @@ import os
 
 from SiteParser import SiteParserFactory
 from MangaXmlParser import MangaXmlParser
+from ConvertFile import convertFile
 
 def main():
 	download_path = './'
@@ -14,6 +15,12 @@ def main():
 	all_chapters_FLAG = False
 	overwrite_FLAG = False
 	xmlfile_path = ''
+
+	ConversionFlag = False
+	ConvertDir = False
+	Device = 'Kindle 3'
+	InputDir = ''
+	OutputDir = ''
 
 
 	options = {
@@ -23,8 +30,14 @@ def main():
 		'-n' : 'manga = sys.argv[index + 1]',
 		'-o' : 'overwrite_FLAG = True',
 		'-z' : 'download_format = ".zip"',
-		'-x' : 'xmlfile_path = sys.argv[index + 1]'
-									}
+		'-x' : 'xmlfile_path = sys.argv[index + 1]',
+		
+		'-c' : 'ConversionFlag = True',
+    	'-oDir' : 'OutputDir = sys.argv[index + 1]',
+    	'-iDir' : 'InputDir = sys.argv[index + 1]',
+		'-Device' : 'Device = sys.argv[index + 1]',
+		'-convertDir' : 'ConvertDir = True'
+				}
 									
 	siteDict = {
 		''  : 'MangaFox',
@@ -43,13 +56,17 @@ def main():
 	if (os.path.dirname(sys.argv[0]) != ""):
 		os.chdir(os.path.dirname(sys.argv[0]))
 
+	if (ConvertDir):
+		convertFileObj = convertFile()
+		convertFileObj.convert(InputDir, OutputDir, Device)		
+		sys.exit()
+	
 	if xmlfile_path != "":
 		xmlParser = MangaXmlParser(xmlfile_path)
 		xmlParser.overwrite_FLAG = overwrite_FLAG
-		xmlParser.overwrite_FLAG = overwrite_FLAG
 	
 		print("parsing XML File")
-	
+
 		xmlParser.downloadManga()
 	else:
 		print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
@@ -73,6 +90,10 @@ def main():
 		download_path = os.path.realpath(download_path) + os.sep
 	
 		siteParser.downloadChapters(download_path, download_format)
+		
+		if (ConversionFlag):
+			convertFileObj = convertFile()
+			convertFileObj.convert(siteParser.CompressedFile, OutputDir, Device)	
 
 if __name__ == "__main__":
 	main()

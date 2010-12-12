@@ -27,6 +27,7 @@ class SiteParserBase:
 		self.chapters = []
 		self.chapters_to_download = []
 		self.Manga = None
+		self.CompressedFile = ""
 	
 	def ParseSite(self, manga, auto, lastDownloaded):
 		raise NotImplementedError( "Should have implemented this" )
@@ -133,7 +134,12 @@ class SiteParserBase:
 			if imghdr.what(temp_path) != None:
 				z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
 		z.close()
-		shutil.move( os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format), download_path)
+		self.CompressedFile = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format)
+		
+		shutil.move( self.CompressedFile, download_path)
+		
+		self.CompressedFile = os.path.basename(self.CompressedFile)
+		self.CompressedFile = os.path.join(download_path, self.CompressedFile)
 		self.cleanTmp()
 	
 
@@ -245,7 +251,7 @@ class MangaFoxParser(SiteParserBase):
 				pageUrl = '%s/%i.html' % (url, page)
 				self.downloadImages(page, pageUrl, manga_chapter_prefix, ';"><img src="([^"]*)"')
 			
-		self.compress(manga_chapter_prefix, download_path, max_pages, download_format)	
+			self.compress(manga_chapter_prefix, download_path, max_pages, download_format)	
 			
 
 
@@ -347,7 +353,7 @@ class MangaReaderParser(SiteParserBase):
 				pageUrl = 'http://www.mangareader.net' + page[0]
 				self.downloadImages(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
 				
-		self.compress(manga_chapter_prefix, download_path, max_pages, download_format)	
+			self.compress(manga_chapter_prefix, download_path, max_pages, download_format)	
 
 
 
@@ -453,7 +459,7 @@ class OtakuWorksParser(SiteParserBase):
 				pageUrl = '%s/%i' % (url, page)
 				self.downloadImages(page, pageUrl, manga_chapter_prefix, 'img src="(http://static.otakuworks.net/viewer/[^"]*)"')
 		
-		self.compress(manga_chapter_prefix, download_path, max_pages, download_format)
+			self.compress(manga_chapter_prefix, download_path, max_pages, download_format)
 			
 
 
@@ -503,4 +509,4 @@ class AnimeaParser(SiteParserBase):
 				print(img_url)
 				downloadImage(img_url, os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)))
 
-		compress(manga_chapter_prefix, download_path, max_pages, download_format)
+			compress(manga_chapter_prefix, download_path, max_pages, download_format)
