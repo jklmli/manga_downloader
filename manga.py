@@ -46,7 +46,6 @@ def main():
 	if xmlfile_path != "":
 		xmlParser = MangaXmlParser(xmlfile_path)
 		xmlParser.overwrite_FLAG = overwrite_FLAG
-		xmlParser.overwrite_FLAG = overwrite_FLAG
 	
 		print("parsing XML File")
 	
