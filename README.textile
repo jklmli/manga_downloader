@@ -62,6 +62,12 @@ h2. Issues
 
 h2. History
 
+*v0.6.0* (12/11/10)
++ Begin Modulazition of the code base
++ Added SiteParser.py - Uses the factory pattern to create different instances of SiteParser classes
++ Added MangaXMLParser.py - Contains the code for the XML Feature
++ Modified manga.py to use the new classes
+
 *v0.5.5* (12/1/10)
 + Implemented own search for MangaReader, fixes non-alphabetical characters
 
