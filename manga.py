@@ -56,6 +56,7 @@ def main():
 	
 		siteParser = SiteParserFactory.getInstance(siteDict[site])
 		siteParser.overwrite_FLAG = overwrite_FLAG
+		siteParser.all_chapters_FLAG = all_chapters_FLAG
 		siteParser.download_format = download_format
 		
 		try:
