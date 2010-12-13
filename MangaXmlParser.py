@@ -72,7 +72,7 @@ class MangaXmlParser:
 				for compressedFile in siteParser.CompressedFiles:
 					convertFileObj.convert(compressedFile, download_path, self.Device)	
 			
-			self.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
+			MangaXmlParser.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
 
 		f = open(self.xmlFile, 'w')
 		f.write(dom.toxml())       	    
