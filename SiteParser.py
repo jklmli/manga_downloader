@@ -93,7 +93,7 @@ class SiteParserBase:
 			else:
 				break
 		return (manga_chapter_prefix, url, max_pages)
-	
+		
 	def downloadImages(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		while True:
 			try:
@@ -104,7 +104,9 @@ class SiteParserBase:
 			else:
 				break
 			
+		img_url = "http://" + urllib.quote(img_url.split("//")[1])
 		print(img_url)
+		
 		while True:
 			try:
 				temp_path = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
@@ -121,17 +123,16 @@ class SiteParserBase:
 	
 		# Modified for compatibilities issue with Python2.5, 
 		# Option a would throw an error if the file did not exist.
-		if os.path.exists(zipPath):
-			z = zipfile.ZipFile( zipPath, 'a')
-		else:
+		if (not os.path.exists(zipPath)):
 			z = zipfile.ZipFile( zipPath, 'w')
-		
-		
+		else:		
+			z = zipfile.ZipFile( zipPath, 'a')
+
 		for page in range(1, max_pages + 1):	
 			temp_path = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
-		
 			if imghdr.what(temp_path) != None:
 				z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
+				
 		z.close()
 		shutil.move( os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format), download_path)
 		self.cleanTmp()

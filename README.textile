@@ -61,7 +61,10 @@ h2. Issues
 * Code hasn't been tested on Windows in a while.
 
 h2. History
-
+*v0.6.1* (12/12/10)
++ Fixed an encoding issued in the download Image function. If the retrieved Image URL contained special characters such as spaces
+  the python (at least python 2.5) failed to load the url.  
+  
 *v0.6.0* (12/11/10)
 + Begin Modulazition of the code base
 + Added SiteParser.py - Uses the factory pattern to create different instances of SiteParser classes
