@@ -1,11 +1,14 @@
 from xml.dom import minidom
 from SiteParser import SiteParserFactory
+from ConvertFile import convertFile
 
 class MangaXmlParser:
 	def __init__(self, xmlPath):
 		self.xmlFile = xmlPath
 		self.overwrite_FLAG = False
 		self.download_format = '.cbz'
+		self.ConversionFlag = False
+		self.Device = "Kindle 3"
 	
 	@staticmethod
 	def getText(nodelist):
@@ -23,6 +26,7 @@ class MangaXmlParser:
 				node.data = text
 				
 	def downloadManga(self):
+		print("parsing XML File")
 		dom = minidom.parse(self.xmlFile)
 		
 		for node in dom.getElementsByTagName("MangaSeries"):
@@ -62,6 +66,13 @@ class MangaXmlParser:
 			
 			#print iLastChap
 			MangaXmlParser.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
+			
+			if (self.ConversionFlag):
+				convertFileObj = convertFile()
+				for compressedFile in siteParser.CompressedFiles:
+					convertFileObj.convert(compressedFile, download_path, self.Device)	
+			
+			self.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
 
 		f = open(self.xmlFile, 'w')
 		f.write(dom.toxml())       	    

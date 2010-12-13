@@ -64,8 +64,8 @@ def main():
 	if xmlfile_path != "":
 		xmlParser = MangaXmlParser(xmlfile_path)
 		xmlParser.overwrite_FLAG = overwrite_FLAG
-	
-		print("parsing XML File")
+		xmlParser.ConversionFlag = ConversionFlag
+		xmlParser.Device = Device
 
 		xmlParser.downloadManga()
 	else:
@@ -94,7 +94,8 @@ def main():
 		
 		if (ConversionFlag):
 			convertFileObj = convertFile()
-			convertFileObj.convert(siteParser.CompressedFile, OutputDir, Device)	
+			for compressedFile in siteParser.CompressedFiles:
+				convertFileObj.convert(compressedFile, OutputDir, Device)	
 
 if __name__ == "__main__":
 	main()

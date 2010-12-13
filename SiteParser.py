@@ -27,7 +27,7 @@ class SiteParserBase:
 		self.chapters = []
 		self.chapters_to_download = []
 		self.Manga = None
-		self.CompressedFile = ""
+		self.CompressedFiles = []
 	
 	def ParseSite(self, manga, auto, lastDownloaded):
 		raise NotImplementedError( "Should have implemented this" )
@@ -138,12 +138,13 @@ class SiteParserBase:
 			if imghdr.what(temp_path) != None:
 				z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
 		z.close()
-		self.CompressedFile = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format)
+		compressedFile = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format)
 		
-		shutil.move( self.CompressedFile, download_path)
+		shutil.move( compressedFile, download_path)
 		
-		self.CompressedFile = os.path.basename(self.CompressedFile)
-		self.CompressedFile = os.path.join(download_path, self.CompressedFile)
+		compressedFile = os.path.basename(compressedFile)
+		compressedFile = os.path.join(download_path, compressedFile)
+		self.CompressedFiles.append(compressedFile)
 		self.cleanTmp()
 	
 
