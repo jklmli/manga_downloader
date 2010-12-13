@@ -60,6 +60,12 @@ h2. Issues
 * Chapter numbering on MangaReader doesn't pad, i.e. 1, 2, 3 as opposed to 001, 002, 003.  If this is consistent, patch will be coming in next release.
 * Code hasn't been tested on Windows in a while.
 
+* Program does not handle an empty node for LastChapterDownloaded. If the node is empty, the scripts 
+* fails to update it. Thus all the chapters are downloaded each time the script is run.
+* Workaround: Put a string value (Garbage) as a placeholder.
+* The next time the script runs it will update the field to the correct value.
+
+
 h2. History
 
 *v0.6.2a*
