@@ -104,7 +104,11 @@ class SiteParserBase:
 				pass
 			else:
 				break
-			
+		
+		# Line is encoding any special character in the URL must remove the http:// before encoding 
+		# becuase otherwise teh :// would be encoded as well
+		img_url = "http://" + urllib.quote(img_url.split("//")[1])
+		
 		print(img_url)
 		while True:
 			try:
