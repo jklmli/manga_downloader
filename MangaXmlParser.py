@@ -1,6 +1,5 @@
 from xml.dom import minidom
 from SiteParser import SiteParserFactory
-from ConvertFile import convertFile
 
 class MangaXmlParser:
 	def __init__(self, xmlPath):
@@ -9,6 +8,15 @@ class MangaXmlParser:
 		self.download_format = '.cbz'
 		self.ConversionFlag = False
 		self.Device = "Kindle 3"
+	
+	@staticmethod 
+	def ImportConversionLib():
+		try:
+			from ConvertFile import convertFile
+		except ImportError:
+			return False
+		else:
+			return True
 	
 	@staticmethod
 	def getText(nodelist):
@@ -68,9 +76,14 @@ class MangaXmlParser:
 			MangaXmlParser.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
 			
 			if (self.ConversionFlag):
-				convertFileObj = convertFile()
-				for compressedFile in siteParser.CompressedFiles:
-					convertFileObj.convert(compressedFile, download_path, self.Device)	
+				if (not MangaXmlParser.ImportConversionLib()):
+					print "PIL (Python Image Library) not available."
+				else:	
+					from ConvertFile import convertFile
+					
+					convertFileObj = convertFile()
+					for compressedFile in siteParser.CompressedFiles:
+						convertFileObj.convert(compressedFile, download_path, self.Device)	
 			
 			MangaXmlParser.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
 

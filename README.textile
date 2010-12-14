@@ -66,6 +66,14 @@ h2. Issues
 
 h2. History
 
+*v0.6.3a*
++ Added check for the PIL Library. The script now works (w/o conversion functionality) without the PIL
++ Added Help (-h) command-line parameter. Prints out the command-line switches.
++ Added -v command-line to retrieve the current version of the script/executable.
++ Added MAC OSX executable. The executable is compiled with the correct libraries (PIL, ect) and is self
+  contained executable.
++ Added Icon files to use when compiling the Windows executable.   
+
 *v0.6.2a*
 + Fix All Flag (Broken by OOP Changes)
 

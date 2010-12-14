@@ -29,6 +29,12 @@ class SiteParserBase:
 		self.Manga = None
 		self.CompressedFiles = []
 	
+	def __del__(self):
+		try:
+			shutil.rmtree(self.mangdl_tmp_path)
+		except:
+			pass
+	
 	def ParseSite(self, manga, auto, lastDownloaded):
 		raise NotImplementedError( "Should have implemented this" )
 	
@@ -80,9 +86,19 @@ class SiteParserBase:
 	def prepareDownload(self, manga, chapters, current_chapter, download_path, queryString):
 		self.cleanTmp()
 		manga_chapter_prefix = self.fixFormatting(manga) + '_' + self.fixFormatting(chapters[current_chapter][1])
-		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and self.overwrite_FLAG == False:
+		
+		zipPath = os.path.join(download_path,  manga_chapter_prefix + '.zip')
+		cbzPath = os.path.join(download_path,  manga_chapter_prefix + '.cbz')	
+		
+		if (os.path.exists(cbzPath) or os.path.exists(zipPath)) and self.overwrite_FLAG == False:
 			print(chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
 			return (None, None, None)
+		else:
+			if os.path.exists(cbzPath):
+				os.remove(cbzPath)
+			if  os.path.exists(zipPath):
+				os.remove(zipPath)
+        
 		while True:
 			try:
 				url = chapters[current_chapter][0]
@@ -140,7 +156,7 @@ class SiteParserBase:
 		z.close()
 		compressedFile = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format)
 		
-		shutil.move( compressedFile, download_path)
+ 		shutil.move( compressedFile, download_path)
 		
 		compressedFile = os.path.basename(compressedFile)
 		compressedFile = os.path.join(download_path, compressedFile)
