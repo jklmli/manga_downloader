@@ -27,6 +27,12 @@ class SiteParserBase:
 		self.chapters = []
 		self.chapters_to_download = []
 		self.Manga = None
+
+	def __del__(self):
+		try:
+			shutil.rmtree(self.mangdl_tmp_path)
+		except:
+			pass
 	
 	def ParseSite(self, manga, auto, lastDownloaded):
 		raise NotImplementedError( "Should have implemented this" )
@@ -79,9 +85,19 @@ class SiteParserBase:
 	def prepareDownload(self, manga, chapters, current_chapter, download_path, queryString):
 		self.cleanTmp()
 		manga_chapter_prefix = self.fixFormatting(manga) + '_' + self.fixFormatting(chapters[current_chapter][1])
-		if (os.path.exists(download_path + manga_chapter_prefix + '.cbz') or os.path.exists(download_path + manga_chapter_prefix + '.zip')) and self.overwrite_FLAG == False:
+				
+		zipPath = os.path.join(download_path,  manga_chapter_prefix + '.zip')
+		cbzPath = os.path.join(download_path,  manga_chapter_prefix + '.cbz')	
+
+		if (os.path.exists(cbzPath) or os.path.exists(zipPath)) and self.overwrite_FLAG == False:
 			print(chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
 			return (None, None, None)
+		else:
+			if os.path.exists(cbzPath):
+				os.remove(cbzPath)
+			if  os.path.exists(zipPath):
+				os.remove(zipPath)
+	
 		while True:
 			try:
 				url = chapters[current_chapter][0]
@@ -103,7 +119,9 @@ class SiteParserBase:
 				pass
 			else:
 				break
-			
+
+		# Line is encoding any special character in the URL must remove the http:// before encoding 
+		# becuase otherwise teh :// would be encoded as well				
 		img_url = "http://" + urllib.quote(img_url.split("//")[1])
 		print(img_url)
 		
@@ -123,10 +141,10 @@ class SiteParserBase:
 	
 		# Modified for compatibilities issue with Python2.5, 
 		# Option a would throw an error if the file did not exist.
-		if (not os.path.exists(zipPath)):
-			z = zipfile.ZipFile( zipPath, 'w')
-		else:		
+		if os.path.exists(zipPath):
 			z = zipfile.ZipFile( zipPath, 'a')
+		else:
+			z = zipfile.ZipFile( zipPath, 'w')
 
 		for page in range(1, max_pages + 1):	
 			temp_path = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))

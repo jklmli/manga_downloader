@@ -23,6 +23,8 @@ class MangaXmlParser:
 				node.data = text
 				
 	def downloadManga(self):
+		print("parsing XML File")
+
 		dom = minidom.parse(self.xmlFile)
 		
 		for node in dom.getElementsByTagName("MangaSeries"):

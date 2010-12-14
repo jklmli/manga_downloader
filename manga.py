@@ -46,10 +46,8 @@ def main():
 	if xmlfile_path != "":
 		xmlParser = MangaXmlParser(xmlfile_path)
 		xmlParser.overwrite_FLAG = overwrite_FLAG
-	
-		print("parsing XML File")
-	
 		xmlParser.downloadManga()
+
 	else:
 		print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
 		site = raw_input()
