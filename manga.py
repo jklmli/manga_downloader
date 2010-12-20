@@ -64,7 +64,7 @@ def main():
 			sys.exit()
 
 		if download_path == 'CURRENT_DIRECTORY':
-			download_path = './' + fixFormatting(manga)
+			download_path = './' + siteParser.fixFormatting(manga)
 			if not(os.path.exists(download_path)):
 				os.mkdir(download_path)
 					
