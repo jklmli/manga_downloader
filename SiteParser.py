@@ -7,6 +7,22 @@ import sys
 import zipfile
 import imghdr
 
+def fixFormatting(s):
+	for i in string.punctuation:
+		if(i != '-' and i != '.'):
+			s = s.replace(i, "")
+	return s.lower().lstrip('.').strip().replace(' ', '_')
+
+def getSourceCode(url):
+	while True:
+		try:
+			ret = urllib.urlopen(url).read()
+		except IOError:
+			pass
+		else:
+			break
+	return ret
+
 class SiteParserBase:
 
 	class AppURLopener(urllib.FancyURLopener):
@@ -34,27 +50,11 @@ class SiteParserBase:
 		except:
 			pass
 	
-	def ParseSite(self, manga, auto, lastDownloaded):
+	def parseSite(self, manga, auto, lastDownloaded):
 		raise NotImplementedError( "Should have implemented this" )
 	
 	def downloadChapters(self, manga, chapter_start, chapter_end, download_path, download_format):
 		raise NotImplementedError( "Should have implemented this" )
-
-	def fixFormatting(self, s):
-		for i in string.punctuation:
-			if(i != '-' and i != '.'):
-				s = s.replace(i, "")
-		return s.lower().lstrip('.').strip().replace(' ', '_')
-	
-	def getSourceCode(self, url):
-		while True:
-			try:
-				ret = urllib.urlopen(url).read()
-			except IOError:
-				pass
-			else:
-				break
-		return ret
 	
 	def cleanTmp(self):
 		if os.path.exists(self.mangdl_tmp_path):
@@ -84,7 +84,7 @@ class SiteParserBase:
 		
 	def prepareDownload(self, manga, chapters, current_chapter, download_path, queryString):
 		self.cleanTmp()
-		manga_chapter_prefix = self.fixFormatting(manga) + '_' + self.fixFormatting(chapters[current_chapter][1])
+		manga_chapter_prefix = fixFormatting(manga) + '_' + fixFormatting(chapters[current_chapter][1])
 				
 		zipPath = os.path.join(download_path,  manga_chapter_prefix + '.zip')
 		cbzPath = os.path.join(download_path,  manga_chapter_prefix + '.cbz')	
@@ -95,14 +95,14 @@ class SiteParserBase:
 		else:
 			if os.path.exists(cbzPath):
 				os.remove(cbzPath)
-			if  os.path.exists(zipPath):
+			if os.path.exists(zipPath):
 				os.remove(zipPath)
 	
 		while True:
 			try:
 				url = chapters[current_chapter][0]
 				print(url)
-				source_code = self.getSourceCode(url)
+				source_code = getSourceCode(url)
 				max_pages = int(re.compile(queryString).search(source_code).group(1))
 			except AttributeError:
 				pass
@@ -113,7 +113,7 @@ class SiteParserBase:
 	def downloadImages(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		while True:
 			try:
-				source_code = self.getSourceCode(pageUrl)
+				source_code = getSourceCode(pageUrl)
 				img_url = re.compile(stringQuery).search(source_code).group(1)
 			except AttributeError:
 				pass
@@ -121,7 +121,7 @@ class SiteParserBase:
 				break
 
 		# Line is encoding any special character in the URL must remove the http:// before encoding 
-		# becuase otherwise teh :// would be encoded as well				
+		# becuase otherwise the :// would be encoded as well				
 		img_url = "http://" + urllib.quote(img_url.split("//")[1])
 		print(img_url)
 		
@@ -140,7 +140,7 @@ class SiteParserBase:
 		zipPath = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format)
 	
 		# Modified for compatibilities issue with Python2.5, 
-		# Option a would throw an error if the file did not exist.
+		# Option (a) would throw an error if the file did not exist.
 		if os.path.exists(zipPath):
 			z = zipfile.ZipFile( zipPath, 'a')
 		else:
@@ -175,11 +175,18 @@ class SiteParserFactory():
 ########################################
 class MangaFoxParser(SiteParserBase):
 	
-	def ParseSite(self, manga, auto, lastDownloaded):
+	def parseSite(self, manga, auto, lastDownloaded):
 		print('Beginning MangaFox check...')
+		
+		url = 'http://www.mangafox.com/manga/%s/' % fixFormatting(manga)
+		source_code = getSourceCode(url)
+		if(source_code.find('it is not available in Manga Fox.') != -1):
+			print('Manga not found: it has been removed')
+			raise self.MangaNotFound
+		
 		url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(manga.split())
 		try:
-			source_code = self.getSourceCode(url)
+			source_code = getSourceCode(url)
 			info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
 		except AttributeError:
 			print('Manga not found: it doesn\'t exist, or cannot be resolved by autocorrect.')
@@ -212,13 +219,13 @@ class MangaFoxParser(SiteParserBase):
 				raise self.MangaNotFound
 			
 			url = 'http://www.mangafox.com/manga/%s/' % keyword
-			source_code = self.getSourceCode(url)
+			source_code = getSourceCode(url)
 			if(source_code.find('it is not available in Manga Fox.') != -1):
 				print('Manga not found: it has been removed')
 				raise self.MangaNotFound
 		
 			url = 'http://www.mangafox.com/cache/manga/%s/chapters.js' % keyword
-			source_code = self.getSourceCode(url)
+			source_code = getSourceCode(url)
 		
 			self.chapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"').findall(source_code)
 
@@ -271,11 +278,11 @@ class MangaFoxParser(SiteParserBase):
 #############################################################		
 class MangaReaderParser(SiteParserBase):
 
-	def ParseSite(self, manga, auto, lastDownloaded):
+	def parseSite(self, manga, auto, lastDownloaded):
 		print('Beginning MangaReader check...')
 		url = 'http://www.mangareader.net/alphabetical'
 		try:
-			source_code = self.getSourceCode(url)
+			source_code = getSourceCode(url)
 		
 			info = re.compile('<li><a href="([^"]*)">([^<]*)</a>').findall(source_code[source_code.find('series_col'):])
 			found = False
@@ -318,7 +325,7 @@ class MangaReaderParser(SiteParserBase):
 				raise self.MangaNotFound
 		else:
 			url = 'http://www.mangareader.net%s' % keyword
-			source_code = self.getSourceCode(url)
+			source_code = getSourceCode(url)
 			# print(url)
 			
 			self.chapters = re.compile('<tr><td><a href="([^"]*)" class="chico">([^<]*)</a>([^<]*)</td>').findall(source_code)
@@ -357,11 +364,11 @@ class MangaReaderParser(SiteParserBase):
 	
 			manga_chapter_prefix, url, max_pages = self.prepareDownload(self.Manga, self.chapters, current_chapter, download_path, '</select> of (\d*)            </div>')
 		
-			manga_chapter_prefix = self.fixFormatting(self.chapters[current_chapter][1])
+			manga_chapter_prefix = fixFormatting(self.chapters[current_chapter][1])
 			if url == None:
 				continue
 			
-			for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(self.getSourceCode(url)):
+			for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
 				print(self.chapters[current_chapter][1] + ' / ' + 'Page ' + page[1])
 				pageUrl = 'http://www.mangareader.net' + page[0]
 				self.downloadImages(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
@@ -373,14 +380,14 @@ class MangaReaderParser(SiteParserBase):
 #############################################################			
 class OtakuWorksParser(SiteParserBase):
 	
-	def ParseSite(self, manga, auto, lastDownloaded):
+	def parseSite(self, manga, auto, lastDownloaded):
 		i = 0
 		
 		print('Beginning OtakuWorks check...')
 		url = 'http://www.otakuworks.com/search/%s' % '+'.join(manga.split())
 	
 		try:
-			source_code = self.getSourceCode(url)
+			source_code = getSourceCode(url)
 			info = re.compile('>([^>]*?) \(Manga\)').findall(source_code)
 		
 			found = False
@@ -423,14 +430,14 @@ class OtakuWorksParser(SiteParserBase):
 	#	else:
 		try:
 			FoundURLs = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').findall(source_code)
-			source_code = self.getSourceCode(FoundURLs[i-1])
+			source_code = getSourceCode(FoundURLs[i-1])
 		
 		except AttributeError:
 			pass
 		except IndexError:
 			pass
 	
-		self.chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(self.fixFormatting(self.Manga).replace('_', ' ').split())).findall(source_code)
+		self.chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(fixFormatting(self.Manga).replace('_', ' ').split())).findall(source_code)
 		self.chapters.reverse()
 
 		lowerRange = 0
