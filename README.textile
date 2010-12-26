@@ -9,21 +9,14 @@ h2. Usage
 Usage: manga.py [options] <manga name>
 
 Options:
-  --version             show program's version number and exit
-  -h, --help            show this help message and exit
-  --all                 Download all available chapters.
-  -d DOWNLOAD_PATH, --directory=DOWNLOAD_PATH
-                        The destination download directory.  Defaults to
-                        current working directory.
-  --overwrite           Overwrites previous copies of downloaded chapters.
-  -s, --subdirectory    Creates a new subdirectory inside the current working
-                        directory using the name of the manga.
-  -x XMLFILE_PATH, --xml=XMLFILE_PATH
-                        Parses the .xml file and downloads all chapters newer
-                        than the last chapter downloaded for the listed
-                        mangas.
-  -z, --zip             Downloads using .zip compression.  Omitting this
-                        option defaults to .cbz.
+  |@--version@             				|	show program's version number and exit										|
+  |@-h, --help@            				|	show this help message and exit											|
+  |@--all@                 				|	Download all available chapters.										|
+  |@-d DOWNLOAD_PATH, --directory=DOWNLOAD_PATH@	|	The destination download directory.  Defaults to current working directory.					|
+  |@--overwrite@           				|	Overwrites previous copies of downloaded chapters.								|
+  |@-s, --subdirectory@					|	Creates a new subdirectory inside the current working directory using the name of the manga.			|
+  |@-x XMLFILE_PATH, --xml=XMLFILE_PATH@		|	Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the listed mangas.	|
+  |@-z, --zip@             				|	Downloads using .zip compression.  Omitting this option defaults to .cbz.					|
 
 The script will offer a choice of 3 manga sites, it will default to the first if you press <enter>.
 After selecting a site, the script will output a list of all chapters of the series it has found on the site you selected.  
