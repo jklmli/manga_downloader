@@ -73,8 +73,11 @@ h2. Issues
 
 h2. History
 
+*v0.7.0* (12/26/10)
++ Thorough code commenting
+
 *v0.6.9* (12/26/10)
-+ Heavy code cleanup (functionality remains the same, with some bugs fixed)
++ Heavy code cleanup (functionality remains the same, with most discovered bugs fixed)
 
 *v0.6.1* (12/12/10)
 + Fixed the download all flag (Broken by OOP changes)

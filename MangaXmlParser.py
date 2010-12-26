@@ -9,27 +9,39 @@ from SiteParser import SiteParserFactory
 
 class MangaXmlParser:
 	def __init__(self, xmlPath):
-		self.xmlFile = xmlPath
-		self.overwrite_FLAG = False
-		self.download_format = '.cbz'
+		# now uses setOpts
+		pass
 	
 	@staticmethod
 	def getText(nodelist):
-		rc = []
-		for node in nodelist:
-			if node.nodeType == node.TEXT_NODE:
-				rc.append(node.data)
+#		rc = []
+#		for node in nodelist:
+#			if node.nodeType == node.TEXT_NODE:
+#				rc.append(node.data)
+#		
+#		
+#		return ''.join(rc)
 		
-		return ''.join(rc)
+		# untested code, but should work
+		return ''.join([node.data for node in nodelist if node.nodeType == node.TEXT_NODE])
 
 	@staticmethod
 	def setText(nodelist, text):
 		for node in nodelist:
 			if node.nodeType == node.TEXT_NODE:
 				node.data = text
-				
+		# could apply list comprehension as well, but this way's maybe more readable?
+	
+	def setOpts(self, optDict):
+		"""
+		sets attributes for the object, passed from the arguments to manga.py
+		"""
+		for elem in vars(optDict):
+			setattr(self, elem, getattr(optDict, elem))
+	#			print(elem, getattr(optDict, elem))	
+					
 	def downloadManga(self):
-		print("parsing XML File")
+		print("Parsing XML File...")
 
 		dom = minidom.parse(self.xmlFile)
 		
@@ -43,10 +55,13 @@ class MangaXmlParser:
 			
 			siteParser = SiteParserFactory.getInstance(site)
 			
-			siteParser.overwrite_FLAG = self.overwrite_FLAG
-			siteParser.all_chapters_FLAG = False
-			siteParser.auto = True
-			siteParser.lastDownloaded = lastChapterDownloaded
+#			siteParser.overwrite_FLAG = self.overwrite_FLAG
+#			siteParser.all_chapters_FLAG = False
+#			siteParser.auto = True
+#			siteParser.lastDownloaded = lastChapterDownloaded
+
+			# should be able to replace above code
+			siteParser.setOpts(vars(self))
 		
 			try:
 				siteParser.ParseSite()

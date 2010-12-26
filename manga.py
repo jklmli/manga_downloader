@@ -9,6 +9,7 @@ import sys
 ##########
 
 from MangaXmlParser import MangaXmlParser
+import helper
 import SiteParser
 
 ##########
@@ -30,6 +31,7 @@ class InvalidSite(Exception):
 def main():
 
 	# for easier parsing, adds free --help and --version
+	# optparse (v2.3-v2.7) was chosen over argparse (v2.7+) for compatibility (and relative similarity) reasons and over getopt(v?) for additional functionality
 	parser = optparse.OptionParser(	usage='usage: %prog [options] <manga name>', 
 					version=('Manga Downloader %s' % VERSION)									)
 					
@@ -79,15 +81,29 @@ def main():
 	
 	options.manga = args[0]
 	
+	# subdirectory option flagged
+	if (options.download_path == 'CURRENT_DIRECTORY'):
+		options.download_path = ('./' + SiteParser.fixFormatting(options.manga))
+		
+	options.download_path = os.path.realpath(options.download_path) + os.sep
+	
+	# test/create download directory	
+	try:
+		if not(os.path.exists(options.download_path)):
+			os.mkdir(options.download_path)
+	except OSError:
+		parser.error('Invalid download directory specified.')
+	
 	# Changes the working directory to the script location
 	if (os.path.dirname(sys.argv[0]) != ""):
 		os.chdir(os.path.dirname(sys.argv[0]))
 
+	# xmlfile option flagged
 	if options.xmlfile_path != None:
-		xmlParser = MangaXmlParser(options.xmlfile_path)
-		xmlParser.overwrite_FLAG = options.overwrite_FLAG
-		xmlParser.downloadManga()
+		xmlParser = MangaXmlParser()
+		xmlParser.setOpts(options)
 	else:
+		# site selection
 		print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
 		site = raw_input()
 		
@@ -96,20 +112,13 @@ def main():
 		except KeyError:
 			raise InvalidSite('Site selection invalid.')
 		
-		# we clean here instead of before every prepareDownload (same result, less wasted cycles)
-		siteParser.cleanTmp()
-		
-		if (options.download_path == 'CURRENT_DIRECTORY'):
-			options.download_path = ('./' + SiteParser.fixFormatting(options.manga)) 
-		options.download_path = os.path.realpath(options.download_path) + os.sep
-			
-		if not(os.path.exists(options.download_path)):
-			os.mkdir(options.download_path)
-		
+		# pass over command-line args
 		siteParser.setOpts(options)
 		
+		# basic processing
 		siteParser.parseSite()
 		
+		# download
 		siteParser.downloadChapters()
 
 if __name__ == "__main__":
