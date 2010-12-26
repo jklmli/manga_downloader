@@ -27,7 +27,7 @@ Overwrites previous copies of downloaded chapters.
 @-s, --subdirectory@
 Creates a new subdirectory inside the current working directory using the name of the manga.
 
-@-x XMLFILE_PATH, --xml=XMLFILE_PATH@
+@-x <xmlfile path>, --xml=<xmlfile path>@
 Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the listed mangas.
 
 @-z, --zip@
