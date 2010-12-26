@@ -6,40 +6,40 @@ Downloads into .cbz format, can optionally download into .zip instead.
 
 h2. Usage
 
-@-a@
-Downloads all chapters that have been released.
+Usage: manga.py [options] <manga name>
 
-@-d {download path}@
-Must be enclosed in double quotes.  Default behavior is to use current working directory.  
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  --all                 Download all available chapters.
+  -d DOWNLOAD_PATH, --directory=DOWNLOAD_PATH
+                        The destination download directory.  Defaults to
+                        current working directory.
+  --overwrite           Overwrites previous copies of downloaded chapters.
+  -s, --subdirectory    Creates a new subdirectory inside the current working
+                        directory using the name of the manga.
+  -x XMLFILE_PATH, --xml=XMLFILE_PATH
+                        Parses the .xml file and downloads all chapters newer
+                        than the last chapter downloaded for the listed
+                        mangas.
+  -z, --zip             Downloads using .zip compression.  Omitting this
+                        option defaults to .cbz.
 
-@-f@
-Downloads chapters to a new directory in the current directory with the manga's name.
+The script will offer a choice of 3 manga sites, it will default to the first if you press <enter>.
+After selecting a site, the script will output a list of all chapters of the series it has found on the site you selected.  
+When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  You can also type 'all' if you did not specify --all before.  
 
-@-n {name of manga}@
-Must be enclosed in double quotes.
-
-@-o@
-Overwrites downloaded chapters if it already exists.  Default behavior is to skip over it.
-
-@-x {xmlFile}@
-Parses XML File for the following infomration: Manga Name, Host Site, Last Chapter Downloaded, and Directory Path
-
-@-z@
-Downloads into .zip format instead of .cbz
-	
-The script will output a list of all chapters of the series it has found on the site you selected.  When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','. You can also type 'all' if you did not specify -a before.  
-
-See Notes for an example of an acceptable input.
+See Notes for examples of acceptable inputs.
 
 h3. Notes
 
 Usage examples:
 
-@manga.py -n "Bleach" -d "C:\Documents and Settings\admin\Documents\Manga\" -z@
-On a Windows machine, downloads 'Bleach' to C:\Documents and Settings\admin\Documents\Manga\, using .zip compression
+@manga.py -d "C:\Documents and Settings\admin\Documents\Manga\" -z Bleach@
+On a Windows machine, downloads 'Bleach' to C:\Documents and Settings\admin\Documents\Manga\, using .zip compression.
 
-@./manga.py -n "Bleach" -f -o@
-On a Linux/Unix machine, downloads 'Bleach' to ./Bleach, using .cbz compression and overwriting previously downloaded chapters
+@./manga.py --subdirectory --overwrite Bleach@
+On a Linux/Unix machine, downloads 'Bleach' to ./Bleach, using .cbz compression and overwriting previously downloaded chapters.
 
 @1,2,9-12@
 Downloads chapters 1, 2, and 9 through 12
@@ -48,23 +48,25 @@ Downloads chapters 1, 2, and 9 through 12
 Downloads all chapters
 
 @./manga.py -x example.xml@
-Parses example.xml and downloads all chapters newer than the last chapter downloaded for the listed mangas.
+Parses example.xml to run the script.
  
 h2. Bugs
 
 * Input between the two prompts "Which site?" and "Download which chapters?" when the user is not supposed to may cause program crash.
-
 * Program does not handle if LastChapterDownloaded is an empty node in the XML Document. If the node is empty, the script fails to update it.
-* Thus all the chapters are downloaded each time the script is run.
-* Workaround: Put a string value (Garbage) as a placeholder. The next time the script runs it will update the field to the correct value.
+  Thus all the chapters are downloaded each time the script is run.
+  Workaround: Put a string value (Garbage) as a placeholder. The next time the script runs it will update the field to the correct value.
 
 h2. Issues
 
 * Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
-* Chapter numbering on MangaReader doesn't pad, i.e. 1, 2, 3 as opposed to 001, 002, 003.  If this is consistent, patch will be coming in next release.
+* Chapter numbering on MangaReader doesn't pad, i.e. 1, 2, 3 as opposed to 001, 002, 003.
 * Code hasn't been tested on Windows in a while.
 
 h2. History
+
+*v0.6.9* (12/26/10)
++ Heavy code cleanup (functionality remains the same, with some bugs fixed)
 
 *v0.6.1* (12/12/10)
 + Fixed the download all flag (Broken by OOP changes)

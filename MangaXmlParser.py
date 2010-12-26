@@ -1,5 +1,11 @@
+#!/usr/bin/env python
+
+######################
+
 from xml.dom import minidom
 from SiteParser import SiteParserFactory
+
+######################
 
 class MangaXmlParser:
 	def __init__(self, xmlPath):
@@ -31,7 +37,7 @@ class MangaXmlParser:
 			iLastChap = 0;
 			name = MangaXmlParser.getText(node.getElementsByTagName('name')[0].childNodes)
 			site = 	MangaXmlParser.getText(node.getElementsByTagName('HostSite')[0].childNodes)
-			lastChapterDownloaded =	MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes)
+			lastDownloaded = MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes)
 			download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0].childNodes)
 			
 			
@@ -39,9 +45,11 @@ class MangaXmlParser:
 			
 			siteParser.overwrite_FLAG = self.overwrite_FLAG
 			siteParser.all_chapters_FLAG = False
+			siteParser.auto = True
+			siteParser.lastDownloaded = lastChapterDownloaded
 		
 			try:
-				siteParser.ParseSite(name, True, lastChapterDownloaded)
+				siteParser.ParseSite()
 			except siteParser.MangaNotFound:
 				print ("Manga ("+name+") Missing. Check if still available\n")
 				continue
@@ -50,13 +58,12 @@ class MangaXmlParser:
 				print ("Manga ("+name+") up-to-date.\n")
 				continue
 		
-		
 			for current_chapter in siteParser.chapters:
 				#print "Current Chapter =" + str(current_chapter[0])
 				iLastChap = current_chapter[1]
 		
 			try:
-				siteParser.downloadChapters(download_path, self.download_format)
+				siteParser.downloadChapters()
 				print "\n"
 			except:
 				print "Unknown Error - ("+name+")\n"
