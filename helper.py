@@ -7,6 +7,10 @@ import urllib
 
 ####################
 
+# something seriously wrong happened
+class FatalError(Exception):
+	pass
+
 def fixFormatting(s):
 	"""
 	Special character fix for filesystem paths.

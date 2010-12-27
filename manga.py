@@ -9,7 +9,7 @@ import sys
 ##########
 
 from MangaXmlParser import MangaXmlParser
-import helper
+from helper import *
 import SiteParser
 
 ##########
@@ -31,7 +31,8 @@ class InvalidSite(Exception):
 def main():
 
 	# for easier parsing, adds free --help and --version
-	# optparse (v2.3-v2.7) was chosen over argparse (v2.7+) for compatibility (and relative similarity) reasons and over getopt(v?) for additional functionality
+	# optparse (v2.3-v2.7) was chosen over argparse (v2.7+) for compatibility (and relative similarity) reasons 
+	# and over getopt(v?) for additional functionality
 	parser = optparse.OptionParser(	usage='usage: %prog [options] <manga name>', 
 					version=('Manga Downloader %s' % VERSION)									)
 					
@@ -39,12 +40,12 @@ def main():
 				download_format = '.cbz', 
 				download_path = '.', 
 				overwrite_FLAG = False,
-				auto = False													)
+				auto = False														)
 				
 	parser.add_option(	'--all', 
 				action = 'store_true', 
 				dest = 'all_chapters_FLAG', 
-				help = 'Download all available chapters.'											)
+				help = 'Download all available chapters.'										)
 				
 	parser.add_option(	'-d', '--directory', 
 				dest = 'download_path', 
@@ -86,6 +87,12 @@ def main():
 		options.download_path = ('./' + SiteParser.fixFormatting(options.manga))
 		
 	options.download_path = os.path.realpath(options.download_path) + os.sep
+	try:
+		# create download directory if not found
+		if os.path.exists(options.download_path) is False:
+			os.mkdir(options.download_path)
+	except OSError:
+		raise FatalError('Unable to create download directory: there may be a file with the same name, or you may not have permissions to write there.')
 	
 	# Changes the working directory to the script location
 	if (os.path.dirname(sys.argv[0]) != ""):
@@ -116,5 +123,3 @@ def main():
 
 if __name__ == "__main__":
 	main()
-	
-

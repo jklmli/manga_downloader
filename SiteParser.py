@@ -18,14 +18,11 @@ from helper import *
 
 class SiteParserBase:
 
+	# overwrite default user-agent so we can download
 	class AppURLopener(urllib.FancyURLopener):
 		version = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
 	
-#####
-	# something seriously wrong happened
-	class FatalError(Exception):
-		pass
-	
+#####	
 	# typical misspelling of title and/or manga removal
 	class MangaNotFound(Exception):
 		pass
@@ -105,7 +102,8 @@ class SiteParserBase:
 		
 	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		"""
-		Given a page URL to download from, it searches using stringQuery as a regex to parse out the image URL, and downloads and names it using manga_chapter_prefix and page.
+		Given a page URL to download from, it searches using stringQuery as a regex to parse out the image URL, 
+		and downloads and names it using manga_chapter_prefix and page.
 		"""
 		
 		# while loop to protect against server denies for requests
@@ -191,7 +189,7 @@ class SiteParserBase:
 		else:
 			# time to parse the user input
 			
-			#ignore whitespace, split using comma delimiters
+			# ignore whitespace, split using comma delimiters
 			chapter_list_array = chapter_list_string.replace(' ', '').split(',')
 			
 			for i in chapter_list_array:
@@ -208,14 +206,16 @@ class SiteParserBase:
 	
 	def selectFromResults(self, info):
 		"""
-		Basic error checking for manga titles, queries will return a list of all mangas that include the query, case-insensitively.
+		Basic error checking for manga titles, queries will return a list of all mangas that 
+		include the query, case-insensitively.
 		"""
 		
 		found = False
 		
 		# info is a 2-tuple
-		# info[0] contains a keyword or string that needs to be passed back (generally the URL to the manga homepage) and info[1] contains the manga name we'll be using
-		# When asking y/n, we take a pessimistically only accept 'y'
+		# info[0] contains a keyword or string that needs to be passed back (generally the URL to the manga homepage)
+		# info[1] contains the manga name we'll be using
+		# When asking y/n, we pessimistically only accept 'y'
 		for notes in info:
 			if notes[1].lower().find(self.manga.lower()) != -1:
 				# manual mode
@@ -345,6 +345,7 @@ class MangaFoxParser(SiteParserBase):
 			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, 'var total_pages=([^;]*?);')
 			
 			# more or less due to the MangaFox js script sometimes leaving up chapter names and taking down URLs
+			# also if we already have the chapter
 			if url == None:
 				continue
 			
@@ -481,7 +482,7 @@ class OtakuWorksParser(SiteParserBase):
 		
 			self.compress(manga_chapter_prefix, max_pages)
 			
-#############################################################				
+#############################################################			
 class AnimeaParser(SiteParserBase):
 
 	##########
