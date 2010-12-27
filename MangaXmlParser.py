@@ -8,9 +8,9 @@ from SiteParser import SiteParserFactory
 ######################
 
 class MangaXmlParser:
-	def __init__(self, xmlPath):
-		# now uses setOpts
-		pass
+	def __init__(self, optDict):
+		for elem in vars(optDict):
+			setattr(self, elem, getattr(optDict, elem))
 	
 	@staticmethod
 	def getText(nodelist):
@@ -31,14 +31,6 @@ class MangaXmlParser:
 			if node.nodeType == node.TEXT_NODE:
 				node.data = text
 		# could apply list comprehension as well, but this way's maybe more readable?
-	
-	def setOpts(self, optDict):
-		"""
-		sets attributes for the object, passed from the arguments to manga.py
-		"""
-		for elem in vars(optDict):
-			setattr(self, elem, getattr(optDict, elem))
-	#			print(elem, getattr(optDict, elem))	
 					
 	def downloadManga(self):
 		print("Parsing XML File...")

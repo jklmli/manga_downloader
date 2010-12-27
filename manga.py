@@ -14,7 +14,7 @@ import SiteParser
 
 ##########
 
-VERSION = 'v0.6.8'
+VERSION = 'v0.7.1'
 
 siteDict = {
 		''  : 'MangaFox',
@@ -87,33 +87,26 @@ def main():
 		
 	options.download_path = os.path.realpath(options.download_path) + os.sep
 	
-	# test/create download directory	
-	try:
-		if not(os.path.exists(options.download_path)):
-			os.mkdir(options.download_path)
-	except OSError:
-		parser.error('Invalid download directory specified.')
-	
 	# Changes the working directory to the script location
 	if (os.path.dirname(sys.argv[0]) != ""):
 		os.chdir(os.path.dirname(sys.argv[0]))
 
 	# xmlfile option flagged
 	if options.xmlfile_path != None:
-		xmlParser = MangaXmlParser()
-		xmlParser.setOpts(options)
+		xmlParser = MangaXmlParser(options)
 	else:
 		# site selection
 		print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
 		site = raw_input()
 		
 		try:
-			siteParser = SiteParser.SiteParserFactory.getInstance(siteDict[site])
+			options.site = siteDict[site]
+			siteParser = SiteParser.SiteParserFactory.getInstance(options)
 		except KeyError:
 			raise InvalidSite('Site selection invalid.')
 		
 		# pass over command-line args
-		siteParser.setOpts(options)
+#		siteParser.setOpts(options)
 		
 		# basic processing
 		siteParser.parseSite()

@@ -73,6 +73,9 @@ h2. Issues
 
 h2. History
 
+*v0.7.1* (12/26/10)
++ Fixed broken functionality, minor code cleanup
+
 *v0.7.0* (12/26/10)
 + Thorough code commenting
 

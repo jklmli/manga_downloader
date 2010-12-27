@@ -35,8 +35,10 @@ class SiteParserBase:
 		pass
 #####
 
-	def __init__(self):
+	def __init__(self,optDict):
 		urllib._urlopener = SiteParserBase.AppURLopener()
+		for elem in vars(optDict):
+			setattr(self, elem, getattr(optDict, elem))
 		self.chapters = []
 		self.chapters_to_download = []
 		self.mangadl_tmp_path = 'mangadl_tmp'
@@ -62,9 +64,14 @@ class SiteParserBase:
 		"""
 		
 		print('Cleaning temporary directory...')
-		if os.path.exists(self.mangadl_tmp_path):
-			shutil.rmtree(self.mangadl_tmp_path)
-		os.mkdir(self.mangadl_tmp_path)	
+		
+		try:
+			# clean or create
+			if os.path.exists(self.mangadl_tmp_path):
+				shutil.rmtree(self.mangadl_tmp_path)
+			os.mkdir(self.mangadl_tmp_path)
+		except OSError:
+			raise FatalError('Unable to create temporary directory.')
 	
 	def compress(self, manga_chapter_prefix, max_pages):
 		"""
@@ -72,9 +79,6 @@ class SiteParserBase:
 		"""
 		
 		print('Compressing...')
-		
-		# clean now to make sure we start with a fresh temp directory
-		self.cleanTmp()
 		
 		zipPath = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + self.download_format)
 		
@@ -135,6 +139,10 @@ class SiteParserBase:
 		"""
 		Calculates some other necessary stuff before actual downloading can begin and does some checking.
 		"""
+		
+		# clean now to make sure we start with a fresh temp directory
+		self.cleanTmp()
+		
 		manga_chapter_prefix = fixFormatting(self.manga) + '_' + fixFormatting(self.chapters[current_chapter][1])
 				
 		zipPath = os.path.join(self.download_path,  manga_chapter_prefix + '.zip')
@@ -160,6 +168,7 @@ class SiteParserBase:
 		# legacy code that may be used to calculate a series of image URLs
 		# however, this is risky because some uploaders omit pages, double pages may also affect this
 		# an alternative to this is os.walk through the temporary download directory
+		# edit: this is actually required if you want a progress bar
 		max_pages = int(re.compile(queryString).search(source_code).group(1))
 
 		return (manga_chapter_prefix, url, max_pages)
@@ -175,7 +184,7 @@ class SiteParserBase:
 		if(self.all_chapters_FLAG == False):
 			chapter_list_string = raw_input('\nDownload which chapters?\n')
 			
-		elif(chapter_list_string.lower() == 'all'):
+		if(chapter_list_string.lower() == 'all'):
 			print('\nDownloading all chapters...')
 			for i in range(0, len(chapters)):
 				chapter_list_array_decrypted.append(i)
@@ -184,7 +193,7 @@ class SiteParserBase:
 			
 			#ignore whitespace, split using comma delimiters
 			chapter_list_array = chapter_list_string.replace(' ', '').split(',')
-	
+			
 			for i in chapter_list_array:
 				iteration = re.search('([0-9]*)-([0-9]*)', i)
 				
@@ -233,14 +242,6 @@ class SiteParserBase:
 		if (not found):
 			raise self.MangaNotFound('No strict match found; please retype your query.\n')
 		return keyword
-		
-	def setOpts(self, optDict):
-		"""
-		sets attributes for the object, passed from the arguments to manga.py
-		"""
-		for elem in vars(optDict):
-			setattr(self, elem, getattr(optDict, elem))
-	#			print(elem, getattr(optDict, elem))
 
 ########################################
 
@@ -249,17 +250,17 @@ class SiteParserFactory():
 	Chooses the right subclass function to call.
 	"""
 	@staticmethod
-	def getInstance(site):
+	def getInstance(options):
 		ParserClass = {
 			'MangaFox' 	: MangaFoxParser,
 			'MangaReader' 	: MangaReaderParser,
 			'OtakuWorks' 	: OtakuWorksParser
-		}.get(site, None)
+		}.get(options.site, None)
 		
 		if not ParserClass:
 			raise NotImplementedError( "Site Not Supported" )
 		
-		return ParserClass()
+		return ParserClass(options)
 
 ########################################
 class MangaFoxParser(SiteParserBase):
@@ -349,7 +350,7 @@ class MangaFoxParser(SiteParserBase):
 			
 			# download each image, basic progress indicator
 			for page in range(1, max_pages + 1):
-				print(self.chapters[current_chapter][1] + ' / ' + 'Page ')
+				print(self.chapters[current_chapter][1] + ' / ' + 'Page ' + str(page))
 				pageUrl = '%s/%i.html' % (url, page)
 				self.downloadImage(page, pageUrl, manga_chapter_prefix, ';"><img src="([^"]*)"')
 			
