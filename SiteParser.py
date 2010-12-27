@@ -350,7 +350,7 @@ class MangaFoxParser(SiteParserBase):
 			
 			# download each image, basic progress indicator
 			for page in range(1, max_pages + 1):
-				print(self.chapters[current_chapter][1] + ' / ' + 'Page ' + str(page))
+				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
 				pageUrl = '%s/%i.html' % (url, page)
 				self.downloadImage(page, pageUrl, manga_chapter_prefix, ';"><img src="([^"]*)"')
 			
@@ -414,7 +414,7 @@ class MangaReaderParser(SiteParserBase):
 			manga_chapter_prefix = fixFormatting(self.chapters[current_chapter][1])
 			
 			for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
-				print(self.chapters[current_chapter][1] + ' / ' + 'Page ' + page[1])
+				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
 				pageUrl = 'http://www.mangareader.net' + page[0]
 				self.downloadImage(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
 				
@@ -472,7 +472,7 @@ class OtakuWorksParser(SiteParserBase):
 				continue
 		
 			for page in range(1, max_pages + 1):
-				print(self.chapters[current_chapter][1] + ' / ' + 'Page ' + str(page))
+				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
 				pageUrl = '%s/%i' % (url, page)
 				self.downloadImage(page, pageUrl, manga_chapter_prefix, 'img src="(http://static.otakuworks.net/viewer/[^"]*)"')
 		
