@@ -430,6 +430,8 @@ class OtakuWorksParser(SiteParserBase):
 		source_code = getSourceCode(url)
 
 		info = re.compile('a href="([^"]*?)"[^>]*?>([^<]*?) \(Manga\)').findall(source_code)
+		
+		# we either have 0 search results or we have already been redirected to the manga homepage
 		if len(info) != 0:
 			keyword = self.selectFromResults(info)
 			source_code = getSourceCode(keyword)
