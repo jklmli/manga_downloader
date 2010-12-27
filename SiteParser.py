@@ -426,12 +426,13 @@ class OtakuWorksParser(SiteParserBase):
 	def parseSite(self):
 		print('Beginning OtakuWorks check...')
 		url = 'http://www.otakuworks.com/search/%s' % '+'.join(self.manga.split())
-	
-		source_code = getSourceCode(url)
-		info = re.compile('a href="([^"]*?)"[^>]*?>([^<]*?) \(Manga\)').findall(source_code)
 
-		keyword = self.selectFromResults(info)
-		source_code = getSourceCode(keyword)
+		source_code = getSourceCode(url)
+
+		info = re.compile('a href="([^"]*?)"[^>]*?>([^<]*?) \(Manga\)').findall(source_code)
+		if len(info) != 0:
+			keyword = self.selectFromResults(info)
+			source_code = getSourceCode(keyword)
 	
 		if(source_code.find('has been licensed and as per request all releases under it have been removed.') != -1):
 			raise self.MangaNotFound('Manga not found: it has been removed.')
