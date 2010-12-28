@@ -45,15 +45,7 @@ class MangaXmlParser:
 			download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0].childNodes)
 			
 			
-			siteParser = SiteParserFactory.getInstance(site)
-			
-#			siteParser.overwrite_FLAG = self.overwrite_FLAG
-#			siteParser.all_chapters_FLAG = False
-#			siteParser.auto = True
-#			siteParser.lastDownloaded = lastChapterDownloaded
-
-			# should be able to replace above code
-			siteParser.setOpts(vars(self))
+			siteParser = SiteParserFactory.getInstance(options)
 		
 			try:
 				siteParser.ParseSite()
