@@ -1,31 +1,29 @@
+#!/usr/bin/env python
+
+######################
+
 from xml.dom import minidom
 from SiteParser import SiteParserFactory
 
+######################
+
 class MangaXmlParser:
-	def __init__(self, xmlPath):
-		self.xmlFile = xmlPath
-		self.overwrite_FLAG = False
-		self.download_format = '.cbz'
-		self.ConversionFlag = False
-		self.Device = "Kindle 3"
-	
-	@staticmethod 
-	def ImportConversionLib():
-		try:
-			from ConvertFile import convertFile
-		except ImportError:
-			return False
-		else:
-			return True
+	def __init__(self, optDict):
+		for elem in vars(optDict):
+			setattr(self, elem, getattr(optDict, elem))
 	
 	@staticmethod
 	def getText(nodelist):
-		rc = []
-		for node in nodelist:
-			if node.nodeType == node.TEXT_NODE:
-				rc.append(node.data)
+#		rc = []
+#		for node in nodelist:
+#			if node.nodeType == node.TEXT_NODE:
+#				rc.append(node.data)
+#		
+#		
+#		return ''.join(rc)
 		
-		return ''.join(rc)
+		# untested code, but should work
+		return ''.join([node.data for node in nodelist if node.nodeType == node.TEXT_NODE])
 
 	@staticmethod
 	def setText(nodelist, text):
@@ -34,24 +32,29 @@ class MangaXmlParser:
 				node.data = text
 				
 	def downloadManga(self):
-		print("parsing XML File")
+		print("Parsing XML File...")
 		dom = minidom.parse(self.xmlFile)
 		
 		for node in dom.getElementsByTagName("MangaSeries"):
 			iLastChap = 0;
 			name = MangaXmlParser.getText(node.getElementsByTagName('name')[0].childNodes)
 			site = 	MangaXmlParser.getText(node.getElementsByTagName('HostSite')[0].childNodes)
-			lastChapterDownloaded =	MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes)
+			lastDownloaded = MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes)
 			download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0].childNodes)
 			
 			
 			siteParser = SiteParserFactory.getInstance(site)
 			
-			siteParser.overwrite_FLAG = self.overwrite_FLAG
-			siteParser.all_chapters_FLAG = False
+#			siteParser.overwrite_FLAG = self.overwrite_FLAG
+#			siteParser.all_chapters_FLAG = False
+#			siteParser.auto = True
+#			siteParser.lastDownloaded = lastChapterDownloaded
+
+			# should be able to replace above code
+			siteParser.setOpts(vars(self))
 		
 			try:
-				siteParser.ParseSite(name, True, lastChapterDownloaded)
+				siteParser.ParseSite()
 			except siteParser.MangaNotFound:
 				print ("Manga ("+name+") Missing. Check if still available\n")
 				continue
@@ -60,13 +63,12 @@ class MangaXmlParser:
 				print ("Manga ("+name+") up-to-date.\n")
 				continue
 		
-		
 			for current_chapter in siteParser.chapters:
 				#print "Current Chapter =" + str(current_chapter[0])
 				iLastChap = current_chapter[1]
 		
 			try:
-				siteParser.downloadChapters(download_path, self.download_format)
+				siteParser.downloadChapters()
 				print "\n"
 			except:
 				print "Unknown Error - ("+name+")\n"
@@ -75,8 +77,8 @@ class MangaXmlParser:
 			#print iLastChap
 			MangaXmlParser.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
 			
-			if (self.ConversionFlag):
-				if (not MangaXmlParser.ImportConversionLib()):
+			if (self.conversion_FLAG):
+				if (not isImageLibAvailable()):
 					print "PIL (Python Image Library) not available."
 				else:	
 					from ConvertFile import convertFile

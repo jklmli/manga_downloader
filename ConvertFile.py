@@ -14,7 +14,7 @@ class convertFile():
 	def convert(self, filePath, outDir, Device):
 		listDir = []
 		isDir = os.path.isdir(filePath)
-		
+
 		if (isDir):
 			title = os.path.basename(filePath)
 			listDir = os.listdir(filePath)
@@ -67,10 +67,9 @@ class convertFile():
 			z = zipfile.ZipFile(compressedFile, 'r')
 			
 			if (isDir):
-				temp_dir = os.path.join(filePath, os.path.splitext(compressedFile)[0])
+				temp_dir = os.path.join(filePath, os.path.splitext(os.path.basename(compressedFile))[0])
 			else:
 				temp_dir = os.path.splitext(compressedFile)[0]
-
 			
 			try:			
 				os.mkdir(temp_dir)

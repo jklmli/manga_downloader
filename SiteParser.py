@@ -1,490 +1,482 @@
-import urllib
-import re
-import string
+#!/usr/bin/env python
+
+#####################
+
+import imghdr
 import os
+import re
 import shutil
 import sys
+import urllib
 import zipfile
-import imghdr
+
+#####################
+
+from helper import *
+
+#####################
 
 class SiteParserBase:
 
+	# overwrite default user-agent so we can download
 	class AppURLopener(urllib.FancyURLopener):
 		version = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
 	
-	class NoUpdates(Exception):
-		pass
-	
+#####	
+	# typical misspelling of title and/or manga removal
 	class MangaNotFound(Exception):
 		pass
+	
+	# XML file config reports nothing to do
+	class NoUpdates(Exception):
+		pass
+#####
 
-
-	def __init__(self):
+	def __init__(self,optDict):
 		urllib._urlopener = SiteParserBase.AppURLopener()
-		self.mangdl_tmp_path = "mangadl_tmp" 
-		self.all_chapters_FLAG = False
-		self.overwrite_FLAG = False
+		for elem in vars(optDict):
+			setattr(self, elem, getattr(optDict, elem))
 		self.chapters = []
 		self.chapters_to_download = []
-		self.Manga = None
+		self.mangadl_tmp_path = 'mangadl_tmp'
 		self.CompressedFiles = []
-	
+
+	# this takes care of removing the temp directory after the last successful download
 	def __del__(self):
 		try:
-			shutil.rmtree(self.mangdl_tmp_path)
+			shutil.rmtree(self.mangadl_tmp_path)
 		except:
 			pass
-	
-	def ParseSite(self, manga, auto, lastDownloaded):
-		raise NotImplementedError( "Should have implemented this" )
-	
-	def downloadChapters(self, manga, chapter_start, chapter_end, download_path, download_format):
-		raise NotImplementedError( "Should have implemented this" )
 
-	def fixFormatting(self, s):
-		for i in string.punctuation:
-			if(i != '-' and i != '.'):
-				s = s.replace(i, "")
-		return s.lower().lstrip('.').strip().replace(' ', '_')
-	
-	def getSourceCode(self, url):
-		while True:
-			try:
-				ret = urllib.urlopen(url).read()
-			except IOError:
-				pass
-			else:
-				break
-		return ret
+#####
+	def downloadChapters(self):
+		raise NotImplementedError( 'Should have implemented this' )	
+		
+	def parseSite(self):
+		raise NotImplementedError( 'Should have implemented this' )
+#####
 	
 	def cleanTmp(self):
-		if os.path.exists(self.mangdl_tmp_path):
-			shutil.rmtree(self.mangdl_tmp_path)
-		os.mkdir(self.mangdl_tmp_path)
-	
-	def selectChapters(self, chapters):
-		chapter_list_array_decrypted = []
-		chapter_list_string = ''
-		if(self.all_chapters_FLAG == False):
-			chapter_list_string = raw_input('\nDownload which chapters?\n')
-		if(self.all_chapters_FLAG == True or chapter_list_string.lower() == 'all'):
-			print('\nDownloading all chapters...')
-			for i in range(0, len(chapters)):
-				chapter_list_array_decrypted.append(i)
-		else:
-			chapter_list_array = chapter_list_string.replace(' ', '').split(',')
-	
-			for i in chapter_list_array:
-				iteration = re.search('([0-9]*)-([0-9]*)', i)
-				if(iteration != None):
-					for j in range((int)(iteration.group(1)), (int)(iteration.group(2)) + 1):
-						chapter_list_array_decrypted.append(j - 1)
-				else:
-					chapter_list_array_decrypted.append((int)(i) - 1)
-		return chapter_list_array_decrypted
+		"""
+		Cleans the temporary directory in which image files are downloaded to and held in until they are compressed.
+		"""
 		
-	def prepareDownload(self, manga, chapters, current_chapter, download_path, queryString):
+		print('Cleaning temporary directory...')
+		
+		try:
+			# clean or create
+			if os.path.exists(self.mangadl_tmp_path):
+				shutil.rmtree(self.mangadl_tmp_path)
+			os.mkdir(self.mangadl_tmp_path)
+		except OSError:
+			raise FatalError('Unable to create temporary directory.')
+	
+	def compress(self, manga_chapter_prefix, max_pages):
+		"""
+		Looks inside the temporary directory and zips up all the image files.
+		"""
+		
+		print('Compressing...')
+		
+		zipPath = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + self.download_format)
+		
+		try:
+			os.remove(zipPath)
+		except OSError:
+			pass
+			
+		z = zipfile.ZipFile( zipPath, 'w')
+		
+		for page in range(1, max_pages + 1):	
+			temp_path = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
+			# we got an image file
+			if imghdr.what(temp_path) != None:
+				z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
+		z.close()
+		compressedFile = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + self.download_format)
+		
+ 		shutil.move( compressedFile, self.download_path)
+		
+		compressedFile = os.path.basename(compressedFile)
+		compressedFile = os.path.join(self.download_path, compressedFile)
+		self.CompressedFiles.append(compressedFile)
 		self.cleanTmp()
-		manga_chapter_prefix = self.fixFormatting(manga) + '_' + self.fixFormatting(chapters[current_chapter][1])
-		
-		zipPath = os.path.join(download_path,  manga_chapter_prefix + '.zip')
-		cbzPath = os.path.join(download_path,  manga_chapter_prefix + '.cbz')	
-		
-		if (os.path.exists(cbzPath) or os.path.exists(zipPath)) and self.overwrite_FLAG == False:
-			print(chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
-			return (None, None, None)
-		else:
-			if os.path.exists(cbzPath):
-				os.remove(cbzPath)
-			if  os.path.exists(zipPath):
-				os.remove(zipPath)
-        
-		while True:
-			try:
-				url = chapters[current_chapter][0]
-				print(url)
-				source_code = self.getSourceCode(url)
-				max_pages = int(re.compile(queryString).search(source_code).group(1))
-			except AttributeError:
-				pass
-			else:
-				break
-		return (manga_chapter_prefix, url, max_pages)
 	
-	def downloadImages(self, page, pageUrl, manga_chapter_prefix, stringQuery):
+	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
+		"""
+		Given a page URL to download from, it searches using stringQuery as a regex to parse out the image URL, 
+		and downloads and names it using manga_chapter_prefix and page.
+		"""
+		
+		# while loop to protect against server denies for requests
+		# note that disconnects are already handled by getSourceCode, we use a regex to parse out the image URL and filter out garbage denies
 		while True:
 			try:
-				source_code = self.getSourceCode(pageUrl)
+				source_code = getSourceCode(pageUrl)
 				img_url = re.compile(stringQuery).search(source_code).group(1)
 			except AttributeError:
 				pass
 			else:
 				break
-		
+
 		# Line is encoding any special character in the URL must remove the http:// before encoding 
-		# becuase otherwise teh :// would be encoded as well
-		img_url = "http://" + urllib.quote(img_url.split("//")[1])
+		# because otherwise the :// would be encoded as well				
+		img_url = 'http://' + urllib.quote(img_url.split('//')[1])
 		
 		print(img_url)
+		
+		# while loop to protect against server denies for requests and/or minor disconnects
 		while True:
 			try:
-				temp_path = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
+				temp_path = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
 				urllib.urlretrieve(img_url, temp_path)
 			except IOError:
 				pass
 			else:
 				break
-				
-	def compress(self, manga_chapter_prefix, download_path, max_pages, download_format):
-		print('Compressing...')
-		
-		zipPath = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format)
 	
-		# Modified for compatibilities issue with Python2.5, 
-		# Option a would throw an error if the file did not exist.
-		if os.path.exists(zipPath):
-			z = zipfile.ZipFile( zipPath, 'a')
-		else:
-			z = zipfile.ZipFile( zipPath, 'w')
+	def prepareDownload(self, current_chapter, queryString):
+		"""
+		Calculates some other necessary stuff before actual downloading can begin and does some checking.
+		"""
 		
-		
-		for page in range(1, max_pages + 1):	
-			temp_path = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
-		
-			if imghdr.what(temp_path) != None:
-				z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
-		z.close()
-		compressedFile = os.path.join(self.mangdl_tmp_path, manga_chapter_prefix + download_format)
-		
- 		shutil.move( compressedFile, download_path)
-		
-		compressedFile = os.path.basename(compressedFile)
-		compressedFile = os.path.join(download_path, compressedFile)
-		self.CompressedFiles.append(compressedFile)
+		# clean now to make sure we start with a fresh temp directory
 		self.cleanTmp()
-	
-
-########################################
-class SiteParserFactory():
-	@staticmethod
-	def getInstance(site):
-		ParserClass = {
-			'MangaFox' : MangaFoxParser,
-			'MangaReader' : MangaReaderParser,
-			'OtakuWorks' : OtakuWorksParser
-		}.get(site, None)
 		
-		if not ParserClass:
-			raise NotImplementedError( "Site Not Supported" )
-		
-		return ParserClass()
+		manga_chapter_prefix = fixFormatting(self.manga) + '_' + fixFormatting(self.chapters[current_chapter][1])
+				
+		zipPath = os.path.join(self.download_path,  manga_chapter_prefix + '.zip')
+		cbzPath = os.path.join(self.download_path,  manga_chapter_prefix + '.cbz')	
 
-
-########################################
-class MangaFoxParser(SiteParserBase):
-	
-	def ParseSite(self, manga, auto, lastDownloaded):
-		print('Beginning MangaFox check...')
-		url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(manga.split())
-		try:
-			source_code = self.getSourceCode(url)
-			info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
-		except AttributeError:
-			print('Manga not found: it doesn\'t exist, or cannot be resolved by autocorrect.')
-			raise self.MangaNotFound
+		# we already have it
+		if (os.path.exists(cbzPath) or os.path.exists(zipPath)) and self.overwrite_FLAG == False:
+			print(self.chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
+			return (None, None, None)
+		# overwriting
 		else:
-			found = False
-			for notes in info:
-				if (not auto):
-					print(notes[1])
+			for path in (cbzPath, zipPath):
+				if os.path.exists(path):
+					os.remove(path)
+	
+		# get the URL of the chapter homepage
+		url = self.chapters[current_chapter][0]
+		
+		print(url)
+		
+		source_code = getSourceCode(url)
+		
+		# legacy code that may be used to calculate a series of image URLs
+		# however, this is risky because some uploaders omit pages, double pages may also affect this
+		# an alternative to this is os.walk through the temporary download directory
+		# edit: this is actually required if you want a progress bar
+		max_pages = int(re.compile(queryString).search(source_code).group(1))
+
+		return (manga_chapter_prefix, url, max_pages)
+	
+	def selectChapters(self, chapters):
+		"""
+		Prompts user to select list of chapters to be downloaded from total list.
+		"""
+		
+		# this is the array form of the chapters we want
+		chapter_list_array_decrypted = []
+		
+		if(self.all_chapters_FLAG == False):
+			chapter_list_string = raw_input('\nDownload which chapters?\n')
 			
-				if notes[1].lower() == manga.lower():
-					self.Manga = notes[1]
+		if(self.all_chapters_FLAG == True or chapter_list_string.lower() == 'all'):
+			print('\nDownloading all chapters...')
+			for i in range(0, len(chapters)):
+				chapter_list_array_decrypted.append(i)
+		else:
+			# time to parse the user input
+			
+			# ignore whitespace, split using comma delimiters
+			chapter_list_array = chapter_list_string.replace(' ', '').split(',')
+			
+			for i in chapter_list_array:
+				iteration = re.search('([0-9]*)-([0-9]*)', i)
+				
+				# it's a range
+				if(iteration is not None):
+					for j in range((int)(iteration.group(1)), (int)(iteration.group(2)) + 1):
+						chapter_list_array_decrypted.append(j - 1)
+				# it's a single chapter
+				else:
+					chapter_list_array_decrypted.append((int)(i) - 1)
+		return chapter_list_array_decrypted
+	
+	def selectFromResults(self, info):
+		"""
+		Basic error checking for manga titles, queries will return a list of all mangas that 
+		include the query, case-insensitively.
+		"""
+		
+		found = False
+		
+		# info is a 2-tuple
+		# info[0] contains a keyword or string that needs to be passed back (generally the URL to the manga homepage)
+		# info[1] contains the manga name we'll be using
+		# When asking y/n, we pessimistically only accept 'y'
+		for notes in info:
+			if notes[1].lower().find(self.manga.lower()) != -1:
+				# manual mode
+				if (not self.auto):
+					print(notes[1])
+				
+				# exact match
+				if notes[1].lower() == self.manga.lower():
+					self.manga = notes[1]
 					keyword = notes[0]
 					found = True
 					break
 				else:
-					if (not auto):
+					# only request input in manual mode
+					if (not self.auto):
 						print('Did you mean: %s? (y/n)' % notes[1])
 						answer = raw_input();
-					else:
-						answer = 'n'
-				
-					if (answer == 'y'):
-						self.Manga = notes[1]
-						keyword = notes[0]
-						found = True
-						break
-			if found == False:	
-				print('No strict match found; please retype your query.\n')
-				raise self.MangaNotFound
-			
+	
+						if (answer == 'y'):
+							self.manga = notes[1]
+							keyword = notes[0]
+							found = True
+							break
+		if (not found):
+			raise self.MangaNotFound('No strict match found; please retype your query.\n')
+		return keyword
+
+########################################
+
+class SiteParserFactory():
+	"""
+	Chooses the right subclass function to call.
+	"""
+	@staticmethod
+	def getInstance(options):
+		ParserClass = {
+			'MangaFox' 	: MangaFoxParser,
+			'MangaReader' 	: MangaReaderParser,
+			'OtakuWorks' 	: OtakuWorksParser
+		}.get(options.site, None)
+		
+		if not ParserClass:
+			raise NotImplementedError( "Site Not Supported" )
+		
+		return ParserClass(options)
+
+########################################
+class MangaFoxParser(SiteParserBase):
+	
+	def parseSite(self):
+		"""
+		Parses list of chapters and URLs associated with each one for the given manga and site.
+		"""
+		
+		print('Beginning MangaFox check...')
+		
+		url = 'http://www.mangafox.com/manga/%s/' % fixFormatting(self.manga)
+		source_code = getSourceCode(url)
+		
+		# jump straight to expected URL and test if manga removed
+		if(source_code.find('it is not available in Manga Fox.') != -1):
+			raise self.MangaNotFound('Manga not found: it has been removed')
+		
+		# do a search
+		url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(self.manga.split())
+		try:
+			source_code = getSourceCode(url)
+			info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
+		# 0 results
+		except AttributeError:
+			raise self.MangaNotFound('Manga not found: it doesn\'t exist, or cannot be resolved by autocorrect.')
+		else:	
+			keyword = self.selectFromResults(info)
 			url = 'http://www.mangafox.com/manga/%s/' % keyword
-			source_code = self.getSourceCode(url)
+			source_code = getSourceCode(url)
+			# other check for manga removal if our initial guess for the name was wrong
 			if(source_code.find('it is not available in Manga Fox.') != -1):
-				print('Manga not found: it has been removed')
-				raise self.MangaNotFound
+				raise self.MangaNotFound('Manga not found: it has been removed')
 		
+			# that's nice of them
 			url = 'http://www.mangafox.com/cache/manga/%s/chapters.js' % keyword
-			source_code = self.getSourceCode(url)
+			source_code = getSourceCode(url)
 		
+			# chapters is a 2-tuple
+			# chapters[0] contains the chapter URL
+			# chapters[1] contains the chapter title
 			self.chapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"').findall(source_code)
 
+			# code used to both fix URL from relative to absolute as well as verify last downloaded chapter for XML component
 			lowerRange = 0
 			upperRange = 0
 		
 			for i in range(0, len(self.chapters)):
 				self.chapters[i] = ('http://www.mangafox.com/manga/%s/' % keyword + self.chapters[i][1], self.chapters[i][0])
-				if (not auto):
+				if (not self.auto):
 					print('(%i) %s' % (i + 1, self.chapters[i][1]))
+				else:
+					if (self.lastDownloaded == self.chapters[i][1]):
+						lowerRange = i + 1
+
+			# this might need to be len(self.chapters) + 1, I'm unsure as to whether python adds +1 to i after the loop or not
+			upperRange = len(self.chapters)
 			
-				if (lastDownloaded == self.chapters[i][1]):
-					lowerRange = i + 1
-				
-			upperRange = i + 1
-		
-			#print str(lowerRange) +" - "+str(upperRange)
-		
-			if (not auto):
+			# which ones do we want?
+			if (not self.auto):
 				self.chapters_to_download = self.selectChapters(self.chapters)
+			# XML component
 			else:
 				if ( lowerRange == upperRange):
 					raise self.NoUpdates
 				
 				for i in range (lowerRange, upperRange):
 					self.chapters_to_download.append(i)
-			
-			return 
-		
+			return 		
 	
-	def downloadChapters(self, download_path, download_format):
-	
-		if (self.Manga == None):
-			raise self.MangaNotFound
+	def downloadChapters(self):
+		"""
+		for loop that goes through the chapters we selected.
+		"""
 			
 		for current_chapter in self.chapters_to_download:
-			manga_chapter_prefix, url, max_pages = self.prepareDownload(self.Manga, self.chapters, current_chapter, download_path, 'var total_pages=([^;]*?);')
+			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, 'var total_pages=([^;]*?);')
+			
+			# more or less due to the MangaFox js script sometimes leaving up chapter names and taking down URLs
+			# also if we already have the chapter
 			if url == None:
 				continue
 			
+			# download each image, basic progress indicator
 			for page in range(1, max_pages + 1):
-				print(self.chapters[current_chapter][1] + ' / ' + 'Page ' + str(page))
+				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
 				pageUrl = '%s/%i.html' % (url, page)
-				self.downloadImages(page, pageUrl, manga_chapter_prefix, ';"><img src="([^"]*)"')
+				self.downloadImage(page, pageUrl, manga_chapter_prefix, ';"><img src="([^"]*)"')
 			
-			self.compress(manga_chapter_prefix, download_path, max_pages, download_format)	
-			
+			# zip them up
+			self.compress(manga_chapter_prefix, max_pages)	
 
-
-#############################################################		
+####################################################################
+# The code for the other sites is similar enough to not need
+# explanation, but dissimilar enough to not warrant any further OOP
+####################################################################
 class MangaReaderParser(SiteParserBase):
 
-	def ParseSite(self, manga, auto, lastDownloaded):
+	def parseSite(self):
 		print('Beginning MangaReader check...')
+		
 		url = 'http://www.mangareader.net/alphabetical'
-		try:
-			source_code = self.getSourceCode(url)
-		
-			info = re.compile('<li><a href="([^"]*)">([^<]*)</a>').findall(source_code[source_code.find('series_col'):])
-			found = False
-		
-			for notes in info:
-				if notes[1].lower().find(manga.lower()) != -1:
-					if (not auto):
-						print(notes[1])
-			
-					if notes[1].lower() == manga.lower():
-						self.Manga = notes[1]
-						keyword = notes[0]
-						found = True
-						break
-					else:
-						if (not auto):
-							print('Did you mean: %s? (y/n)' % notes[1])
-							answer = raw_input();
-						else:
-							answer = 'n'
-				
-						if (answer == 'y'):
-							self.Manga = notes[1]
-							keyword = notes[0]
-							found = True
-						break
-						
-			if (not found):
-				if (not auto):
-					print('No strict match found; please retype your query.\n')
-					sys.exit()
-				else:
-					raise self.MangaNotFound
-					
-		except AttributeError:
-			if (not auto):
-				print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
-				sys.exit()
-			else:
-				raise self.MangaNotFound
-		else:
-			url = 'http://www.mangareader.net%s' % keyword
-			source_code = self.getSourceCode(url)
-			# print(url)
-			
-			self.chapters = re.compile('<tr><td><a href="([^"]*)" class="chico">([^<]*)</a>([^<]*)</td>').findall(source_code)
-			
-			lowerRange = 0
-			upperRange = 0
-			
-			for i in range(0, len(self.chapters)):
-				self.chapters[i] = ('http://www.mangareader.net' + self.chapters[i][0], '%s%s' % (self.chapters[i][1], self.chapters[i][2]))
-				if (not auto):
-					print('(%i) %s' % (i + 1, self.chapters[i][1]))
 
-				if (lastDownloaded == self.chapters[i][1]):
-					lowerRange = i + 1
-				
-			upperRange = i + 1
-							
-			if (not auto):
-				self.chapters_to_download = self.selectChapters(self.chapters)
-			else:
-				if ( lowerRange == upperRange):
-					raise self.NoUpdates
-				
-				for i in range (lowerRange, upperRange):
-					self.chapters_to_download .append(i)
-				
-			return 
-	
-	
-	
-	def downloadChapters(self, download_path, download_format):
-		if (self.Manga == None):
-			raise self.MangaNotFound
-				
-		for current_chapter in self.chapters_to_download:
-	
-			manga_chapter_prefix, url, max_pages = self.prepareDownload(self.Manga, self.chapters, current_chapter, download_path, '</select> of (\d*)            </div>')
-		
-			manga_chapter_prefix = self.fixFormatting(self.chapters[current_chapter][1])
-			if url == None:
-				continue
-			
-			for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(self.getSourceCode(url)):
-				print(self.chapters[current_chapter][1] + ' / ' + 'Page ' + page[1])
-				pageUrl = 'http://www.mangareader.net' + page[0]
-				self.downloadImages(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
-				
-			self.compress(manga_chapter_prefix, download_path, max_pages, download_format)	
+		source_code = getSourceCode(url)
+		info = re.compile('<li><a href="([^"]*)">([^<]*)</a>').findall(source_code[source_code.find('series_col'):])
 
-
-
-#############################################################			
-class OtakuWorksParser(SiteParserBase):
-	
-	def ParseSite(self, manga, auto, lastDownloaded):
-		i = 0
+		keyword = self.selectFromResults(info)
+		url = 'http://www.mangareader.net%s' % keyword
+		source_code = getSourceCode(url)
 		
-		print('Beginning OtakuWorks check...')
-		url = 'http://www.otakuworks.com/search/%s' % '+'.join(manga.split())
-	
-		try:
-			source_code = self.getSourceCode(url)
-			info = re.compile('>([^>]*?) \(Manga\)').findall(source_code)
+		self.chapters = re.compile('<tr><td><a href="([^"]*)" class="chico">([^<]*)</a>([^<]*)</td>').findall(source_code)
 		
-			found = False
-		
-			for notes in info:
-				i = i + 1
-				if (not auto):
-					print(notes)
-				
-				if notes.lower() == manga.lower():
-					self.Manga = notes
-					found = True
-					break
-				else:
-					if (not auto):
-						print('Did you mean: %s? (y/n)' % notes)
-						answer = raw_input();
-					else:
-						answer = 'n'
-				
-					if (answer == 'y'):
-						self.Manga = notes
-						found = True
-						break
-					
-			if (not found):
-				if (not auto):
-					print('No strict match found; please retype your query.\n')
-					sys.exit()
-				else:
-					raise self.MangaNotFound
-					
-		except AttributeError:
-			if (not auto):
-				print('Manga not found: it doesn\'t exist, has been removed, or cannot be resolved by autocorrect.')
-				sys.exit()
-			else:
-				raise MangaNotFound
-		
-	#	else:
-		try:
-			FoundURLs = re.compile('a href="([^>]*?)"[^<]*? \(Manga\)').findall(source_code)
-			source_code = self.getSourceCode(FoundURLs[i-1])
-		
-		except AttributeError:
-			pass
-		except IndexError:
-			pass
-	
-		self.chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(self.fixFormatting(self.Manga).replace('_', ' ').split())).findall(source_code)
-		self.chapters.reverse()
-
 		lowerRange = 0
 		upperRange = 0
-		for i in range(0, len(self.chapters)):
-			self.chapters[i] = ('http://www.otakuworks.com' + self.chapters[i][0] + '/read', self.chapters[i][1])
-			if (not auto):
-				print('(%i) %s' % (i + 1, self.chapters[i][1]))
-			if (lastDownloaded == self.chapters[i][1]):
-				lowerRange = i + 1
 			
-		upperRange = i + 1	
-	
-		if (not auto):
+		for i in range(0, len(self.chapters)):
+			self.chapters[i] = ('http://www.mangareader.net' + self.chapters[i][0], '%s%s' % (self.chapters[i][1], self.chapters[i][2]))
+			if (not self.auto):
+				print('(%i) %s' % (i + 1, self.chapters[i][1]))
+			else:
+				if (self.lastDownloaded == self.chapters[i][1]):
+					lowerRange = i + 1
+		
+		# this might need to be len(self.chapters) + 1, I'm unsure as to whether python adds +1 to i after the loop or not
+		upperRange = len(self.chapters)
+						
+		if (not self.auto):
 			self.chapters_to_download = self.selectChapters(self.chapters)
 		else:
 			if ( lowerRange == upperRange):
 				raise self.NoUpdates
 			
 			for i in range (lowerRange, upperRange):
-				self.chapters_to_download.append(i)
+				self.chapters_to_download .append(i)
+		return 
+	
+	def downloadChapters(self):
 			
+		for current_chapter in self.chapters_to_download:
+	
+			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)            </div>')
+		
+			if url == None:
+				continue
+			
+			manga_chapter_prefix = fixFormatting(self.chapters[current_chapter][1])
+			
+			for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
+				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
+				pageUrl = 'http://www.mangareader.net' + page[0]
+				self.downloadImage(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
+				
+			self.compress(manga_chapter_prefix, max_pages)	
+
+#############################################################			
+class OtakuWorksParser(SiteParserBase):
+	
+	def parseSite(self):
+		print('Beginning OtakuWorks check...')
+		url = 'http://www.otakuworks.com/search/%s' % '+'.join(self.manga.split())
+
+		source_code = getSourceCode(url)
+
+		info = re.compile('a href="([^"]*?)"[^>]*?>([^<]*?) \(Manga\)').findall(source_code)
+		
+		# we either have 0 search results or we have already been redirected to the manga homepage
+		if len(info) != 0:
+			keyword = self.selectFromResults(info)
+			source_code = getSourceCode(keyword)
+	
+		if(source_code.find('has been licensed and as per request all releases under it have been removed.') != -1):
+			raise self.MangaNotFound('Manga not found: it has been removed.')
+		
+		self.chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(fixFormatting(self.manga).replace('_', ' ').split())).findall(source_code)
+		self.chapters.reverse()
+
+		lowerRange = 0
+		upperRange = 0
+		for i in range(0, len(self.chapters)):
+			self.chapters[i] = ('http://www.otakuworks.com' + self.chapters[i][0] + '/read', self.chapters[i][1])
+			if (not self.auto):
+				print('(%i) %s' % (i + 1, self.chapters[i][1]))
+			else:
+				if (self.lastDownloaded == self.chapters[i][1]):
+					lowerRange = i + 1
+		
+		# this might need to be len(self.chapters) + 1, I'm unsure as to whether python adds +1 to i after the loop or not
+		upperRange = len(self.chapters)	
+	
+		if (not self.auto):
+			self.chapters_to_download = self.selectChapters(self.chapters)
+		else:
+			if ( lowerRange == upperRange):
+				raise self.NoUpdates
+			for i in range (lowerRange, upperRange):
+				self.chapters_to_download.append(i)
 		return 
 		
-		
-	def downloadChapters(self, download_path, download_format):
-
-		if (self.Manga == None):
-			raise self.MangaNotFound
+	def downloadChapters(self):
 
 		for current_chapter in self.chapters_to_download:
 		
-			manga_chapter_prefix, url, max_pages = self.prepareDownload(self.Manga, self.chapters, current_chapter, download_path, '<strong>(\d*)</strong>')
+			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '<strong>(\d*)</strong>')
 			if url == None:
 				continue
 		
 			for page in range(1, max_pages + 1):
-				print(self.chapters[current_chapter][1] + ' / ' + 'Page ' + str(page))
+				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
 				pageUrl = '%s/%i' % (url, page)
-				self.downloadImages(page, pageUrl, manga_chapter_prefix, 'img src="(http://static.otakuworks.net/viewer/[^"]*)"')
+				self.downloadImage(page, pageUrl, manga_chapter_prefix, 'img src="(http://static.otakuworks.net/viewer/[^"]*)"')
 		
-			self.compress(manga_chapter_prefix, download_path, max_pages, download_format)
+			self.compress(manga_chapter_prefix, max_pages)
 			
-
-
-#############################################################				
+#############################################################			
 class AnimeaParser(SiteParserBase):
 
 	##########
