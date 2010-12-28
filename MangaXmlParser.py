@@ -52,7 +52,7 @@ class MangaXmlParser:
 			self.options.lastDownloaded = lastDownloaded
 			self.options.auto = True
 
-			siteParser = SiteParserFactory.getInstance(options)
+			siteParser = SiteParserFactory.getInstance(self.options)
 		
 			try:
 				siteParser.parseSite()

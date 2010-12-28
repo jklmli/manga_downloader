@@ -79,8 +79,9 @@ def main():
 	
 	if(len(args) > 1):
 		parser.error('Possible multiple mangas specified, please select one.  (Did you forget to put quotes around a multi-word manga?)')
-	
-	options.manga = args[0]
+
+	if(len(args) > 0):	
+		options.manga = args[0]
 	
 	# subdirectory option flagged
 	if (options.download_path == 'CURRENT_DIRECTORY'):
@@ -101,6 +102,7 @@ def main():
 	# xmlfile option flagged
 	if options.xmlfile_path != None:
 		xmlParser = MangaXmlParser(options)
+		xmlParser.downloadManga()
 	else:
 		# site selection
 		print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
