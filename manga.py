@@ -74,7 +74,7 @@ def main():
 	
 	(options, args) = parser.parse_args()
 	
-	if(len(args) == 0):
+	if(len(args) == 0 and not (options.xmlfile_path != None)):
 		parser.error('Manga not specified.')
 	
 	if(len(args) > 1):

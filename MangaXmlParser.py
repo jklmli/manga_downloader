@@ -4,11 +4,13 @@
 
 from xml.dom import minidom
 from SiteParser import SiteParserFactory
+from helper import *
 
 ######################
 
 class MangaXmlParser:
 	def __init__(self, optDict):
+		self.options = optDict
 		for elem in vars(optDict):
 			setattr(self, elem, getattr(optDict, elem))
 	
@@ -35,7 +37,7 @@ class MangaXmlParser:
 	def downloadManga(self):
 		print("Parsing XML File...")
 
-		dom = minidom.parse(self.xmlFile)
+		dom = minidom.parse(self.xmlfile_path)
 		
 		for node in dom.getElementsByTagName("MangaSeries"):
 			iLastChap = 0;
@@ -44,11 +46,16 @@ class MangaXmlParser:
 			lastDownloaded = MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes)
 			download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0].childNodes)
 			
-			
+			self.options.site = site
+			self.options.manga = name
+			self.options.download_path = download_path
+			self.options.lastDownloaded = lastDownloaded
+			self.options.auto = True
+
 			siteParser = SiteParserFactory.getInstance(options)
 		
 			try:
-				siteParser.ParseSite()
+				siteParser.parseSite()
 			except siteParser.MangaNotFound:
 				print ("Manga ("+name+") Missing. Check if still available\n")
 				continue
@@ -71,5 +78,5 @@ class MangaXmlParser:
 			#print iLastChap
 			MangaXmlParser.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
 
-		f = open(self.xmlFile, 'w')
+		f = open(self.xmlfile_path, 'w')
 		f.write(dom.toxml())       	    
