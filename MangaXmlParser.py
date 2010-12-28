@@ -49,7 +49,6 @@ class MangaXmlParser:
 			self.options.download_path = download_path
 			self.options.lastDownloaded = lastDownloaded
 			self.options.auto = True
-			print self.options.site
 			
 			siteParser = SiteParserFactory.getInstance(self.options)
 	
