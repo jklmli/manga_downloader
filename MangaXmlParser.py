@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ######################
+import os
 
 from xml.dom import minidom
 from SiteParser import SiteParserFactory
@@ -49,7 +50,15 @@ class MangaXmlParser:
 			self.options.download_path = download_path
 			self.options.lastDownloaded = lastDownloaded
 			self.options.auto = True
-			
+		
+			try:		
+				# create download directory if not found
+				if os.path.exists(self.options.download_path) is False:
+					os.mkdir(self.options.download_path)
+			except OSError:
+				print "Manga ("+name+"):"				
+				print 'Unable to create download directory: there may be a file with the same name, or you may not have permissions to write there.'
+		
 			siteParser = SiteParserFactory.getInstance(self.options)
 	
 			try:
