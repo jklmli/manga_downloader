@@ -88,6 +88,8 @@ h2. Issues
 * Chapter numbering on MangaReader doesn't pad, i.e. 1, 2, 3 as opposed to 001, 002, 003.
 
 h2. History
+*v0.7.2* (12/29/10)
++ Fixed broken functionality, minor code cleanup
 
 *v0.7.1* (12/26/10)
 + Fixed broken functionality, minor code cleanup
