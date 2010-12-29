@@ -41,11 +41,11 @@ parameter. The converted images are saved in the directory specified by the --ou
 Specifies the target device for the image conversion.
 
 @--convertDirectory@
-Converts the image files stored in the directory specified by the --inputDirectory parameter. Stores teh images
-in the directory specified by the --outputDirectory Parameter
+Converts the image files stored in the directory specified by the inputDirectory parameter. Stores the images
+in the directory specified by the outputDirectory Parameter
 
 @--inputDirectory@
-The directory containg the images to covert when --convertDirectory is specified. 
+The directory containg the images to covert when convertDirectory is specified. 
 
 @--outputDirectory@
 The directory to store the converted Images. Omitting this option defaults to DOWNLOAD_PATH/Pictures. 
