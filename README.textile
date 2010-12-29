@@ -33,6 +33,23 @@ Parses the .xml file and downloads all chapters newer than the last chapter down
 @-z, --zip@
 Downloads using .zip compression.  Omitting this option defaults to .cbz.
 
+@-c, --convertFiles@
+Converts the files that are downloaded to a Format/Size ratio acceptable to the device specified by --device
+parameter. The converted images are saved in the directory specified by the --outputDirectory paraemter.
+
+@--device@
+Specifies the target device for the image conversion.
+
+@--convertDirectory@
+Converts the image files stored in the directory specified by the --inputDirectory parameter. Stores teh images
+in the directory specified by the --outputDirectory Parameter
+
+@--inputDirectory@
+The directory containg the images to covert when --convertDirectory is specified. 
+
+@--outputDirectory@
+The directory to store the converted Images. Omitting this option defaults to DOWNLOAD_PATH/Pictures. 
+
 The script will offer a choice of 3 manga sites, it will default to the first if you press <enter>.
 After selecting a site, the script will output a list of all chapters of the series it has found on the site you selected.  
 When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  You can also type 'all' if you did not specify --all before.  
@@ -71,7 +88,6 @@ h2. Issues
 * Chapter numbering on MangaReader doesn't pad, i.e. 1, 2, 3 as opposed to 001, 002, 003.
 
 h2. History
-
 *v0.7.1* (12/26/10)
 + Fixed broken functionality, minor code cleanup
 
@@ -81,12 +97,26 @@ h2. History
 *v0.6.9* (12/26/10)
 + Heavy code cleanup (functionality remains the same, with most discovered bugs fixed)
 
-*v0.6.1* (12/12/10)
-+ Fixed the download all flag (Broken by OOP changes)
+*v0.6.3a*
++ Added check for the PIL Library. The script now works (w/o conversion functionality) without the PIL
++ Added Help (-h) command-line parameter. Prints out the command-line switches.
++ Added -v command-line to retrieve the current version of the script/executable.
++ Added MAC OSX executable. The executable is compiled with the correct libraries (PIL, ect) and is self
+  contained executable.
++ Added Icon files to use when compiling the Windows executable.   
 
-*v0.6.1* (12/12/10)
+*v0.6.2a*
++ Fix All Flag (Broken by OOP Changes)
+
+*v0.6.1a*
 + Fixed an encoding issued in the download Image function. If the retrieved Image URL contained special characters such as spaces
   the python (at least python 2.5) failed to load the url.  
+
+*v0.6.1* (12/12/10)
++ Fixed the download all flag (Broken by OOP changes)
+ 
+*v0.6.0a*
++Initial Check-in with Kindle Conversion code.
   
 *v0.6.0* (12/11/10)
 + Begin Modulazition of the code base

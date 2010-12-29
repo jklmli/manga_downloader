@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 ######################
+import os
 
 from xml.dom import minidom
 from SiteParser import SiteParserFactory
@@ -23,8 +24,6 @@ class MangaXmlParser:
 #		
 #		
 #		return ''.join(rc)
-		
-		# untested code, but should work
 		return ''.join([node.data for node in nodelist if node.nodeType == node.TEXT_NODE])
 
 	@staticmethod
@@ -36,7 +35,6 @@ class MangaXmlParser:
 					
 	def downloadManga(self):
 		print("Parsing XML File...")
-
 		dom = minidom.parse(self.xmlfile_path)
 		
 		for node in dom.getElementsByTagName("MangaSeries"):
@@ -51,9 +49,17 @@ class MangaXmlParser:
 			self.options.download_path = download_path
 			self.options.lastDownloaded = lastDownloaded
 			self.options.auto = True
-
-			siteParser = SiteParserFactory.getInstance(self.options)
 		
+			try:		
+				# create download directory if not found
+				if os.path.exists(self.options.download_path) is False:
+					os.mkdir(self.options.download_path)
+			except OSError:
+				print "Manga ("+name+"):"				
+				print 'Unable to create download directory: there may be a file with the same name, or you may not have permissions to write there.'
+		
+			siteParser = SiteParserFactory.getInstance(self.options)
+	
 			try:
 				siteParser.parseSite()
 			except siteParser.MangaNotFound:
@@ -77,6 +83,16 @@ class MangaXmlParser:
 			
 			#print iLastChap
 			MangaXmlParser.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
-
+			
+			if (self.conversion_FLAG):
+				if (not isImageLibAvailable()):
+					print "PIL (Python Image Library) not available."
+				else:	
+					from ConvertFile import convertFile
+					
+					convertFileObj = convertFile()
+					for compressedFile in siteParser.CompressedFiles:
+						convertFileObj.convert(compressedFile, download_path, self.Device)	
+			
 		f = open(self.xmlfile_path, 'w')
 		f.write(dom.toxml())       	    

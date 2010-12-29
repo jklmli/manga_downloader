@@ -39,6 +39,7 @@ class SiteParserBase:
 		self.chapters = []
 		self.chapters_to_download = []
 		self.mangadl_tmp_path = 'mangadl_tmp'
+		self.CompressedFiles = []
 
 	# this takes care of removing the temp directory after the last successful download
 	def __del__(self):
@@ -93,13 +94,19 @@ class SiteParserBase:
 				z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
 			# oh shit!
 			else:
-				raise FatalError('Warning: Site threw up garbage non-image page, possibly using anti-leeching heuristics.')
+				pass
+				# TODO: raise FatalError('Warning: Site threw up garbage non-image page, possibly using anti-leeching heuristics.')
 				
 		z.close()
+		compressedFile = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + self.download_format)
 		
-		# move the zipped file from the temporary directory to the specified download directory
-		shutil.move( os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + self.download_format), self.download_path)
+ 		shutil.move( compressedFile, self.download_path)
 		
+		compressedFile = os.path.basename(compressedFile)
+		compressedFile = os.path.join(self.download_path, compressedFile)
+		self.CompressedFiles.append(compressedFile)
+		self.cleanTmp()
+	
 	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		"""
 		Given a page URL to download from, it searches using stringQuery as a regex to parse out the image URL, 
@@ -182,7 +189,7 @@ class SiteParserBase:
 		if(self.all_chapters_FLAG == False):
 			chapter_list_string = raw_input('\nDownload which chapters?\n')
 			
-		if(chapter_list_string.lower() == 'all'):
+		if(self.all_chapters_FLAG == True or chapter_list_string.lower() == 'all'):
 			print('\nDownloading all chapters...')
 			for i in range(0, len(chapters)):
 				chapter_list_array_decrypted.append(i)
@@ -306,6 +313,7 @@ class MangaFoxParser(SiteParserBase):
 
 			# code used to both fix URL from relative to absolute as well as verify last downloaded chapter for XML component
 			lowerRange = 0
+			upperRange = 0
 		
 			for i in range(0, len(self.chapters)):
 				self.chapters[i] = ('http://www.mangafox.com/manga/%s/' % keyword + self.chapters[i][1], self.chapters[i][0])
@@ -334,12 +342,6 @@ class MangaFoxParser(SiteParserBase):
 		"""
 		for loop that goes through the chapters we selected.
 		"""
-		
-		### REMOVE THIS CODE? ###
-		# if for some reason the name was never set...?
-		# but it's always set now, via command-line arg and then updated later through info
-		if (self.manga == None):
-			raise self.MangaNotFound
 			
 		for current_chapter in self.chapters_to_download:
 			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, 'var total_pages=([^;]*?);')
@@ -379,7 +381,8 @@ class MangaReaderParser(SiteParserBase):
 		self.chapters = re.compile('<tr><td><a href="([^"]*)" class="chico">([^<]*)</a>([^<]*)</td>').findall(source_code)
 		
 		lowerRange = 0
-		
+		upperRange = 0
+			
 		for i in range(0, len(self.chapters)):
 			self.chapters[i] = ('http://www.mangareader.net' + self.chapters[i][0], '%s%s' % (self.chapters[i][1], self.chapters[i][2]))
 			if (not self.auto):
@@ -402,9 +405,7 @@ class MangaReaderParser(SiteParserBase):
 		return 
 	
 	def downloadChapters(self):
-		if (self.manga == None):
-			raise self.MangaNotFound
-				
+			
 		for current_chapter in self.chapters_to_download:
 	
 			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)            </div>')
@@ -444,6 +445,7 @@ class OtakuWorksParser(SiteParserBase):
 		self.chapters.reverse()
 
 		lowerRange = 0
+		upperRange = 0
 		for i in range(0, len(self.chapters)):
 			self.chapters[i] = ('http://www.otakuworks.com' + self.chapters[i][0] + '/read', self.chapters[i][1])
 			if (not self.auto):
@@ -465,9 +467,6 @@ class OtakuWorksParser(SiteParserBase):
 		return 
 		
 	def downloadChapters(self):
-
-		if (self.manga == None):
-			raise self.MangaNotFound
 
 		for current_chapter in self.chapters_to_download:
 		

@@ -1,0 +1,3 @@
+1. python Path\To\PyInstaller\Makespec.py manga.py --onefile
+
+2. python Path\To\PyInstaller\Build.py manga.spec

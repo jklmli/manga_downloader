@@ -11,6 +11,14 @@ import urllib
 class FatalError(Exception):
 	pass
 
+def isImageLibAvailable():
+	try:
+		from ConvertFile import convertFile
+	except ImportError:
+		return False
+	else:
+		return True
+
 def fixFormatting(s):
 	"""
 	Special character fix for filesystem paths.
