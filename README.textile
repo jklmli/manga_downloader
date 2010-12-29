@@ -34,7 +34,7 @@ Parses the .xml file and downloads all chapters newer than the last chapter down
 Downloads using .zip compression.  Omitting this option defaults to .cbz.
 
 @-c, --convertFiles@
-Converts the files that are downloaded to a Format/Size ratio acceptable to the device specified by --device
+Converts the files that are downloaded to a Format/Size ratio acceptable to the device specified by the device
 parameter. The converted images are saved in the directory specified by the outputDirectory paraemter.
 
 @--device@
