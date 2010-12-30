@@ -86,6 +86,9 @@ h2. Issues
 
 h2. History
 
+*v0.7.5* (12/29/10)
++ Add code to zero pad the chapter string from Manga Reader. Code zero pads any number in the string to 3 digits.
+
 *v0.7.4* (12/29/10)
 + Add timeStamp Node to XML. It documents when the date/time the last chapter was downloaded.
 

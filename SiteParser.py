@@ -177,7 +177,6 @@ class SiteParserBase:
 		self.cleanTmp()
 		
 		manga_chapter_prefix = fixFormatting(self.manga) + '_' + fixFormatting(self.chapters[current_chapter][1])
-		
 		try:
 			# create download directory if not found
 			if os.path.exists(self.download_path) is False:
@@ -442,13 +441,13 @@ class MangaReaderParser(SiteParserBase):
 	def downloadChapters(self):
 			
 		for current_chapter in self.chapters_to_download:
-	
+						
 			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)            </div>')
-		
+			
 			if url == None:
 				continue
 			
-			manga_chapter_prefix = fixFormatting(self.chapters[current_chapter][1])
+			manga_chapter_prefix = ZeroFillStr(manga_chapter_prefix, 3)
 			
 			for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
@@ -506,6 +505,7 @@ class OtakuWorksParser(SiteParserBase):
 		for current_chapter in self.chapters_to_download:
 		
 			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '<strong>(\d*)</strong>')
+ 
 			if url == None:
 				continue
 		
