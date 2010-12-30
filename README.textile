@@ -52,7 +52,7 @@ The directory to store the converted Images. Omitting this option defaults to DO
 
 The script will offer a choice of 3 manga sites, it will default to the first if you press <enter>.
 After selecting a site, the script will output a list of all chapters of the series it has found on the site you selected.  
-When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  You can also type 'all' if you did not specify --all before.  
+When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  You can also type 'all' if you did not specify --all before.
 
 See Notes for examples of acceptable inputs.
 
@@ -77,13 +77,20 @@ Parses example.xml to run the script.
  
 h2. Bugs
 
-* Input between the two prompts "Which site?" and "Download which chapters?" when the user is not supposed to may cause program crash.
+* Input between the two prompts "Which site?" and "Download which chapters?" is queued up for chapter selection.
 
 h2. Issues
 
 * Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
+* Due to zero-padding, all numerals are left-padded to 3 digits.  This includes manga/chapter titles.
 
 h2. History
+
+*v0.7.7* (12/30/10)
++ Displays error if expected image not found on site
++ Fixed double cleaning of temporary directory
++ Changed default behavior of overwrite and chapter skipping to be relative to the download format specified
++ Applied 3-digit zero-padding to all sites, this restores chapter skipping for MangaReader.  However, see 'Issues.'
 
 *v0.7.5* (12/29/10)
 + Add code to zero pad the chapter string from Manga Reader. Code zero pads any number in the string to 3 digits.
@@ -240,11 +247,6 @@ h2. History
 
 *v0.0.1*  (08/02/10)
 + Initial Commit
-
-h2. Upcoming Features in the Next Release
-
-Standardize chapter downloads - allow chapter skipping if chapter already downloaded from another source.
-Clean up list of chapters from site - organize into columns...?
 
 h2. Future Features
 

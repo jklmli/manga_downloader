@@ -29,7 +29,7 @@ import SiteParser
 
 ##########
 
-VERSION = 'v0.7.5'
+VERSION = 'v0.7.7'
 
 siteDict = {
 		''  : 'MangaFox',
@@ -60,16 +60,16 @@ def main():
 					version=('Manga Downloader %s' % VERSION)									)
 					
 	parser.set_defaults(	
-				all_chapters_FLAG = False, 
+				all_chapters_FLAG = False,
+				auto = False,
+				conversion_FLAG = False,
+				convert_Directory = False,
+				Device = 'Kindle 3',
 				download_format = '.cbz', 
 				download_path = '.', 
 				InputDir = None,
 				OutputDir = '.',
-				overwrite_FLAG = False,
-				auto = False,
-				convert_Directory = False,
-				conversion_FLAG = False,				
-				Device = 'Kindle 3'	                                        )
+				overwrite_FLAG = False                                        )
 				
 	parser.add_option(	'--all', 
 				action = 'store_true', 
@@ -124,7 +124,6 @@ def main():
 				help = 'Downloads using .zip compression.  Omitting this option defaults to %default.'					)
 	
 	(options, args) = parser.parse_args()
-	
 	
 	if(len(args) == 0 and ( not (options.convert_Directory or options.xmlfile_path != None) )):
 		parser.error('Manga not specified.')

@@ -68,6 +68,7 @@ class SiteParserBase:
 		self.chapters_to_download = []
 		self.mangadl_tmp_path = 'mangadl_tmp'
 		self.CompressedFiles = []
+		self.garbageImages = {}
 
 	# this takes care of removing the temp directory after the last successful download
 	def __del__(self):
@@ -75,7 +76,11 @@ class SiteParserBase:
 			shutil.rmtree(self.mangadl_tmp_path)
 		except:
 			pass
-
+		if len(self.garbageImages) > 0:
+			print('\nSome images were not downloaded due to unavailability on the site or temporary ip banning:\n')
+			for elem in self.garbageImages.keys():
+				print('Manga keyword: %s' % elem)
+				print('Pages: %s' % self.garbageImages[elem])
 #####
 	def downloadChapters(self):
 		raise NotImplementedError( 'Should have implemented this' )	
@@ -106,34 +111,35 @@ class SiteParserBase:
 		
 		print('Compressing...')
 		
-		zipPath = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + self.download_format)
-		
-		try:
-			os.remove(zipPath)
-		except OSError:
-			pass
+		compressedFile = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix) + self.download_format
 			
-		z = zipfile.ZipFile( zipPath, 'w')
+		z = zipfile.ZipFile( compressedFile, 'w')
 		
 		for page in range(1, max_pages + 1):	
 			temp_path = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
 			# we got an image file
 			if imghdr.what(temp_path) != None:
 				z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
-			# oh shit!
+			# site has thrown a 404 because image unavailable or using anti-leeching
 			else:
-				pass
-				# TODO: raise FatalError('Warning: Site threw up garbage non-image page, possibly using anti-leeching heuristics.')
+				if manga_chapter_prefix not in self.garbageImages:
+					self.garbageImages[manga_chapter_prefix] = [page]
+				else:
+					self.garbageImages[manga_chapter_prefix].append(page)
 				
 		z.close()
-		compressedFile = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + self.download_format)
+		
+		if self.overwrite_FLAG == True:
+			priorPath = os.path.join(self.download_path, manga_chapter_prefix) + self.download_format
+			if os.path.exists(priorPath):
+				os.remove(priorPath)
 		
  		shutil.move( compressedFile, self.download_path)
-		
+ 		
+ 		# ???
 		compressedFile = os.path.basename(compressedFile)
 		compressedFile = os.path.join(self.download_path, compressedFile)
 		self.CompressedFiles.append(compressedFile)
-		self.cleanTmp()
 	
 	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		"""
@@ -177,25 +183,19 @@ class SiteParserBase:
 		self.cleanTmp()
 		
 		manga_chapter_prefix = fixFormatting(self.manga) + '_' + fixFormatting(self.chapters[current_chapter][1])
+		manga_chapter_prefix = ZeroFillStr(manga_chapter_prefix, 3)
+		
 		try:
 			# create download directory if not found
 			if os.path.exists(self.download_path) is False:
 				os.mkdir(self.download_path)
 		except OSError:
 			raise self.NonExistantDownloadPath('Unable to create download directory. There may be a file with the same name, or you may not have permissions to write there.')
-				
-		zipPath = os.path.join(self.download_path,  manga_chapter_prefix + '.zip')
-		cbzPath = os.path.join(self.download_path,  manga_chapter_prefix + '.cbz')	
 
 		# we already have it
-		if (os.path.exists(cbzPath) or os.path.exists(zipPath)) and self.overwrite_FLAG == False:
+		if os.path.exists(os.path.join(self.download_path, manga_chapter_prefix) + self.download_format) and self.overwrite_FLAG == False:
 			print(self.chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
 			return (None, None, None)
-		# overwriting
-		else:
-			for path in (cbzPath, zipPath):
-				if os.path.exists(path):
-					os.remove(path)
 	
 		# get the URL of the chapter homepage
 		url = self.chapters[current_chapter][0]
@@ -446,8 +446,6 @@ class MangaReaderParser(SiteParserBase):
 			
 			if url == None:
 				continue
-			
-			manga_chapter_prefix = ZeroFillStr(manga_chapter_prefix, 3)
 			
 			for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
