@@ -9,6 +9,7 @@ import shutil
 import sys
 import urllib
 import zipfile
+import tempfile
 
 #####################
 
@@ -100,7 +101,8 @@ class SiteParserBase:
 			# clean or create
 			if os.path.exists(self.mangadl_tmp_path):
 				shutil.rmtree(self.mangadl_tmp_path)
-			os.mkdir(self.mangadl_tmp_path)
+			self.mangadl_tmp_path = tempfile.mkdtemp()
+			print "Creating Temp Dir: "+self.mangadl_tmp_path
 		except OSError:
 			raise FatalError('Unable to create temporary directory.')
 	

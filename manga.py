@@ -29,7 +29,7 @@ import SiteParser
 
 ##########
 
-VERSION = 'v0.7.8'
+VERSION = 'v0.7.9'
 
 siteDict = {
 		''  : 'MangaFox',
