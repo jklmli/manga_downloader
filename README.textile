@@ -91,6 +91,8 @@ h2. History
 + Fixed double cleaning of temporary directory
 + Changed default behavior of overwrite and chapter skipping to be relative to the download format specified
 + Applied 3-digit zero-padding to all sites, this restores chapter skipping for MangaReader.  However, see 'Issues.'
++ Delayed chapter removal when overwriting until just before copy
++ Removed obsolete 'Upcoming features' in readme
 
 *v0.7.5* (12/29/10)
 + Add code to zero pad the chapter string from Manga Reader. Code zero pads any number in the string to 3 digits.
