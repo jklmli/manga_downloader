@@ -182,8 +182,8 @@ class SiteParserBase:
 		# clean now to make sure we start with a fresh temp directory
 		self.cleanTmp()
 		
-		manga_chapter_prefix = fixFormatting(self.manga) + '_' + fixFormatting(self.chapters[current_chapter][1])
-		manga_chapter_prefix = ZeroFillStr(manga_chapter_prefix, 3)
+		# Do not need to ZeroFill the manga name because this should consistent 
+		manga_chapter_prefix = fixFormatting(self.manga) + '_' +  ZeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
 		
 		try:
 			# create download directory if not found

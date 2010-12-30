@@ -29,7 +29,7 @@ import SiteParser
 
 ##########
 
-VERSION = 'v0.7.7'
+VERSION = 'v0.7.8'
 
 siteDict = {
 		''  : 'MangaFox',
@@ -66,9 +66,9 @@ def main():
 				convert_Directory = False,
 				Device = 'Kindle 3',
 				download_format = '.cbz', 
-				download_path = '.', 
+				download_path = 'MANGANAME_DIRECTORY', 
 				InputDir = None,
-				OutputDir = '.',
+				OutputDir = 'MANGANAME_DIRECTORY',
 				overwrite_FLAG = False                                        )
 				
 	parser.add_option(	'--all', 
@@ -84,13 +84,7 @@ def main():
 				action = 'store_true', 
 				dest = 'overwrite_FLAG', 
 				help = 'Overwrites previous copies of downloaded chapters.'								)
-				
-	parser.add_option(	'-s','--subdirectory', 
-				action = 'store_const', 
-				dest = 'download_path', 
-				const = 'CURRENT_DIRECTORY', 
-				help = 'Creates a new subdirectory inside the directory of the script using the name of the manga.'			)
-				
+
 	parser.add_option(	'-x','--xml', 
 				dest = 'xmlfile_path', 
 				help = 'Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the listed mangas.'	)
@@ -143,10 +137,14 @@ def main():
 		if (PILAvailable):
 			from ConvertFile import convertFile
 
-	# subdirectory option flagged
-	if (options.download_path == 'CURRENT_DIRECTORY'):
+	# Default Directory is the ./MangaName
+	if (options.download_path == 'MANGANAME_DIRECTORY'):
 		options.download_path = ('./' + SiteParser.fixFormatting(options.manga))
-		
+
+	# Default Directory is the ./MangaName
+	if (options.OutputDir == 'MANGANAME_DIRECTORY'):
+		options.OutputDir = ('./' + SiteParser.fixFormatting(options.manga))
+				
 	options.download_path = os.path.realpath(options.download_path) + os.sep
 
 	# Changes the working directory to the script location

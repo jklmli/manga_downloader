@@ -20,13 +20,10 @@ show this help message and exit
 Download all available chapters.
 
 @-d <download path>, --directory=<download path>@
-The destination download directory.  Defaults to current working directory.
+The destination download directory. Defaults to a directory named after the manga.
 
 @--overwrite@
 Overwrites previous copies of downloaded chapters.
-
-@-s, --subdirectory@
-Sets download directory to a subdirectory inside the current working directory using the name of the manga.
 
 @-x <xmlfile path>, --xml=<xmlfile path>@
 Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the listed mangas.
@@ -86,6 +83,10 @@ h2. Issues
 * Due to zero-padding, all numerals are left-padded to 3 digits.  This includes manga/chapter titles.
 
 h2. History
+
+*v0.7.8* (12/30/10)
++ Changed the default download directory to a directory using the name of the manga.
++ Removed the obsolete parameter: -s, --subdirectory parameter 
 
 *v0.7.7* (12/30/10)
 + Displays error if expected image not found on site

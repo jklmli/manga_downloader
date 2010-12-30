@@ -74,7 +74,7 @@ class MangaXmlParser:
 			try:
 				download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0])
 			except IndexError:
-				download_path = "./"
+				download_path = ('./' + SiteParser.fixFormatting(name))
 			
 			self.options.site = site
 			self.options.manga = name
