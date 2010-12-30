@@ -2,6 +2,7 @@
 
 ######################
 import os
+import datetime
 
 from xml.dom import minidom
 from SiteParser import SiteParserFactory
@@ -20,8 +21,7 @@ class MangaXmlParser:
 		rc = []
 		for node in node.childNodes:
 			if node.nodeType == node.TEXT_NODE:
-				rc.append(node.data)
-		
+				rc.append(node.data)		
 		
 		return ''.join(rc)
 #		return ''.join([node.data for node in nodelist if node.nodeType == node.TEXT_NODE])
@@ -38,7 +38,21 @@ class MangaXmlParser:
 		# A new text needs to be created and appended to this node
 		textNode = dom.createTextNode(text) 	
 		node.appendChild(textNode)
-					
+	
+	@staticmethod
+	def AddTimestamp(dom, node):
+		t = datetime.datetime.today()
+		timeStamp = "%d-%02d-%02d %02d:%02d:%02d" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
+
+		if (len(node.getElementsByTagName('timeStamp')) > 0):
+			timeStampNode = node.getElementsByTagName('timeStamp')[0]
+		else:
+			# Node Currently Does have a timeStamp Node Must add one
+			timeStampNode = dom.createElement('timeStamp')
+			node.appendChild(timeStampNode)
+			
+		MangaXmlParser.setText(dom, timeStampNode, timeStamp)  	
+    					
 	def downloadManga(self):
 		print("Parsing XML File...")
 		dom = minidom.parse(self.xmlfile_path)
@@ -78,6 +92,7 @@ class MangaXmlParser:
 				continue
 				
 			MangaXmlParser.setText(dom, node.getElementsByTagName('LastChapterDownloaded')[0], str(iLastChap))
+			MangaXmlParser.AddTimestamp(dom, node)
 			
 			if (self.conversion_FLAG):
 				if (not isImageLibAvailable()):
@@ -89,5 +104,7 @@ class MangaXmlParser:
 					for compressedFile in siteParser.CompressedFiles:
 						convertFileObj.convert(compressedFile, download_path, self.Device)	
 			
+		#print dom.toxml()
+		
 		f = open(self.xmlfile_path, 'w')
 		f.write(dom.toxml())       	    

@@ -86,6 +86,9 @@ h2. Issues
 
 h2. History
 
+*v0.7.4* (12/29/10)
++ Add timeStamp Node to XML. It documents when the date/time the last chapter was downloaded.
+
 *v0.7.3* (12/29/10)
 + Fixed script LastChapterDownloaded Empty Node Bug
 
