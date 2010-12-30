@@ -25,11 +25,39 @@ class SiteParserBase:
 #####	
 	# typical misspelling of title and/or manga removal
 	class MangaNotFound(Exception):
-		pass
+		
+		def __init__(self, str=""):
+			if (str == ""):
+				self.parameter = "Manga Not Found."
+			else:
+				self.parameter = "Manga Not Found: "+str	
+		
+		def __str__(self):
+			return self.parameter
 	
 	# XML file config reports nothing to do
 	class NoUpdates(Exception):
-		pass
+
+		def __init__(self, str=""):
+			if (str == ""):
+				self.parameter = "No Updates."
+			else:
+				self.parameter = "No Updates: "+str	
+ 
+		def __str__(self):
+			return self.parameter
+		
+	# Script Failed to Create Download path folder	
+	class NonExistantDownloadPath(Exception):
+		def __init__(self, str=""):
+			if (str == ""):
+				self.parameter = "Download Path does not exist."
+			else:
+				self.parameter = "Download Path does not exist: "+str	
+ 
+		def __str__(self):
+			return self.parameter
+		
 #####
 
 	def __init__(self,optDict):
@@ -149,6 +177,13 @@ class SiteParserBase:
 		self.cleanTmp()
 		
 		manga_chapter_prefix = fixFormatting(self.manga) + '_' + fixFormatting(self.chapters[current_chapter][1])
+		
+		try:
+			# create download directory if not found
+			if os.path.exists(self.download_path) is False:
+				os.mkdir(self.download_path)
+		except OSError:
+			raise self.NonExistantDownloadPath('Unable to create download directory. There may be a file with the same name, or you may not have permissions to write there.')
 				
 		zipPath = os.path.join(self.download_path,  manga_chapter_prefix + '.zip')
 		cbzPath = os.path.join(self.download_path,  manga_chapter_prefix + '.cbz')	
@@ -247,7 +282,7 @@ class SiteParserBase:
 							found = True
 							break
 		if (not found):
-			raise self.MangaNotFound('No strict match found; please retype your query.\n')
+			raise self.MangaNotFound("No strict match found. Check Query.")
 		return keyword
 
 ########################################
@@ -284,7 +319,7 @@ class MangaFoxParser(SiteParserBase):
 		
 		# jump straight to expected URL and test if manga removed
 		if(source_code.find('it is not available in Manga Fox.') != -1):
-			raise self.MangaNotFound('Manga not found: it has been removed')
+			raise self.MangaNotFound('It has been removed')
 		
 		# do a search
 		url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(self.manga.split())
@@ -293,14 +328,14 @@ class MangaFoxParser(SiteParserBase):
 			info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
 		# 0 results
 		except AttributeError:
-			raise self.MangaNotFound('Manga not found: it doesn\'t exist, or cannot be resolved by autocorrect.')
+			raise self.MangaNotFound('It doesn\'t exist, or cannot be resolved by autocorrect.')
 		else:	
 			keyword = self.selectFromResults(info)
 			url = 'http://www.mangafox.com/manga/%s/' % keyword
 			source_code = getSourceCode(url)
 			# other check for manga removal if our initial guess for the name was wrong
 			if(source_code.find('it is not available in Manga Fox.') != -1):
-				raise self.MangaNotFound('Manga not found: it has been removed')
+				raise self.MangaNotFound('It has been removed')
 		
 			# that's nice of them
 			url = 'http://www.mangafox.com/cache/manga/%s/chapters.js' % keyword
@@ -439,7 +474,7 @@ class OtakuWorksParser(SiteParserBase):
 			source_code = getSourceCode(keyword)
 	
 		if(source_code.find('has been licensed and as per request all releases under it have been removed.') != -1):
-			raise self.MangaNotFound('Manga not found: it has been removed.')
+			raise self.MangaNotFound('It has been removed.')
 		
 		self.chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(fixFormatting(self.manga).replace('_', ' ').split())).findall(source_code)
 		self.chapters.reverse()

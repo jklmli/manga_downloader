@@ -150,13 +150,7 @@ def main():
 		options.download_path = ('./' + SiteParser.fixFormatting(options.manga))
 		
 	options.download_path = os.path.realpath(options.download_path) + os.sep
-	try:
-		# create download directory if not found
-		if os.path.exists(options.download_path) is False:
-			os.mkdir(options.download_path)
-	except OSError:
-		raise FatalError('Unable to create download directory: there may be a file with the same name, or you may not have permissions to write there.')
-	
+
 	# Changes the working directory to the script location
 	if (os.path.dirname(sys.argv[0]) != ""):
 		os.chdir(os.path.dirname(sys.argv[0]))
