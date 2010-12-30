@@ -51,9 +51,9 @@ The directory containg the images to covert when convertDirectory is specified.
 @--outputDirectory@
 The directory to store the converted Images. Omitting this option defaults to DOWNLOAD_PATH/Pictures. 
 
-The script will offer a choice of 3 manga sites, it will default to the first if you press <enter>.
+The script will offer a choice of 3 manga sites, it will default to the first upon pressing 'enter'.
 After selecting a site, the script will output a list of all chapters of the series it has found on the site you selected.  
-When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  You can also type 'all' if you did not specify --all before.
+When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  You can also type 'all' if you did not specify @--all@ before.
 
 See Notes for examples of acceptable inputs.
 
