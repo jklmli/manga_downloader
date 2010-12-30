@@ -83,6 +83,9 @@ h2. Issues
 
 h2. History
 
+*v0.7.9* (12/30/10)
++ Replaced mangadl_temp folder with tempfile.mkdtemp which uses the OS Temporary File mechanics.  
+
 *v0.7.8* (12/30/10)
 + Changed the default download directory to a directory using the name of the manga.
 + Removed the obsolete parameter: -s, --subdirectory parameter 
