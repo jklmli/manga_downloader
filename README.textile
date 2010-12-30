@@ -82,7 +82,6 @@ h2. Bugs
 h2. Issues
 
 * Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
-* Chapter numbering on MangaReader doesn't pad, i.e. 1, 2, 3 as opposed to 001, 002, 003.
 
 h2. History
 
