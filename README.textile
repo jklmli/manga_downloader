@@ -1,6 +1,7 @@
 h1. Manga Downloader
 
-Manga Downloader is a cross-platform Windows/Mac/Linux python script that does what it says.  
+Manga Downloader is a cross-platform Windows/Mac/Linux python script.
+It can be automated via an external .xml file, and can convert images for viewing on the Kindle.
 Currently supports mangafox.com, mangareader.net, and otakuworks.com, with a total of over 5000 mangas.
 Downloads into .cbz format, can optionally download into .zip instead.
 
@@ -25,7 +26,7 @@ The destination download directory.  Defaults to current working directory.
 Overwrites previous copies of downloaded chapters.
 
 @-s, --subdirectory@
-Creates a new subdirectory inside the current working directory using the name of the manga.
+Sets download directory to a subdirectory inside the current working directory using the name of the manga.
 
 @-x <xmlfile path>, --xml=<xmlfile path>@
 Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the listed mangas.
