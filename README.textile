@@ -78,11 +78,16 @@ Parses example.xml to run the script.
 h2. Bugs
 
 * Input between the two prompts "Which site?" and "Download which chapters?" when the user is not supposed to may cause program crash.
-* Program does not handle if LastChapterDownloaded is an empty node in the XML Document. If the node is empty, the script fails to update it.
-  Thus all the chapters are downloaded each time the script is run.
-  Workaround: Put a string value (Garbage) as a placeholder. The next time the script runs it will update the field to the correct value.
+
+h2. Issues
+
+* Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
+* Chapter numbering on MangaReader doesn't pad, i.e. 1, 2, 3 as opposed to 001, 002, 003.
 
 h2. History
+
+*v0.7.3* (12/29/10)
++ Fixed script LastChapterDownloaded Empty Node Bug
 
 *v0.7.2* (12/29/10)
 + Fixed script where it created a download directory even if the manga was not found.

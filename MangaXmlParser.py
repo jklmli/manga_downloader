@@ -16,22 +16,28 @@ class MangaXmlParser:
 			setattr(self, elem, getattr(optDict, elem))
 	
 	@staticmethod
-	def getText(nodelist):
-#		rc = []
-#		for node in nodelist:
-#			if node.nodeType == node.TEXT_NODE:
-#				rc.append(node.data)
-#		
-#		
-#		return ''.join(rc)
-		return ''.join([node.data for node in nodelist if node.nodeType == node.TEXT_NODE])
+	def getText(node):
+		rc = []
+		for node in node.childNodes:
+			if node.nodeType == node.TEXT_NODE:
+				rc.append(node.data)
+		
+		
+		return ''.join(rc)
+#		return ''.join([node.data for node in nodelist if node.nodeType == node.TEXT_NODE])
 
 	@staticmethod
-	def setText(nodelist, text):
-		for node in nodelist:
-			if node.nodeType == node.TEXT_NODE:
-				node.data = text
-		# could apply list comprehension as well, but this way's maybe more readable?
+	def setText(dom, node, text):
+		
+		for currNode in node.childNodes:
+			if currNode.nodeType == currNode.TEXT_NODE:
+				currNode.data = text
+				return
+
+		# If this code is executed, it means that the loop failed to find a text node
+		# A new text needs to be created and appended to this node
+		textNode = dom.createTextNode(text) 	
+		node.appendChild(textNode)
 					
 	def downloadManga(self):
 		print("Parsing XML File...")
@@ -39,10 +45,11 @@ class MangaXmlParser:
 		
 		for node in dom.getElementsByTagName("MangaSeries"):
 			iLastChap = 0;
-			name = MangaXmlParser.getText(node.getElementsByTagName('name')[0].childNodes)
-			site = 	MangaXmlParser.getText(node.getElementsByTagName('HostSite')[0].childNodes)
-			lastDownloaded = MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes)
-			download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0].childNodes)
+			name = MangaXmlParser.getText(node.getElementsByTagName('name')[0])
+			site = 	MangaXmlParser.getText(node.getElementsByTagName('HostSite')[0])
+			lastDownloaded = MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0])
+			download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0])
+			
 			
 			self.options.site = site
 			self.options.manga = name
@@ -69,9 +76,8 @@ class MangaXmlParser:
 				print Instance 
 				print "\n"
 				continue
-			
-			#print iLastChap
-			MangaXmlParser.setText(node.getElementsByTagName('LastChapterDownloaded')[0].childNodes, str(iLastChap))
+				
+			MangaXmlParser.setText(dom, node.getElementsByTagName('LastChapterDownloaded')[0], str(iLastChap))
 			
 			if (self.conversion_FLAG):
 				if (not isImageLibAvailable()):
