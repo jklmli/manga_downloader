@@ -80,19 +80,19 @@ h2. Bugs
 h2. Issues
 
 * Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
-* Due to zero-padding, all numerals are left-padded to 3 digits.  This includes manga/chapter titles.
 
 h2. History
 
 *v0.7.8* (12/30/10)
 + Changed the default download directory to a directory using the name of the manga.
 + Removed the obsolete parameter: -s, --subdirectory parameter 
++ Fixed 3-digit zero padding to be applied to chapters only
 
 *v0.7.7* (12/30/10)
 + Displays error if expected image not found on site
 + Fixed double cleaning of temporary directory
 + Changed default behavior of overwrite and chapter skipping to be relative to the download format specified
-+ Applied 3-digit zero-padding to all sites, this restores chapter skipping for MangaReader.  However, see 'Issues.'
++ Applied 3-digit zero-padding to all sites, this restores chapter skipping for MangaReader.
 + Delayed chapter removal when overwriting until just before copy
 + Removed obsolete 'Upcoming features' in readme
 
