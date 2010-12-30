@@ -136,7 +136,10 @@ class SiteParserBase:
 		
  		shutil.move( compressedFile, self.download_path)
  		
- 		# ???
+ 		# The object self.CompressedFiles stores the path to every compressed file that this SiteParser
+ 		# object has downloaded. This object is used by the conversion code to convert the downloaded images
+ 		# to the format specified by the Device parameter
+ 		
 		compressedFile = os.path.basename(compressedFile)
 		compressedFile = os.path.join(self.download_path, compressedFile)
 		self.CompressedFiles.append(compressedFile)
@@ -182,7 +185,7 @@ class SiteParserBase:
 		# clean now to make sure we start with a fresh temp directory
 		self.cleanTmp()
 		
-		# Do not need to ZeroFill the manga name because this should consistent 
+		# Do not need to ZeroFill the manga name because this should be consistent 
 		manga_chapter_prefix = fixFormatting(self.manga) + '_' +  ZeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
 		
 		try:

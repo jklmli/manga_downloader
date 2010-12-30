@@ -141,7 +141,7 @@ def main():
 	if (options.download_path == 'MANGANAME_DIRECTORY'):
 		options.download_path = ('./' + SiteParser.fixFormatting(options.manga))
 
-	# Default Directory is the ./MangaName
+	# Default OutputDir is the ./MangaName
 	if (options.OutputDir == 'MANGANAME_DIRECTORY'):
 		options.OutputDir = ('./' + SiteParser.fixFormatting(options.manga))
 				
