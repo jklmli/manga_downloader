@@ -40,19 +40,23 @@ class MangaXmlParser:
 		node.appendChild(textNode)
 	
 	@staticmethod
-	def AddTimestamp(dom, node):
-		t = datetime.datetime.today()
-		timeStamp = "%d-%02d-%02d %02d:%02d:%02d" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
-
-		if (len(node.getElementsByTagName('timeStamp')) > 0):
-			timeStampNode = node.getElementsByTagName('timeStamp')[0]
+	def UpdateNode(dom, node, tagName, text):
+		if (len(node.getElementsByTagName(tagName)) > 0):
+			updateNode = node.getElementsByTagName(tagName)[0]
 		else:
 			# Node Currently Does have a timeStamp Node Must add one
-			timeStampNode = dom.createElement('timeStamp')
-			node.appendChild(timeStampNode)
+			updateNode = dom.createElement(tagName)
+			node.appendChild(updateNode)
 			
-		MangaXmlParser.setText(dom, timeStampNode, timeStamp)  	
-    					
+		MangaXmlParser.setText(dom, updateNode, text)  		
+	
+	@staticmethod
+	def UpdateTimestamp(dom, node):
+		t = datetime.datetime.today()
+		timeStamp = "%d-%02d-%02d %02d:%02d:%02d" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
+		
+		MangaXmlParser.UpdateNode(dom, node, 'timeStamp', timeStamp)
+
 	def downloadManga(self):
 		print("Parsing XML File...")
 		dom = minidom.parse(self.xmlfile_path)
@@ -61,9 +65,16 @@ class MangaXmlParser:
 			iLastChap = 0;
 			name = MangaXmlParser.getText(node.getElementsByTagName('name')[0])
 			site = 	MangaXmlParser.getText(node.getElementsByTagName('HostSite')[0])
-			lastDownloaded = MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0])
-			download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0])
 			
+			try:
+				lastDownloaded = MangaXmlParser.getText(node.getElementsByTagName('LastChapterDownloaded')[0])
+			except IndexError:
+				lastDownloaded = ""
+			
+			try:
+				download_path =	MangaXmlParser.getText(node.getElementsByTagName('downloadPath')[0])
+			except IndexError:
+				download_path = "./"
 			
 			self.options.site = site
 			self.options.manga = name
@@ -85,14 +96,14 @@ class MangaXmlParser:
 			except siteParser.NoUpdates:
 				print ("Manga ("+name+") up-to-date.\n")
 				continue	
-			except Exception as Instance:
+			except Exception, (Instance):
 				print "Error: Manga ("+name+")"
 				print Instance 
 				print "\n"
 				continue
-				
-			MangaXmlParser.setText(dom, node.getElementsByTagName('LastChapterDownloaded')[0], str(iLastChap))
-			MangaXmlParser.AddTimestamp(dom, node)
+			
+			MangaXmlParser.UpdateNode(dom, node, 'LastChapterDownloaded', str(iLastChap))
+			MangaXmlParser.UpdateTimestamp(dom, node)
 			
 			if (self.conversion_FLAG):
 				if (not isImageLibAvailable()):
