@@ -89,6 +89,10 @@ h2. Issues
 
 h2. History
 
+*v0.7.2* (12/29/10)
++ Fixed script where it created a download directory even if the manga was not found.
++ Modified Custom Exceptions in SiteParser to accept custom error messages.
+
 *v0.7.1* (12/26/10)
 + Fixed broken functionality, minor code cleanup
 

@@ -50,35 +50,24 @@ class MangaXmlParser:
 			self.options.lastDownloaded = lastDownloaded
 			self.options.auto = True
 		
-			try:		
-				# create download directory if not found
-				if os.path.exists(self.options.download_path) is False:
-					os.mkdir(self.options.download_path)
-			except OSError:
-				print "Manga ("+name+"):"				
-				print 'Unable to create download directory: there may be a file with the same name, or you may not have permissions to write there.'
-		
 			siteParser = SiteParserFactory.getInstance(self.options)
 	
 			try:
-				siteParser.parseSite()
-			except siteParser.MangaNotFound:
-				print ("Manga ("+name+") Missing. Check if still available\n")
-				continue
+				siteParser.parseSite()		
+				for current_chapter in siteParser.chapters:
+					#print "Current Chapter =" + str(current_chapter[0])
+					iLastChap = current_chapter[1]
+		
+				siteParser.downloadChapters()
+				print "\n"
 			
 			except siteParser.NoUpdates:
 				print ("Manga ("+name+") up-to-date.\n")
-				continue
-		
-			for current_chapter in siteParser.chapters:
-				#print "Current Chapter =" + str(current_chapter[0])
-				iLastChap = current_chapter[1]
-		
-			try:
-				siteParser.downloadChapters()
+				continue	
+			except Exception as Instance:
+				print "Error: Manga ("+name+")"
+				print Instance 
 				print "\n"
-			except:
-				print "Unknown Error - ("+name+")\n"
 				continue
 			
 			#print iLastChap
