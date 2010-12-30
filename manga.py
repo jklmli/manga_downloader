@@ -127,6 +127,15 @@ def main():
 	
 	if(len(args) > 0):
 		options.manga = args[0]
+		
+		# Default Directory is the ./MangaName
+		if (options.download_path == 'MANGANAME_DIRECTORY'):
+			options.download_path = ('./' + fixFormatting(options.manga))
+			
+		# Default OutputDir is the ./MangaName
+		if (options.OutputDir == 'MANGANAME_DIRECTORY'):
+			options.OutputDir = ('./' + fixFormatting(options.manga))		
+
 
 	PILAvailable = (isImageLibAvailable())
 	# Check if PIL Library is available if either of convert Flags are set 
@@ -136,15 +145,7 @@ def main():
 	else:
 		if (PILAvailable):
 			from ConvertFile import convertFile
-
-	# Default Directory is the ./MangaName
-	if (options.download_path == 'MANGANAME_DIRECTORY'):
-		options.download_path = ('./' + fixFormatting(options.manga))
-
-	# Default OutputDir is the ./MangaName
-	if (options.OutputDir == 'MANGANAME_DIRECTORY'):
-		options.OutputDir = ('./' + fixFormatting(options.manga))
-				
+			
 	options.download_path = os.path.realpath(options.download_path) + os.sep
 
 	# Changes the working directory to the script location
