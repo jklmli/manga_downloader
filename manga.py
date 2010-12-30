@@ -44,7 +44,7 @@ class InvalidSite(Exception):
 	pass
 
 def printLicenseInfo():
-		print "Program: Copyright (c) 2010. GPL v3 (http://www.gnu.org/licenses/gpl.html)."
+		print "\nProgram: Copyright (c) 2010. GPL v3 (http://www.gnu.org/licenses/gpl.html)."
 		print "Icon:\tCopyright (c) 2006. GNU Free Document License v1.2 (Author:Kasuga) ."
 		print "\thttp://ja.wikipedia.org/wiki/%E5%88%A9%E7%94%A8%E8%80%85:Kasuga\n"
 		
@@ -139,11 +139,11 @@ def main():
 
 	# Default Directory is the ./MangaName
 	if (options.download_path == 'MANGANAME_DIRECTORY'):
-		options.download_path = ('./' + SiteParser.fixFormatting(options.manga))
+		options.download_path = ('./' + fixFormatting(options.manga))
 
 	# Default OutputDir is the ./MangaName
 	if (options.OutputDir == 'MANGANAME_DIRECTORY'):
-		options.OutputDir = ('./' + SiteParser.fixFormatting(options.manga))
+		options.OutputDir = ('./' + fixFormatting(options.manga))
 				
 	options.download_path = os.path.realpath(options.download_path) + os.sep
 
@@ -170,9 +170,6 @@ def main():
 			siteParser = SiteParser.SiteParserFactory.getInstance(options)
 		except KeyError:
 			raise InvalidSite('Site selection invalid.')
-		
-		# pass over command-line args
-#		siteParser.setOpts(options)
 		
 		# basic processing
 		siteParser.parseSite()
