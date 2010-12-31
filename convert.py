@@ -22,7 +22,7 @@ import imghdr
 import string
 import unicodedata
 
-from SiteParser import SiteParserBase
+from ThreadProgressBar import *
 	
 class BookConvert():
     
@@ -40,7 +40,7 @@ class BookConvert():
     	ProgressBarTag = 'Converting ' + self.book.title
     	if (not self.verbose):
 			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			hasDisplayLock = SiteParserBase.AcquireDisplayLock(ProgressBarTag, len(self.book.images), False )	
+			hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(ProgressBarTag, len(self.book.images), False )	
 			
         for index in range(0,len(self.book.images)):
           directory = os.path.join(unicode(self.directory), unicode(self.book.title))
@@ -86,10 +86,10 @@ class BookConvert():
                 	print source + " -> " + target
                 else:
 				if (not hasDisplayLock):
-					hasDisplayLock = SiteParserBase.AcquireDisplayLock(ProgressBarTag, len(self.book.images), False )
+					hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(ProgressBarTag, len(self.book.images), False )
 											
 				if (hasDisplayLock):
-					SiteParserBase.UpdateProgressBar(index + 1)
+					ThreadProgressBar.UpdateProgressBar(index + 1)
 					
           except RuntimeError, error:
               print "ERROR"
@@ -97,9 +97,9 @@ class BookConvert():
           	os.renames(newSource, source)
         
         if (hasDisplayLock):
-       	  SiteParserBase.ReleaseDisplayLock()
+       	  ThreadProgressBar.ReleaseDisplayLock()
         else:
           if (not self.verbose):
-            SiteParserBase.AcquireDisplayLock(ProgressBarTag, len(self.book.images), True )
-            SiteParserBase.UpdateProgressBar(len(self.book.images))
-            SiteParserBase.ReleaseDisplayLock()
+            ThreadProgressBar.AcquireDisplayLock(ProgressBarTag, len(self.book.images), True )
+            ThreadProgressBar.UpdateProgressBar(len(self.book.images))
+            ThreadProgressBar.ReleaseDisplayLock()

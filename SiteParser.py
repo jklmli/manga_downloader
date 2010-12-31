@@ -16,9 +16,7 @@ import time
 #####################
 
 from helper import *
-from progressbar import ProgressBar, Percentage, Bar, ETA, FileTransferSpeed, \
-     RotatingMarker, ReverseBar, SimpleProgress
-
+from ThreadProgressBar import *
 
 #####################
 
@@ -27,8 +25,6 @@ from progressbar import ProgressBar, Percentage, Bar, ETA, FileTransferSpeed, \
 gCompressedFiles = []
 gCompressedDict = {}
 gCompressedFileLock = threading.Lock()
-gDisplayLock = threading.RLock()
-gProgressBar = None
 
 class SiteParserBase:
 
@@ -378,46 +374,6 @@ class SiteParserBase:
 		gCompressedFileLock.release()
 		return ConversionFile, outputDir
 
-	@staticmethod
-	def AcquireDisplayLock(title, maxValue, WaitForLock=False):
-		global gDisplayLock
-		
-		if (not gDisplayLock.acquire(WaitForLock)):
-			return False
-		else:
-			SiteParserBase.InitializeProgressBar(title, maxValue)
-			return True
-	
-	@staticmethod
-	def ReleaseDisplayLock():
-		print '\n'
-		gDisplayLock.release()
-	
-	@staticmethod
-	def InitializeProgressBar(title, maxValue):
-		global gDisplayLock
-		global gProgressBar
-		
-		if (not gDisplayLock.acquire(False)):
-			raise FatalError('Failed to aquire: rLock. By Design this lock shouid aways be acquired before this function is called')
-
-		widgets = ['%s: ' % title, Percentage(), ' ', Bar(), ' ', ETA(), ]
-		gProgressBar = ProgressBar(widgets=widgets, maxval=maxValue).start()
-
-		gDisplayLock.release()
-	
-	@staticmethod
-	def UpdateProgressBar(newValue):
-		global gDisplayLock
-		global gProgressBar
-		
-		if (not gDisplayLock.acquire(False)):
-			raise FatalError('Failed to aquire: rLock. By Design this lock shouid aways be acquired before this function is called')
-		
-		gProgressBar.update(newValue)
-		
-		gDisplayLock.release()
-
 		
 ########################################
 
@@ -520,7 +476,7 @@ class MangaFoxParser(SiteParserBase):
 			
 		if (not self.verbose_FLAG):
 			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )			
+			hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )			
 				
 		for page in range(1, max_pages + 1):
 
@@ -532,18 +488,18 @@ class MangaFoxParser(SiteParserBase):
 				
 			if (not self.verbose_FLAG):
 				if (not hasDisplayLock):
-					hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+					hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
 											
 				if (hasDisplayLock):
-					SiteParserBase.UpdateProgressBar(page+1)
+					ThreadProgressBar.UpdateProgressBar(page+1)
 			
 		if (hasDisplayLock):
-			SiteParserBase.ReleaseDisplayLock()
+			ThreadProgressBar.ReleaseDisplayLock()
 		else:
 			if (not self.verbose_FLAG):
-				SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
-				SiteParserBase.UpdateProgressBar(max_pages + 1)
-				SiteParserBase.ReleaseDisplayLock()
+				ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
+				ThreadProgressBar.UpdateProgressBar(max_pages + 1)
+				ThreadProgressBar.ReleaseDisplayLock()
 				
 		# Post Processing 
 		# Release locks/semaophores
@@ -605,7 +561,7 @@ class MangaReaderParser(SiteParserBase):
 			
 		if (not self.verbose_FLAG):
 			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
+			hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
 		
 		pageIndex = 0
 		for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
@@ -618,18 +574,18 @@ class MangaReaderParser(SiteParserBase):
 			pageIndex = pageIndex + 1
 			if (not self.verbose_FLAG):
 				if (not hasDisplayLock):
-					hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+					hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
 											
 				if (hasDisplayLock):
-					SiteParserBase.UpdateProgressBar(pageIndex+ 1)
+					ThreadProgressBar.UpdateProgressBar(pageIndex+ 1)
 			
 		if (hasDisplayLock):
-			SiteParserBase.ReleaseDisplayLock()
+			ThreadProgressBar.ReleaseDisplayLock()
 		else:
 			if (not self.verbose_FLAG):
-				SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
-				SiteParserBase.UpdateProgressBar(max_pages + 1)
-				SiteParserBase.ReleaseDisplayLock()
+				ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
+				ThreadProgressBar.UpdateProgressBar(max_pages + 1)
+				ThreadProgressBar.ReleaseDisplayLock()
 					
 		self.postDownloadProcessing(manga_chapter_prefix, max_pages)	
 
@@ -688,7 +644,7 @@ class OtakuWorksParser(SiteParserBase):
 			
 		if (not self.verbose_FLAG):
 			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
+			hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
 				
 		for page in range(1, max_pages + 1):
 			if (self.verbose_FLAG):
@@ -699,18 +655,18 @@ class OtakuWorksParser(SiteParserBase):
 
 			if (not self.verbose_FLAG):
 				if (not hasDisplayLock):
-					hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+					hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
 											
 				if (hasDisplayLock):
-					SiteParserBase.UpdateProgressBar(page+1)
+					ThreadProgressBar.UpdateProgressBar(page+1)
 			
 		if (hasDisplayLock):
-			SiteParserBase.ReleaseDisplayLock()
+			ThreadProgressBar.ReleaseDisplayLock()
 		else:
 			if (not self.verbose_FLAG):
-				SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
-				SiteParserBase.UpdateProgressBar(max_pages + 1)
-				SiteParserBase.ReleaseDisplayLock()
+				ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
+				ThreadProgressBar.UpdateProgressBar(max_pages + 1)
+				ThreadProgressBar.ReleaseDisplayLock()
 					
 		self.postDownloadProcessing(manga_chapter_prefix, max_pages)
 			
