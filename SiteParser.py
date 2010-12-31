@@ -95,14 +95,17 @@ class SiteParserBase:
 		Cleans the temporary directory in which image files are downloaded to and held in until they are compressed.
 		"""
 		
-		print('Cleaning temporary directory...')
+		if self.verbose_FLAG:
+			print('Cleaning temporary directory...')
 		
 		try:
 			# clean or create
 			if os.path.exists(self.mangadl_tmp_path):
 				shutil.rmtree(self.mangadl_tmp_path)
 			self.mangadl_tmp_path = tempfile.mkdtemp()
-			print "Creating Temp Dir: "+self.mangadl_tmp_path
+			
+			if self.verbose_FLAG:
+				print "Creating Temp Dir: "+self.mangadl_tmp_path
 		except OSError:
 			raise FatalError('Unable to create temporary directory.')
 	
@@ -110,8 +113,8 @@ class SiteParserBase:
 		"""
 		Looks inside the temporary directory and zips up all the image files.
 		"""
-		
-		print('Compressing...')
+		if self.verbose_FLAG:
+			print('Compressing...')
 		
 		compressedFile = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix) + self.download_format
 			
@@ -167,7 +170,8 @@ class SiteParserBase:
 		# because otherwise the :// would be encoded as well				
 		img_url = 'http://' + urllib.quote(img_url.split('//')[1])
 		
-		print(img_url)
+		if self.verbose_FLAG:
+			print(img_url)
 		
 		# while loop to protect against server denies for requests and/or minor disconnects
 		while True:
@@ -316,7 +320,7 @@ class MangaFoxParser(SiteParserBase):
 		Parses list of chapters and URLs associated with each one for the given manga and site.
 		"""
 		
-		print('Beginning MangaFox check...')
+		print('Beginning MangaFox check: %s\n' % self.manga)
 		
 		url = 'http://www.mangafox.com/manga/%s/' % fixFormatting(self.manga)
 		source_code = getSourceCode(url)
@@ -406,7 +410,7 @@ class MangaFoxParser(SiteParserBase):
 class MangaReaderParser(SiteParserBase):
 
 	def parseSite(self):
-		print('Beginning MangaReader check...')
+		print('Beginning MangaReader check: %s\n' % self.manga)
 		
 		url = 'http://www.mangareader.net/alphabetical'
 
@@ -463,7 +467,7 @@ class MangaReaderParser(SiteParserBase):
 class OtakuWorksParser(SiteParserBase):
 	
 	def parseSite(self):
-		print('Beginning OtakuWorks check...')
+		print('Beginning OtakuWorks check: %s\n' % self.manga)
 		url = 'http://www.otakuworks.com/search/%s' % '+'.join(self.manga.split())
 
 		source_code = getSourceCode(url)

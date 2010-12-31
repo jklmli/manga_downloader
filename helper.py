@@ -5,6 +5,7 @@
 import string
 import urllib
 import re
+from xml.dom import minidom
 ####################
 
 # something seriously wrong happened
@@ -64,3 +65,40 @@ def getSourceCode(url):
 		else:
 			break
 	return ret
+
+#=========================
+#
+# XML Helper Functions
+#
+#=========================
+
+def getText(node):
+	rc = []
+	for node in node.childNodes:
+		if node.nodeType == node.TEXT_NODE:
+			rc.append(node.data)		
+			
+		return ''.join(rc)
+#		return ''.join([node.data for node in nodelist if node.nodeType == node.TEXT_NODE])			
+
+def setText(dom, node, text):
+		
+	for currNode in node.childNodes:
+		if currNode.nodeType == currNode.TEXT_NODE:
+			currNode.data = text
+			return
+
+	# If this code is executed, it means that the loop failed to find a text node
+	# A new text needs to be created and appended to this node
+	textNode = dom.createTextNode(text) 	
+	node.appendChild(textNode)
+
+def UpdateNode(dom, node, tagName, text):
+	if (len(node.getElementsByTagName(tagName)) > 0):
+		updateNode = node.getElementsByTagName(tagName)[0]
+	else:
+		# Node Currently Does have a timeStamp Node Must add one
+		updateNode = dom.createElement(tagName)
+		node.appendChild(updateNode)
+		
+	setText(dom, updateNode, text) 	

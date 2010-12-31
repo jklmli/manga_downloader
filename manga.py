@@ -69,7 +69,8 @@ def main():
 				download_path = 'MANGANAME_DIRECTORY', 
 				InputDir = None,
 				OutputDir = 'MANGANAME_DIRECTORY',
-				overwrite_FLAG = False                                        )
+				overwrite_FLAG = False,
+				verbose_FLAG = False                                        )
 				
 	parser.add_option(	'--all', 
 				action = 'store_true', 
@@ -85,6 +86,11 @@ def main():
 				dest = 'overwrite_FLAG', 
 				help = 'Overwrites previous copies of downloaded chapters.'								)
 
+	parser.add_option(	'--verbose', 
+				action = 'store_true', 
+				dest = 'verbose_FLAG', 
+				help = 'Verbose Output.'								)
+				
 	parser.add_option(	'-x','--xml', 
 				dest = 'xmlfile_path', 
 				help = 'Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the listed mangas.'	)
