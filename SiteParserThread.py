@@ -38,19 +38,19 @@ class SiteParserThread( threading.Thread ):
 			print ("Manga ("+self.manga+") up-to-date.\n")
 			return		
 			
-		#try:
-		for current_chapter in self.siteParser.chapters:
-			#print "Current Chapter =" + str(current_chapter[0])
-			iLastChap = current_chapter[1]
+		try:
+			for current_chapter in self.siteParser.chapters:
+				#print "Current Chapter =" + str(current_chapter[0])
+				iLastChap = current_chapter[1]
 		
-		self.siteParser.downloadChapters()
-		print "\n"
+			self.siteParser.downloadChapters()
+			print "\n"
 			
-		#except Exception, (Instance):
-	#		print "Error: Manga ("+self.manga+")"
-	#		print Instance 
-	#		print "\n"
-#			return 
+		except Exception, (Instance):
+			print "Error: Manga ("+self.manga+")"
+			print Instance 
+			print "\n"
+			return 
 			
 		if self.xmlfile_path != None:
 			UpdateNode(self.dom, self.node, 'LastChapterDownloaded', str(iLastChap))
