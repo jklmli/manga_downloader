@@ -59,3 +59,4 @@ class SiteParserThread( threading.Thread ):
 				convertFileObj = convertFile()
 				for compressedFile in siteParser.CompressedFiles:
 					convertFileObj.convert(compressedFile, self.download_path, self.Device)	
+					

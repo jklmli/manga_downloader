@@ -102,3 +102,4 @@ def UpdateNode(dom, node, tagName, text):
 		node.appendChild(updateNode)
 		
 	setText(dom, updateNode, text) 	
+	
