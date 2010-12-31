@@ -20,6 +20,7 @@ from helper import *
 # Using global variable to act as a static variable
 # Use the appropriate static functions in SiteParserBase to modify these values
 gCompressedFiles = []
+gCompressedDict = {}
 gCompressedFileLock = threading.Lock()
 
 class SiteParserBase:
@@ -151,7 +152,7 @@ class SiteParserBase:
  		
 		compressedFile = os.path.basename(compressedFile)
 		compressedFile = os.path.join(self.download_path, compressedFile)
-		SiteParserBase.AddToConversionlist(compressedFile)
+		SiteParserBase.AddToConversionlist(compressedFile, self.OutputDir)
 	
 	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		"""
@@ -298,9 +299,10 @@ class SiteParserBase:
 		return keyword
 	
 	@staticmethod
-	def AddToConversionlist(FileToConvert):
+	def AddToConversionlist(FileToConvert, outputDir):
 		gCompressedFileLock.acquire()
 		gCompressedFiles.append(FileToConvert)
+		gCompressedDict[FileToConvert] = outputDir
 		gCompressedFileLock.release()
 	
 	@staticmethod
@@ -308,10 +310,12 @@ class SiteParserBase:
 		gCompressedFileLock.acquire()
 		if (len(gCompressedFiles) > 0):
 			ConversionFile = gCompressedFiles.pop()
+			outputDir = gCompressedDict[ConversionFile]
 		else:
 			ConversionFile = None
+			outputDir = None
 		gCompressedFileLock.release()
-		return ConversionFile
+		return ConversionFile, outputDir
 
 ########################################
 

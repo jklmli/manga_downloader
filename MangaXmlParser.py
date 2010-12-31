@@ -21,7 +21,12 @@ class MangaXmlParser:
 		
 		threadPool = []
 		self.options.auto = True
-					
+		
+		SetOutputPathToName_Flag = False
+		# Default OutputDir is the ./MangaName
+		if (self.options.OutputDir == 'DEFAULT_VALUE'):
+			SetOutputPathToName_Flag = True
+			
 		for node in dom.getElementsByTagName("MangaSeries"):
 			iLastChap = 0;
 			name = getText(node.getElementsByTagName('name')[0])
@@ -41,6 +46,8 @@ class MangaXmlParser:
 			self.options.manga = name
 			self.options.download_path = download_path
 			self.options.lastDownloaded = lastDownloaded
+			if SetOutputPathToName_Flag:
+				self.options.OutputDir = download_path
 			
 			threadPool.append(SiteParserThread(self.options, dom, node))
 		
