@@ -83,8 +83,15 @@ h2. Bugs
 h2. Issues
 
 * Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
+* Each chapter download temporarly creates a temporary directory. There is a limit to the number of the temporary directories that a program 
+  can use at once. If downloading a lot of chapters, the script because the OS refuses to create anymore temprary directories.
+* The script can be a bandwidth hog when downloading a lot of manga chapters. 
 
 h2. History
+
+*v0.8.2* (12/30/10)
++ Implmented downloading chapters in parallel. 
++ Implemented progress bars for each chapter downloaded
 
 *v0.8.1* (12/30/10)
 + Implemented multiple manga download from the command-line.

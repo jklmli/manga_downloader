@@ -30,7 +30,7 @@ from helper import *
 
 ##########
 
-VERSION = 'v0.8.1'
+VERSION = 'v0.8.2'
 
 siteDict = {
 		''  : 'MangaFox',
@@ -164,7 +164,7 @@ def main():
 			options.OutputDir = '.'
 		
 		convertFileObj = convertFile()
-		convertFileObj.convert(options.InputDir, options.OutputDir, options.Device)		
+		convertFileObj.convert(options.InputDir, options.OutputDir, options.Device, options.verbose_FLAG)		
 		sys.exit()
 	
 	# xmlfile option flagged

@@ -21,18 +21,27 @@ import image
 import imghdr
 import string
 import unicodedata
+
+from SiteParser import SiteParserBase
 	
 class BookConvert():
     
-    def __init__(self, book, directory):
+    def __init__(self, book, directory, verbose):
         self.book = book
         self.directory = directory
+        self.verbose = verbose
                     
     def Export(self):
 
     	if not os.path.isdir(self.directory):
     		os.makedirs(self.directory )
-    		
+    	
+    	hasDisplayLock = False
+    	ProgressBarTag = 'Converting ' + self.book.title
+    	if (not self.verbose):
+			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
+			hasDisplayLock = SiteParserBase.AcquireDisplayLock(ProgressBarTag, len(self.book.images), False )	
+			
         for index in range(0,len(self.book.images)):
           directory = os.path.join(unicode(self.directory), unicode(self.book.title))
           source = unicode(self.book.images[index])
@@ -50,7 +59,8 @@ class BookConvert():
             try:
                 base = os.path.join(directory, unicode(self.book.title))
                 mangaName = base + '.manga'
-                print mangaName
+                if (self.verbose):
+               		print mangaName
                 if self.book.overwrite or not os.path.isfile(mangaName):
                     manga = open(mangaName, 'w')
                     manga.write('\x00')
@@ -69,10 +79,27 @@ class BookConvert():
           os.renames(source, newSource)
  
           try:
+          	
             if self.book.overwrite or not os.path.isfile(target):
                 image.convertImage(newSource, target, str(self.book.device), self.book.imageFlags)
-                print source + " -> " + target
+                if (self.verbose):
+                	print source + " -> " + target
+                else:
+				if (not hasDisplayLock):
+					hasDisplayLock = SiteParserBase.AcquireDisplayLock(ProgressBarTag, len(self.book.images), False )
+											
+				if (hasDisplayLock):
+					SiteParserBase.UpdateProgressBar(index + 1)
+					
           except RuntimeError, error:
               print "ERROR"
           finally:
-          	os.renames(newSource, source)    
+          	os.renames(newSource, source)
+        
+        if (hasDisplayLock):
+       	  SiteParserBase.ReleaseDisplayLock()
+        else:
+          if (not self.verbose):
+            SiteParserBase.AcquireDisplayLock(ProgressBarTag, len(self.book.images), True )
+            SiteParserBase.UpdateProgressBar(len(self.book.images))
+            SiteParserBase.ReleaseDisplayLock()

@@ -11,9 +11,14 @@ import urllib
 import zipfile
 import tempfile
 import threading
+import time
+
 #####################
 
 from helper import *
+from progressbar import ProgressBar, Percentage, Bar, ETA, FileTransferSpeed, \
+     RotatingMarker, ReverseBar, SimpleProgress
+
 
 #####################
 
@@ -22,6 +27,8 @@ from helper import *
 gCompressedFiles = []
 gCompressedDict = {}
 gCompressedFileLock = threading.Lock()
+gDisplayLock = threading.RLock()
+gProgressBar = None
 
 class SiteParserBase:
 
@@ -87,9 +94,10 @@ class SiteParserBase:
 			for elem in self.garbageImages.keys():
 				print('Manga keyword: %s' % elem)
 				print('Pages: %s' % self.garbageImages[elem])
-#####
-	def downloadChapters(self):
-		raise NotImplementedError( 'Should have implemented this' )	
+#####	
+		
+	def downloadChapter(self):
+		raise NotImplementedError( 'Should have implemented this' )		
 		
 	def parseSite(self):
 		raise NotImplementedError( 'Should have implemented this' )
@@ -214,7 +222,8 @@ class SiteParserBase:
 		# get the URL of the chapter homepage
 		url = self.chapters[current_chapter][0]
 		
-		print(url)
+		if (self.verbose_FLAG):
+			print(url)
 		
 		source_code = getSourceCode(url)
 		
@@ -298,8 +307,39 @@ class SiteParserBase:
 			raise self.MangaNotFound("No strict match found. Check Query.")
 		return keyword
 	
+	class DownloadChapterThread( threading.Thread ):
+		def __init__ ( self, siteParser, chapter):
+			threading.Thread.__init__(self)
+			self.siteParser = siteParser
+			self.chapter = chapter
+		
+		def run (self):
+			self.siteParser.downloadChapter(self.chapter)
+	
+	def downloadChapters(self):
+		threadPool = []
+		
+		"""
+		for loop that goes through the chapters we selected.
+		"""
+		
+		for current_chapter in self.chapters_to_download:
+			threadPool.append(SiteParserBase.DownloadChapterThread(self, current_chapter))
+			
+		for thread in threadPool: 
+			thread.start()	
+		
+		while (len(threadPool) > 0):
+			thread = threadPool.pop()
+			while (thread.isAlive()):
+				time.sleep(2)
+	
 	@staticmethod
 	def AddToConversionlist(FileToConvert, outputDir):
+		global gCompressedFileLock
+		global gCompressedFiles
+		global gCompressedDict
+		
 		gCompressedFileLock.acquire()
 		gCompressedFiles.append(FileToConvert)
 		gCompressedDict[FileToConvert] = outputDir
@@ -307,6 +347,10 @@ class SiteParserBase:
 	
 	@staticmethod
 	def PopCoversionFileEntry():
+		global gCompressedFileLock
+		global gCompressedFiles
+		global gCompressedDict
+		
 		gCompressedFileLock.acquire()
 		if (len(gCompressedFiles) > 0):
 			ConversionFile = gCompressedFiles.pop()
@@ -317,6 +361,47 @@ class SiteParserBase:
 		gCompressedFileLock.release()
 		return ConversionFile, outputDir
 
+	@staticmethod
+	def AcquireDisplayLock(title, maxValue, WaitForLock=False):
+		global gDisplayLock
+		
+		if (not gDisplayLock.acquire(WaitForLock)):
+			return False
+		else:
+			SiteParserBase.InitializeProgressBar(title, maxValue)
+			return True
+	
+	@staticmethod
+	def ReleaseDisplayLock():
+		print '\n'
+		gDisplayLock.release()
+	
+	@staticmethod
+	def InitializeProgressBar(title, maxValue):
+		global gDisplayLock
+		global gProgressBar
+		
+		if (not gDisplayLock.acquire(False)):
+			raise FatalError('Failed to aquire: rLock. By Design this lock shouid aways be acquired before this function is called')
+
+		widgets = ['%s: ' % title, Percentage(), ' ', Bar(), ' ', ETA(), ]
+		gProgressBar = ProgressBar(widgets=widgets, maxval=maxValue).start()
+
+		gDisplayLock.release()
+	
+	@staticmethod
+	def UpdateProgressBar(newValue):
+		global gDisplayLock
+		global gProgressBar
+		
+		if (not gDisplayLock.acquire(False)):
+			raise FatalError('Failed to aquire: rLock. By Design this lock shouid aways be acquired before this function is called')
+		
+		gProgressBar.update(newValue)
+		
+		gDisplayLock.release()
+
+		
 ########################################
 
 class SiteParserFactory():
@@ -345,7 +430,7 @@ class MangaFoxParser(SiteParserBase):
 		Parses list of chapters and URLs associated with each one for the given manga and site.
 		"""
 		
-		print('Beginning MangaFox check: %s\n' % self.manga)
+		print('Beginning MangaFox check: %s' % self.manga)
 		
 		url = 'http://www.mangafox.com/manga/%s/' % fixFormatting(self.manga)
 		source_code = getSourceCode(url)
@@ -406,27 +491,45 @@ class MangaFoxParser(SiteParserBase):
 					self.chapters_to_download.append(i)
 			return 		
 	
-	def downloadChapters(self):
-		"""
-		for loop that goes through the chapters we selected.
-		"""
+	def downloadChapter(self, current_chapter):
+		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, 'var total_pages=([^;]*?);')
 			
-		for current_chapter in self.chapters_to_download:
-			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, 'var total_pages=([^;]*?);')
+		# more or less due to the MangaFox js script sometimes leaving up chapter names and taking down URLs
+		# also if we already have the chapter
+		if url == None:
+			return
+				
+		hasDisplayLock = False
 			
-			# more or less due to the MangaFox js script sometimes leaving up chapter names and taking down URLs
-			# also if we already have the chapter
-			if url == None:
-				continue
-			
-			# download each image, basic progress indicator
-			for page in range(1, max_pages + 1):
+		if (not self.verbose_FLAG):
+			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
+			hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )			
+				
+		for page in range(1, max_pages + 1):
+
+			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
-				pageUrl = '%s/%i.html' % (url, page)
-				self.downloadImage(page, pageUrl, manga_chapter_prefix, ';"><img src="([^"]*)"')
+
+			pageUrl = '%s/%i.html' % (url, page)
+			self.downloadImage(page, pageUrl, manga_chapter_prefix, ';"><img src="([^"]*)"')
+				
+			if (not self.verbose_FLAG):
+				if (not hasDisplayLock):
+					hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+											
+				if (hasDisplayLock):
+					SiteParserBase.UpdateProgressBar(page+1)
 			
-			# zip them up
-			self.compress(manga_chapter_prefix, max_pages)	
+		if (hasDisplayLock):
+			SiteParserBase.ReleaseDisplayLock()
+		else:
+			if (not self.verbose_FLAG):
+				SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
+				SiteParserBase.UpdateProgressBar(max_pages + 1)
+				SiteParserBase.ReleaseDisplayLock()
+				
+		# zip them up
+		self.compress(manga_chapter_prefix, max_pages)	
 
 ####################################################################
 # The code for the other sites is similar enough to not need
@@ -435,7 +538,7 @@ class MangaFoxParser(SiteParserBase):
 class MangaReaderParser(SiteParserBase):
 
 	def parseSite(self):
-		print('Beginning MangaReader check: %s\n' % self.manga)
+		print('Beginning MangaReader check: %s' % self.manga)
 		
 		url = 'http://www.mangareader.net/alphabetical'
 
@@ -472,27 +575,50 @@ class MangaReaderParser(SiteParserBase):
 				self.chapters_to_download .append(i)
 		return 
 	
-	def downloadChapters(self):
+	def downloadChapter(self, current_chapter):
 			
-		for current_chapter in self.chapters_to_download:
-						
-			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)            </div>')
+		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)            </div>')
 			
-			if url == None:
-				continue
+		if url == None:
+			return
 			
-			for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
+		hasDisplayLock = False
+			
+		if (not self.verbose_FLAG):
+			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
+			hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
+		
+		pageIndex = 0
+		for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
+			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
-				pageUrl = 'http://www.mangareader.net' + page[0]
-				self.downloadImage(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
-				
-			self.compress(manga_chapter_prefix, max_pages)	
+					
+			pageUrl = 'http://www.mangareader.net' + page[0]
+			self.downloadImage(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
+			
+			pageIndex = pageIndex + 1
+			if (not self.verbose_FLAG):
+				if (not hasDisplayLock):
+					hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+											
+				if (hasDisplayLock):
+					SiteParserBase.UpdateProgressBar(pageIndex+ 1)
+			
+		if (hasDisplayLock):
+			SiteParserBase.ReleaseDisplayLock()
+		else:
+			if (not self.verbose_FLAG):
+				SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
+				SiteParserBase.UpdateProgressBar(max_pages + 1)
+				SiteParserBase.ReleaseDisplayLock()
+					
+		self.compress(manga_chapter_prefix, max_pages)	
 
 #############################################################			
 class OtakuWorksParser(SiteParserBase):
 	
 	def parseSite(self):
-		print('Beginning OtakuWorks check: %s\n' % self.manga)
+		print('Beginning OtakuWorks check: %s' % self.manga)
 		url = 'http://www.otakuworks.com/search/%s' % '+'.join(self.manga.split())
 
 		source_code = getSourceCode(url)
@@ -532,21 +658,42 @@ class OtakuWorksParser(SiteParserBase):
 				self.chapters_to_download.append(i)
 		return 
 		
-	def downloadChapters(self):
-
-		for current_chapter in self.chapters_to_download:
+	def downloadChapter(self, current_chapter):
 		
-			manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '<strong>(\d*)</strong>')
+		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '<strong>(\d*)</strong>')
  
-			if url == None:
-				continue
-		
-			for page in range(1, max_pages + 1):
+		if url == None:
+			return
+
+		hasDisplayLock = False
+			
+		if (not self.verbose_FLAG):
+			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
+			hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
+				
+		for page in range(1, max_pages + 1):
+			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
-				pageUrl = '%s/%i' % (url, page)
-				self.downloadImage(page, pageUrl, manga_chapter_prefix, 'img src="(http://static.otakuworks.net/viewer/[^"]*)"')
-		
-			self.compress(manga_chapter_prefix, max_pages)
+					
+			pageUrl = '%s/%i' % (url, page)
+			self.downloadImage(page, pageUrl, manga_chapter_prefix, 'img src="(http://static.otakuworks.net/viewer/[^"]*)"')
+
+			if (not self.verbose_FLAG):
+				if (not hasDisplayLock):
+					hasDisplayLock = SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+											
+				if (hasDisplayLock):
+					SiteParserBase.UpdateProgressBar(page+1)
+			
+		if (hasDisplayLock):
+			SiteParserBase.ReleaseDisplayLock()
+		else:
+			if (not self.verbose_FLAG):
+				SiteParserBase.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
+				SiteParserBase.UpdateProgressBar(max_pages + 1)
+				SiteParserBase.ReleaseDisplayLock()
+					
+		self.compress(manga_chapter_prefix, max_pages)
 			
 #############################################################			
 class AnimeaParser(SiteParserBase):

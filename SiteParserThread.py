@@ -26,6 +26,8 @@ class SiteParserThread( threading.Thread ):
 			self.siteParser.parseSite()	
 		except self.siteParser.NoUpdates:
 			self.uptodate_FLAG = True
+			print ("Manga ("+self.manga+") up-to-date.")
+		print '\n'	
 
 	def UpdateTimestamp(self):
 		t = datetime.datetime.today()
@@ -35,7 +37,6 @@ class SiteParserThread( threading.Thread ):
 			
 	def run (self):
 		if (self.uptodate_FLAG):
-			print ("Manga ("+self.manga+") up-to-date.\n")
 			return		
 			
 		try:
@@ -44,9 +45,13 @@ class SiteParserThread( threading.Thread ):
 				iLastChap = current_chapter[1]
 		
 			self.siteParser.downloadChapters()
-			print "\n"
 			
-		except Exception, (Instance):
+		except SiteParserBase.MangaNotFound, (Instance):
+			print "Error: Manga ("+self.manga+")"
+			print Instance 
+			print "\n"
+			return 
+		except SiteParserBase.NonExistantDownloadPath, (Instance):
 			print "Error: Manga ("+self.manga+")"
 			print Instance 
 			print "\n"
@@ -63,8 +68,10 @@ class SiteParserThread( threading.Thread ):
 		while (len(threadPool) > 0):
 			thread = threadPool.pop()
 			while (thread.isAlive()):
-				if (SiteParserThread.ProcessConversionList(conversionOptions) == 0):
-					time.sleep(2)
+				processedItems = SiteParserThread.ProcessConversionList(conversionOptions) 
+				if (processedItems == 0):
+					# Yields execution to whatever another thread
+					time.sleep(0)
 		
 		# This is to avoid a race condition where the last SiteParserThreads adds a compressionFile 
 		# to the list and then dies. Therfore thread.isAlive would be false but there would still
@@ -84,7 +91,7 @@ class SiteParserThread( threading.Thread ):
 				compressedFile, outputPath = SiteParserBase.PopCoversionFileEntry()
 				while (compressedFile != None and outputPath != None):
 					i = i + 1
-					convertFileObj.convert(compressedFile, outputPath, conversionOptions.Device)
+					convertFileObj.convert(compressedFile, outputPath, conversionOptions.Device, conversionOptions.verbose_FLAG)
 					compressedFile, outputPath = SiteParserBase.PopCoversionFileEntry()
 		
 		return i			
