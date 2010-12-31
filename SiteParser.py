@@ -103,6 +103,7 @@ class SiteParserBase:
 		raise NotImplementedError( 'Should have implemented this' )
 #####
 	
+	
 	def compress(self, manga_chapter_prefix, max_pages):
 		"""
 		Looks inside the temporary directory and zips up all the image files.
@@ -285,33 +286,71 @@ class SiteParserBase:
 			raise self.MangaNotFound("No strict match found. Check Query.")
 		return keyword
 	
+	gChapterThreadSemaphopre = None
+	
 	class DownloadChapterThread( threading.Thread ):
 		def __init__ ( self, siteParser, chapter):
 			threading.Thread.__init__(self)
 			self.siteParser = siteParser
 			self.chapter = chapter
-		
+			
+			SiteParserBase.DownloadChapterThread.acquireSemaphore()
+			
+			
+		@staticmethod
+		def InitializeSemaphore(value):
+			global gChapterThreadSemaphopre
+			gChapterThreadSemaphopre = threading.Semaphore(value)
+			
+
+		@staticmethod
+		def acquireSemaphore():
+			global gChapterThreadSemaphopre
+			
+			if (gChapterThreadSemaphopre == None):
+				raise FatalError('Semaphore Not Initialized')
+				
+			gChapterThreadSemaphopre.acquire()
+			
+		@staticmethod
+		def releaseSemaphore():	
+			global gChapterThreadSemaphopre
+			
+			if (gChapterThreadSemaphopre == None):
+				raise FatalError('Semaphore Not Initialized')
+				
+			gChapterThreadSemaphopre.release()
+			
 		def run (self):
 			self.siteParser.downloadChapter(self.chapter)
 	
 	def downloadChapters(self):
 		threadPool = []
 		
+		SiteParserBase.DownloadChapterThread.InitializeSemaphore(self.maxChapterThreads)
 		"""
 		for loop that goes through the chapters we selected.
 		"""
 		
+		#i = 0
 		for current_chapter in self.chapters_to_download:
-			threadPool.append(SiteParserBase.DownloadChapterThread(self, current_chapter))
+			thread = SiteParserBase.DownloadChapterThread(self, current_chapter)
+			threadPool.append(thread)
+			thread.start()
+			#i = i + 1
+			#print i
 			
-		for thread in threadPool: 
-			thread.start()	
-		
+				
 		while (len(threadPool) > 0):
 			thread = threadPool.pop()
 			while (thread.isAlive()):
-				time.sleep(2)
-	
+				# Yields control to whoever is waiting 
+				time.sleep(0)
+
+	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
+		SiteParserBase.DownloadChapterThread.releaseSemaphore()
+		self.compress(manga_chapter_prefix, max_pages)
+		
 	@staticmethod
 	def AddToConversionlist(FileToConvert, outputDir):
 		global gCompressedFileLock
@@ -506,8 +545,10 @@ class MangaFoxParser(SiteParserBase):
 				SiteParserBase.UpdateProgressBar(max_pages + 1)
 				SiteParserBase.ReleaseDisplayLock()
 				
-		# zip them up
-		self.compress(manga_chapter_prefix, max_pages)	
+		# Post Processing 
+		# Release locks/semaophores
+		# Zip Them up
+		self.postDownloadProcessing(manga_chapter_prefix, max_pages)	
 
 ####################################################################
 # The code for the other sites is similar enough to not need
@@ -590,7 +631,7 @@ class MangaReaderParser(SiteParserBase):
 				SiteParserBase.UpdateProgressBar(max_pages + 1)
 				SiteParserBase.ReleaseDisplayLock()
 					
-		self.compress(manga_chapter_prefix, max_pages)	
+		self.postDownloadProcessing(manga_chapter_prefix, max_pages)	
 
 #############################################################			
 class OtakuWorksParser(SiteParserBase):
@@ -671,7 +712,7 @@ class OtakuWorksParser(SiteParserBase):
 				SiteParserBase.UpdateProgressBar(max_pages + 1)
 				SiteParserBase.ReleaseDisplayLock()
 					
-		self.compress(manga_chapter_prefix, max_pages)
+		self.postDownloadProcessing(manga_chapter_prefix, max_pages)
 			
 #############################################################			
 class AnimeaParser(SiteParserBase):

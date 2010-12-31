@@ -30,7 +30,7 @@ from helper import *
 
 ##########
 
-VERSION = 'v0.8.2'
+VERSION = 'v0.8.3'
 
 siteDict = {
 		''  : 'MangaFox',
@@ -71,7 +71,8 @@ def main():
 				InputDir = None,
 				OutputDir = 'DEFAULT_VALUE',
 				overwrite_FLAG = False,
-				verbose_FLAG = False                                        )
+				verbose_FLAG = False,
+				maxChapterThreads = 2															)
 				
 	parser.add_option(	'--all', 
 				action = 'store_true', 
@@ -124,8 +125,20 @@ def main():
 				const = '.zip', 
 				help = 'Downloads using .zip compression.  Omitting this option defaults to %default.'					)
 	
+	parser.add_option(	'--numChapterThreads', 
+				dest = 'maxChapterThreads', 
+				help = 'Limits the number of chapter threads to the value specified.'					)
+				
 	(options, args) = parser.parse_args()
 	
+	try:
+		options.maxChapterThreads = int(options.maxChapterThreads)
+	except:
+		options.maxChapterThreads = 2
+	
+	if (options.maxChapterThreads <= 0):
+		options.maxChapterThreads = 2;
+		
 	if(len(args) == 0 and ( not (options.convert_Directory or options.xmlfile_path != None) )):
 		parser.error('Manga not specified.')
 	
