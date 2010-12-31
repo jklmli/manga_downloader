@@ -10,12 +10,17 @@ import sys
 import urllib
 import zipfile
 import tempfile
-
+import threading
 #####################
 
 from helper import *
 
 #####################
+
+# Using global variable to act as a static variable
+# Use the appropriate static functions in SiteParserBase to modify these values
+gCompressedFiles = []
+gCompressedFileLock = threading.Lock()
 
 class SiteParserBase:
 
@@ -68,7 +73,6 @@ class SiteParserBase:
 		self.chapters = []
 		self.chapters_to_download = []
 		self.mangadl_tmp_path = 'mangadl_tmp'
-		self.CompressedFiles = []
 		self.garbageImages = {}
 
 	# this takes care of removing the temp directory after the last successful download
@@ -141,13 +145,13 @@ class SiteParserBase:
 		
  		shutil.move( compressedFile, self.download_path)
  		
- 		# The object self.CompressedFiles stores the path to every compressed file that this SiteParser
- 		# object has downloaded. This object is used by the conversion code to convert the downloaded images
+ 		# The object global gCompressedFiles stores the path to every compressed file that  
+ 		# has been downloaded. This object is used by the conversion code to convert the downloaded images
  		# to the format specified by the Device parameter
  		
 		compressedFile = os.path.basename(compressedFile)
 		compressedFile = os.path.join(self.download_path, compressedFile)
-		self.CompressedFiles.append(compressedFile)
+		SiteParserBase.AddToConversionlist(compressedFile)
 	
 	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		"""
@@ -292,6 +296,22 @@ class SiteParserBase:
 		if (not found):
 			raise self.MangaNotFound("No strict match found. Check Query.")
 		return keyword
+	
+	@staticmethod
+	def AddToConversionlist(FileToConvert):
+		gCompressedFileLock.acquire()
+		gCompressedFiles.append(FileToConvert)
+		gCompressedFileLock.release()
+	
+	@staticmethod
+	def PopCoversionFileEntry():
+		gCompressedFileLock.acquire()
+		if (len(gCompressedFiles) > 0):
+			ConversionFile = gCompressedFiles.pop()
+		else:
+			ConversionFile = None
+		gCompressedFileLock.release()
+		return ConversionFile
 
 ########################################
 
@@ -305,6 +325,7 @@ class SiteParserFactory():
 			'MangaFox' 	: MangaFoxParser,
 			'MangaReader' 	: MangaReaderParser,
 			'OtakuWorks' 	: OtakuWorksParser
+			
 		}.get(options.site, None)
 		
 		if not ParserClass:

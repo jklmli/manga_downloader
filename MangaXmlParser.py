@@ -35,7 +35,7 @@ class MangaXmlParser:
 			try:
 				download_path =	getText(node.getElementsByTagName('downloadPath')[0])
 			except IndexError:
-				download_path = ('./' + SiteParser.fixFormatting(name))
+				download_path = ('./' + fixFormatting(name))
 			
 			self.options.site = site
 			self.options.manga = name
@@ -47,10 +47,7 @@ class MangaXmlParser:
 		for thread in threadPool: 
 			thread.start()
 		
-		while (len(threadPool) > 0):
-			thread = threadPool.pop()
-			while (thread.isAlive()):
-				time.sleep(3)
+		SiteParserThread.WaitForThreads(threadPool, self.options)
 		
 		#print dom.toxml()		
 		f = open(self.xmlfile_path, 'w')

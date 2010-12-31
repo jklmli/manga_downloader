@@ -7,7 +7,7 @@ Downloads into .cbz format, can optionally download into .zip instead.
 
 h2. Usage
 
-manga.py [options] <manga name>
+manga.py [options] <manga name> <manga name> <ect.>
 
 Options:
 @--version@
@@ -85,6 +85,10 @@ h2. Issues
 * Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
 
 h2. History
+
+*v0.8.1* (12/30/10)
++ Implemented multiple manga download from the command-line.
++ Each manga is downloaded in parallel. 
 
 *v0.8.0* (12/30/10)
 + Implemented parallel processing of multiple mangas when using the XML option.

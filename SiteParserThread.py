@@ -6,7 +6,7 @@ import threading
 import time
 import datetime
 
-from SiteParser import SiteParserFactory
+from SiteParser import *
 from helper import *
 #####################
 
@@ -14,11 +14,18 @@ class SiteParserThread( threading.Thread ):
 
 	def __init__ ( self, optDict, dom, node ):
 		threading.Thread.__init__(self)
+		self.uptodate_FLAG = False
+		
 		for elem in vars(optDict):
 			setattr(self, elem, getattr(optDict, elem))
 			
 		self.dom = dom
 		self.node = node
+		self.siteParser = SiteParserFactory.getInstance(self)
+		try:
+			self.siteParser.parseSite()	
+		except self.siteParser.NoUpdates:
+			self.uptodate_FLAG = True
 
 	def UpdateTimestamp(self):
 		t = datetime.datetime.today()
@@ -27,19 +34,18 @@ class SiteParserThread( threading.Thread ):
 		UpdateNode(self.dom, self.node, 'timeStamp', timeStamp)
 			
 	def run (self):
-		siteParser = SiteParserFactory.getInstance(self)
+		if (self.uptodate_FLAG):
+			print ("Manga ("+self.manga+") up-to-date.\n")
+			return		
+			
 		try:
-			siteParser.parseSite()		
-			for current_chapter in siteParser.chapters:
+			for current_chapter in self.siteParser.chapters:
 				#print "Current Chapter =" + str(current_chapter[0])
 				iLastChap = current_chapter[1]
 		
-			siteParser.downloadChapters()
+			self.siteParser.downloadChapters()
 			print "\n"
 			
-		except siteParser.NoUpdates:
-			print ("Manga ("+self.manga+") up-to-date.\n")
-			return
 		except Exception, (Instance):
 			print "Error: Manga ("+self.manga+")"
 			print Instance 
@@ -50,13 +56,35 @@ class SiteParserThread( threading.Thread ):
 			UpdateNode(self.dom, self.node, 'LastChapterDownloaded', str(iLastChap))
 			self.UpdateTimestamp()	
 		
-		if (self.conversion_FLAG):
+
+	
+	@staticmethod
+	def WaitForThreads(threadPool, conversionOptions):
+		while (len(threadPool) > 0):
+			thread = threadPool.pop()
+			while (thread.isAlive()):
+				if (SiteParserThread.ProcessConversionList(conversionOptions) == 0):
+					time.sleep(2)
+		
+		# This is to avoid a race condition where the last SiteParserThreads adds a compressionFile 
+		# to the list and then dies. Therfore thread.isAlive would be false but there would still
+		# be a compression File to process
+		SiteParserThread.ProcessConversionList(conversionOptions)			
+	
+	@staticmethod
+	def ProcessConversionList(conversionOptions):
+		i = 0
+		if (conversionOptions.conversion_FLAG):
 			if (not isImageLibAvailable()):
 				print "PIL (Python Image Library) not available."
 			else:	
 				from ConvertFile import convertFile
-					
+				
 				convertFileObj = convertFile()
-				for compressedFile in siteParser.CompressedFiles:
-					convertFileObj.convert(compressedFile, self.download_path, self.Device)	
-					
+				compressedFile = SiteParserBase.PopCoversionFileEntry()
+				while (compressedFile != None):
+					i = i + 1
+					convertFileObj.convert(compressedFile, conversionOptions.download_path, conversionOptions.Device)
+					compressedFile = SiteParserBase.PopCoversionFileEntry()
+		
+		return i			

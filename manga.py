@@ -21,15 +21,16 @@ import optparse
 import os
 import sys
 
+
 ##########
 
 from MangaXmlParser import MangaXmlParser
+from SiteParserThread import SiteParserThread
 from helper import *
-import SiteParser
 
 ##########
 
-VERSION = 'v0.8.0'
+VERSION = 'v0.8.1'
 
 siteDict = {
 		''  : 'MangaFox',
@@ -66,9 +67,9 @@ def main():
 				convert_Directory = False,
 				Device = 'Kindle 3',
 				download_format = '.cbz', 
-				download_path = 'MANGANAME_DIRECTORY', 
+				download_path = 'DEFAULT_VALUE', 
 				InputDir = None,
-				OutputDir = 'MANGANAME_DIRECTORY',
+				OutputDir = 'DEFAULT_VALUE',
 				overwrite_FLAG = False,
 				verbose_FLAG = False                                        )
 				
@@ -128,19 +129,21 @@ def main():
 	if(len(args) == 0 and ( not (options.convert_Directory or options.xmlfile_path != None) )):
 		parser.error('Manga not specified.')
 	
-	if(len(args) > 1):
-		parser.error('Possible multiple mangas specified, please select one.  (Did you forget to put quotes around a multi-word manga?)')
+	#if(len(args) > 1):
+	#	parser.error('Possible multiple mangas specified, please select one.  (Did you forget to put quotes around a multi-word manga?)')
 	
+	SetDownloadPathToName_Flag = False
+	SetOutputPathToName_Flag = False
 	if(len(args) > 0):
-		options.manga = args[0]
 		
 		# Default Directory is the ./MangaName
-		if (options.download_path == 'MANGANAME_DIRECTORY'):
-			options.download_path = ('./' + fixFormatting(options.manga))
+		if (options.download_path == 'DEFAULT_VALUE'):
+			SetDownloadPathToName_Flag = True
+
 			
 		# Default OutputDir is the ./MangaName
-		if (options.OutputDir == 'MANGANAME_DIRECTORY'):
-			options.OutputDir = ('./' + fixFormatting(options.manga))		
+		if (options.OutputDir == 'DEFAULT_VALUE'):
+			SetOutputPathToName_Flag = True
 
 
 	PILAvailable = (isImageLibAvailable())
@@ -152,13 +155,14 @@ def main():
 		if (PILAvailable):
 			from ConvertFile import convertFile
 			
-	options.download_path = os.path.realpath(options.download_path) + os.sep
-
 	# Changes the working directory to the script location
 	if (os.path.dirname(sys.argv[0]) != ""):
 		os.chdir(os.path.dirname(sys.argv[0]))
 
 	if (options.convert_Directory):
+		if ( options.OutputDir == 'DEFAULT_VALUE' ):
+			options.OutputDir = '.'
+		
 		convertFileObj = convertFile()
 		convertFileObj.convert(options.InputDir, options.OutputDir, options.Device)		
 		sys.exit()
@@ -168,26 +172,37 @@ def main():
 		xmlParser = MangaXmlParser(options)
 		xmlParser.downloadManga()
 	else:
-		# site selection
-		print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
-		site = raw_input()
+		threadPool = []
+		for manga in args:
+			print manga
+			options.manga = manga
+			
+			if SetDownloadPathToName_Flag:		
+				options.download_path = ('./' + fixFormatting(options.manga))
+			
+			if SetOutputPathToName_Flag:
+				options.OutputDir = ('./' + fixFormatting(options.manga))
+			
+			options.download_path = os.path.realpath(options.download_path) + os.sep
+
+			# site selection
+			print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
+			site = raw_input()
+			try:
+				options.site = siteDict[site]
+			except KeyError:
+				raise InvalidSite('Site selection invalid.')	
+			
+			threadPool.append(SiteParserThread(options, None, None))
+			
 		
-		try:
-			options.site = siteDict[site]
-			siteParser = SiteParser.SiteParserFactory.getInstance(options)
-		except KeyError:
-			raise InvalidSite('Site selection invalid.')
+		for thread in threadPool: 
+			thread.start()
 		
-		# basic processing
-		siteParser.parseSite()
+		SiteParserThread.WaitForThreads(threadPool, options)
 		
-		# download
-		siteParser.downloadChapters()
 		
-		if (options.conversion_FLAG):
-			convertFileObj = convertFile()
-			for compressedFile in siteParser.CompressedFiles:
-				convertFileObj.convert(compressedFile, options.OutputDir, options.Device)	
+		print "Time Delta = " + str(endTime - startTime)
 
 if __name__ == "__main__":
 	main()
