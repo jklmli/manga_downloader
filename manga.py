@@ -202,7 +202,6 @@ def main():
 		SiteParserThread.WaitForThreads(threadPool, options)
 		
 		
-		print "Time Delta = " + str(endTime - startTime)
 
 if __name__ == "__main__":
 	main()
