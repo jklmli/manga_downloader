@@ -80,7 +80,7 @@ class SiteParserBase:
 			setattr(self, elem, getattr(optDict, elem))
 		self.chapters = []
 		self.chapters_to_download = []
-		self.mangadl_tmp_path = 'mangadl_tmp'
+		self.mangadl_tmp_path = tempfile.mkdtemp()
 		self.garbageImages = {}
 
 	# this takes care of removing the temp directory after the last successful download
@@ -102,25 +102,6 @@ class SiteParserBase:
 	def parseSite(self):
 		raise NotImplementedError( 'Should have implemented this' )
 #####
-	
-	def cleanTmp(self):
-		"""
-		Cleans the temporary directory in which image files are downloaded to and held in until they are compressed.
-		"""
-		
-		if self.verbose_FLAG:
-			print('Cleaning temporary directory...')
-		
-		try:
-			# clean or create
-			if os.path.exists(self.mangadl_tmp_path):
-				shutil.rmtree(self.mangadl_tmp_path)
-			self.mangadl_tmp_path = tempfile.mkdtemp()
-			
-			if self.verbose_FLAG:
-				print "Creating Temp Dir: "+self.mangadl_tmp_path
-		except OSError:
-			raise FatalError('Unable to create temporary directory.')
 	
 	def compress(self, manga_chapter_prefix, max_pages):
 		"""
@@ -200,9 +181,6 @@ class SiteParserBase:
 		"""
 		Calculates some other necessary stuff before actual downloading can begin and does some checking.
 		"""
-		
-		# clean now to make sure we start with a fresh temp directory
-		self.cleanTmp()
 		
 		# Do not need to ZeroFill the manga name because this should be consistent 
 		manga_chapter_prefix = fixFormatting(self.manga) + '_' +  ZeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
