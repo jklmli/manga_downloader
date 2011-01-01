@@ -22,7 +22,7 @@ import imghdr
 import string
 import unicodedata
 
-from ThreadProgressBar import *
+from ProgressBar.ThreadProgressBar import *
 	
 class BookConvert():
     

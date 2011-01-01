@@ -8,7 +8,7 @@ import re
 
 from SiteParserBase import SiteParserBase
 from helper import *
-from ThreadProgressBar import *
+from ProgressBar.ThreadProgressBar import *
 
 #####################
 
