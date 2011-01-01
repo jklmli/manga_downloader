@@ -440,6 +440,7 @@ class MangaFoxParser(SiteParserBase):
 		# more or less due to the MangaFox js script sometimes leaving up chapter names and taking down URLs
 		# also if we already have the chapter
 		if url == None:
+			SiteParserBase.DownloadChapterThread.releaseSemaphore()
 			return
 				
 		hasDisplayLock = False
@@ -525,6 +526,7 @@ class MangaReaderParser(SiteParserBase):
 		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)            </div>')
 			
 		if url == None:
+			SiteParserBase.DownloadChapterThread.releaseSemaphore()
 			return
 			
 		hasDisplayLock = False
@@ -608,6 +610,7 @@ class OtakuWorksParser(SiteParserBase):
 		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '<strong>(\d*)</strong>')
  
 		if url == None:
+			SiteParserBase.DownloadChapterThread.releaseSemaphore()
 			return
 
 		hasDisplayLock = False

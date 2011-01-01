@@ -25,6 +25,9 @@ The destination download directory. Defaults to a directory named after the mang
 @--overwrite@
 Overwrites previous copies of downloaded chapters.
 
+@--threads@
+Limits the number of chapter threads to the user specified value. Default value is 2.
+
 @--verbose@
 Verbose output.
 
@@ -50,9 +53,6 @@ The directory containg the images to covert when convertDirectory is specified.
 
 @--outputDirectory@
 The directory to store the converted Images. Omitting this option defaults to DOWNLOAD_PATH/Pictures. 
-
-@--numChapterThreads@
-Limits the number of chapter threads to the user specified value. Default value is 2.
 
 The script will offer a choice of 3 manga sites, it will default to the first upon pressing 'enter'.
 After selecting a site, the script will output a list of all chapters of the series it has found on the site you selected.  
@@ -91,6 +91,9 @@ h2. Issues
 * The script can be a bandwidth hog when downloading a lot of manga chapters. 
 
 h2. History
+
+*v0.8.4* (12/31/10)
++ Fixed deadlock situation when skipping already-downloaded chapter
 
 *v0.8.3* (12/31/10)
 + Implmented --numChapterThreads to limit the number of chapters used by the script
