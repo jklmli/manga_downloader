@@ -25,7 +25,7 @@ import sys
 ##########
 
 from MangaXmlParser import MangaXmlParser
-from SiteParserThread import SiteParserThread
+from SiteParser.SiteParserThread import SiteParserThread
 from helper import *
 
 ##########

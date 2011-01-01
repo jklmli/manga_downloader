@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
 ######################
+
 import time
 
+######################
+
+from SiteParser.SiteParserThread import SiteParserThread
 from xml.dom import minidom
-from SiteParserThread import SiteParserThread
 from helper import *
 
 ######################

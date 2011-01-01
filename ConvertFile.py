@@ -65,8 +65,13 @@ class convertFile():
 			self.convert(directory, outDir, Device, verbose)
 		
 		for compressedFile in compressedFiles:
-			z = zipfile.ZipFile(compressedFile, 'r')
-			
+			try:
+				z = zipfile.ZipFile(compressedFile, 'r')
+			except:
+				if (verbose):
+					print "Failed to convert %s. Check if it is a valid zipFile."
+				continue
+				
 			if (isDir):
 				temp_dir = os.path.join(filePath, os.path.splitext(os.path.basename(compressedFile))[0])
 			else:
