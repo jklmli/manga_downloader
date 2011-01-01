@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# The ThreadProgressBar class has only static function methods. This way It acts like the singleton design pattern. 
+
 #####################
 import threading
 

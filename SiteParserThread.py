@@ -6,8 +6,12 @@ import threading
 import time
 import datetime
 
+#####################
+
 from SiteParser import *
 from helper import *
+from ConversionQueue import ConversionQueue
+
 #####################
 
 class SiteParserThread( threading.Thread ):
@@ -88,10 +92,10 @@ class SiteParserThread( threading.Thread ):
 				from ConvertFile import convertFile
 				
 				convertFileObj = convertFile()
-				compressedFile, outputPath = SiteParserBase.PopCoversionFileEntry()
+				compressedFile, outputPath = ConversionQueue.pop()
 				while (compressedFile != None and outputPath != None):
 					i = i + 1
 					convertFileObj.convert(compressedFile, outputPath, conversionOptions.Device, conversionOptions.verbose_FLAG)
-					compressedFile, outputPath = SiteParserBase.PopCoversionFileEntry()
+					compressedFile, outputPath = ConversionQueue.pop()
 		
 		return i			

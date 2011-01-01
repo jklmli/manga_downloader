@@ -17,14 +17,10 @@ import time
 
 from helper import *
 from ThreadProgressBar import *
+from ConversionQueue import ConversionQueue
 
 #####################
 
-# Using global variable to act as a static variable
-# Use the appropriate static functions in SiteParserBase to modify these values
-gCompressedFiles = []
-gCompressedDict = {}
-gCompressedFileLock = threading.Lock()
 
 class SiteParserBase:
 
@@ -132,13 +128,13 @@ class SiteParserBase:
 		
  		shutil.move( compressedFile, self.download_path)
  		
- 		# The object global gCompressedFiles stores the path to every compressed file that  
+ 		# The object conversionQueue (singleton) stores the path to every compressed file that  
  		# has been downloaded. This object is used by the conversion code to convert the downloaded images
  		# to the format specified by the Device parameter
  		
 		compressedFile = os.path.basename(compressedFile)
 		compressedFile = os.path.join(self.download_path, compressedFile)
-		SiteParserBase.AddToConversionlist(compressedFile, self.OutputDir)
+		ConversionQueue.append(compressedFile, self.OutputDir)
 	
 	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		"""
@@ -346,33 +342,7 @@ class SiteParserBase:
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
 		SiteParserBase.DownloadChapterThread.releaseSemaphore()
 		self.compress(manga_chapter_prefix, max_pages)
-		
-	@staticmethod
-	def AddToConversionlist(FileToConvert, outputDir):
-		global gCompressedFileLock
-		global gCompressedFiles
-		global gCompressedDict
-		
-		gCompressedFileLock.acquire()
-		gCompressedFiles.append(FileToConvert)
-		gCompressedDict[FileToConvert] = outputDir
-		gCompressedFileLock.release()
-	
-	@staticmethod
-	def PopCoversionFileEntry():
-		global gCompressedFileLock
-		global gCompressedFiles
-		global gCompressedDict
-		
-		gCompressedFileLock.acquire()
-		if (len(gCompressedFiles) > 0):
-			ConversionFile = gCompressedFiles.pop()
-			outputDir = gCompressedDict[ConversionFile]
-		else:
-			ConversionFile = None
-			outputDir = None
-		gCompressedFileLock.release()
-		return ConversionFile, outputDir
+
 
 		
 ########################################
