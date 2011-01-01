@@ -30,7 +30,7 @@ from helper import *
 
 ##########
 
-VERSION = 'v0.8.3'
+VERSION = 'v0.8.4'
 
 siteDict = {
 		''  : 'MangaFox',
@@ -125,7 +125,7 @@ def main():
 				const = '.zip', 
 				help = 'Downloads using .zip compression.  Omitting this option defaults to %default.'					)
 	
-	parser.add_option(	'--numChapterThreads', 
+	parser.add_option(	'--threads', 
 				dest = 'maxChapterThreads', 
 				help = 'Limits the number of chapter threads to the value specified.'					)
 				
