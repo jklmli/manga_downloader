@@ -10,7 +10,7 @@ import datetime
 
 from SiteParserFactory import *
 from helper import *
-from ConversionQueue import ConversionQueue
+from ConvertPackage.ConversionQueue import ConversionQueue
 
 #####################
 
@@ -89,7 +89,7 @@ class SiteParserThread( threading.Thread ):
 			if (not isImageLibAvailable()):
 				print "PIL (Python Image Library) not available."
 			else:	
-				from ConvertFile import convertFile
+				from ConvertPackage.ConvertFile import convertFile
 				
 				convertFileObj = convertFile()
 				compressedFile, outputPath = ConversionQueue.pop()

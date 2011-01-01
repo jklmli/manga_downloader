@@ -17,7 +17,7 @@ import time
 
 from helper import *
 from ThreadProgressBar import *
-from ConversionQueue import ConversionQueue
+from ConvertPackage.ConversionQueue import ConversionQueue
 
 #####################
 

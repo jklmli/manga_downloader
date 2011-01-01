@@ -166,7 +166,7 @@ def main():
 		sys.exit()
 	else:
 		if (PILAvailable):
-			from ConvertFile import convertFile
+			from ConvertPackage.ConvertFile import convertFile
 			
 	# Changes the working directory to the script location
 	if (os.path.dirname(sys.argv[0]) != ""):

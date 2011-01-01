@@ -36,7 +36,7 @@ def ZeroFillStr(inputString, numOfZeros):
 
 def isImageLibAvailable():
 	try:
-		from ConvertFile import convertFile
+		from ConvertPackage.ConvertFile import convertFile
 	except ImportError:
 		return False
 	else:
