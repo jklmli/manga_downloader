@@ -15,6 +15,7 @@ import time
 
 #####################
 
+from datetime import datetime
 from helper import *
 from ConvertPackage.ConversionQueue import ConversionQueue
 
@@ -314,7 +315,13 @@ class SiteParserBase:
 			
 		def run (self):
 			try:
+				startTime = datetime.now()
 				self.siteParser.downloadChapter(self.chapter)
+				endTime = datetime.now()
+				totalTime = (endTime - startTime).total_seconds()
+				
+				if (self.siteParser.timeLogging_FLAG):
+					print (str(self.chapter+1)+": " + str(totalTime))
 			except Exception, (Instance):
 				# Assume semaphore has not been release
 				# This assumption could be faulty if the error was thrown in the compression function

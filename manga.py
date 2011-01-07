@@ -72,6 +72,7 @@ def main():
 				OutputDir = 'DEFAULT_VALUE',
 				overwrite_FLAG = False,
 				verbose_FLAG = False,
+				timeLogging_FLAG = False,
 				maxChapterThreads = 2															)
 				
 	parser.add_option(	'--all', 
@@ -128,7 +129,12 @@ def main():
 	parser.add_option(	'--threads', 
 				dest = 'maxChapterThreads', 
 				help = 'Limits the number of chapter threads to the value specified.'					)
-				
+	
+	parser.add_option(	'--timeLogging', 
+				action = 'store_true', 
+				dest = 'timeLogging_FLAG', 
+				help = 'Output time logging.'					)	
+						
 	(options, args) = parser.parse_args()
 	
 	try:
