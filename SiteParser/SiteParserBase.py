@@ -72,6 +72,7 @@ class SiteParserBase:
 			setattr(self, elem, getattr(optDict, elem))
 		self.chapters = []
 		self.chapters_to_download = []
+		self.CreateDirLock = threading.Lock()
 		self.mangadl_tmp_path = tempfile.mkdtemp()
 		self.garbageImages = {}
 
@@ -180,8 +181,17 @@ class SiteParserBase:
 		
 		try:
 			# create download directory if not found
+			
+			#Check First to avoid unneeded contention on the loc
 			if os.path.exists(self.download_path) is False:
-				os.mkdir(self.download_path)
+				#acquire Lock
+				self.CreateDirLock.acquire()
+				# Check is another thread has created the path, if not create directory
+				if os.path.exists(self.download_path) is False:	
+					os.mkdir(self.download_path)
+				
+				#Release Lock	
+				self.CreateDirLock.release()
 		except OSError:
 			raise self.NonExistantDownloadPath('Unable to create download directory. There may be a file with the same name, or you may not have permissions to write there.')
 
@@ -191,7 +201,8 @@ class SiteParserBase:
 			return (None, None, None)
 		
 		SiteParserBase.DownloadChapterThread.acquireSemaphore()
-	
+		if (self.timeLogging_FLAG):
+			print manga_chapter_prefix+" (Start Time): "+str(datetime.now())
 		# get the URL of the chapter homepage
 		url = self.chapters[current_chapter][0]
 		
@@ -315,13 +326,7 @@ class SiteParserBase:
 			
 		def run (self):
 			try:
-				startTime = datetime.now()
-				self.siteParser.downloadChapter(self.chapter)
-				endTime = datetime.now()
-				totalTime = (endTime - startTime).total_seconds()
-				
-				if (self.siteParser.timeLogging_FLAG):
-					print (str(self.chapter+1)+": " + str(totalTime))
+				self.siteParser.downloadChapter(self.chapter)				
 			except Exception, (Instance):
 				# Assume semaphore has not been release
 				# This assumption could be faulty if the error was thrown in the compression function
@@ -358,6 +363,9 @@ class SiteParserBase:
 				time.sleep(0)
 
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
+		if (self.timeLogging_FLAG):
+			print manga_chapter_prefix+" (End Time): "+str(datetime.now())
+
 		SiteParserBase.DownloadChapterThread.releaseSemaphore()
 		self.compress(manga_chapter_prefix, max_pages)
 

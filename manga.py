@@ -73,7 +73,7 @@ def main():
 				overwrite_FLAG = False,
 				verbose_FLAG = False,
 				timeLogging_FLAG = False,
-				maxChapterThreads = 2															)
+				maxChapterThreads = 3 														)
 				
 	parser.add_option(	'--all', 
 				action = 'store_true', 
