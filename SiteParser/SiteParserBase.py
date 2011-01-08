@@ -15,7 +15,6 @@ import time
 
 #####################
 
-from datetime import datetime
 from helper import *
 from ConvertPackage.ConversionQueue import ConversionQueue
 
@@ -202,7 +201,7 @@ class SiteParserBase:
 		
 		SiteParserBase.DownloadChapterThread.acquireSemaphore()
 		if (self.timeLogging_FLAG):
-			print manga_chapter_prefix+" (Start Time): "+str(datetime.now())
+			print manga_chapter_prefix+" (Start Time): "+str(time.time())
 		# get the URL of the chapter homepage
 		url = self.chapters[current_chapter][0]
 		
@@ -364,7 +363,7 @@ class SiteParserBase:
 
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
 		if (self.timeLogging_FLAG):
-			print manga_chapter_prefix+" (End Time): "+str(datetime.now())
+			print manga_chapter_prefix+" (End Time): "+str(time.time())
 
 		SiteParserBase.DownloadChapterThread.releaseSemaphore()
 		self.compress(manga_chapter_prefix, max_pages)
