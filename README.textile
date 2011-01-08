@@ -26,7 +26,7 @@ The destination download directory. Defaults to a directory named after the mang
 Overwrites previous copies of downloaded chapters.
 
 @--threads@
-Limits the number of chapter threads to the user specified value. Default value is 2.
+Limits the number of chapter threads to the user specified value. Default value is 3.
 
 @--verbose@
 Verbose output.
@@ -86,7 +86,7 @@ h2. Bugs
 h2. Issues
 
 * Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
-* The script can be a bandwidth hog when downloading a lot of manga chapters and --threads is a large number. 
+* The script can be a bandwidth hog when downloading a lot of manga chapters and @--threads@ is set to a large number. 
 
 h2. History
 
