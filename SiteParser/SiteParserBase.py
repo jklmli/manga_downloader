@@ -15,7 +15,6 @@ import time
 
 #####################
 
-from datetime import datetime
 from helper import *
 from ConvertPackage.ConversionQueue import ConversionQueue
 
@@ -315,10 +314,10 @@ class SiteParserBase:
 			
 		def run (self):
 			try:
-				startTime = datetime.now()
+				startTime = time.time() 
 				self.siteParser.downloadChapter(self.chapter)
-				endTime = datetime.now()
-				totalTime = (endTime - startTime).total_seconds()
+				endTime = time.time() 
+				totalTime = endTime - startTime
 				
 				if (self.siteParser.timeLogging_FLAG):
 					print (str(self.chapter+1)+": " + str(totalTime))
