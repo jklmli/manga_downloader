@@ -126,7 +126,7 @@ def main():
 				const = '.zip', 
 				help = 'Downloads using .zip compression.  Omitting this option defaults to %default.'					)
 	
-	parser.add_option(	'--threads', 
+	parser.add_option(	'-t', '--threads', 
 				dest = 'maxChapterThreads', 
 				help = 'Limits the number of chapter threads to the value specified.'					)
 	

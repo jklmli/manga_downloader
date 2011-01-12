@@ -25,7 +25,7 @@ The destination download directory. Defaults to a directory named after the mang
 @--overwrite@
 Overwrites previous copies of downloaded chapters.
 
-@--threads@
+@-t <number>, --threads=<number>@
 Limits the number of chapter threads to the user specified value. Default value is 3.
 
 @--verbose@
