@@ -152,7 +152,7 @@ def main():
 	#	parser.error('Possible multiple mangas specified, please select one.  (Did you forget to put quotes around a multi-word manga?)')
 	
 	SetDownloadPathToName_Flag = False
-	SetOutputPathToName_Flag = False
+	SetOutputPathToDefault_Flag = False
 	if(len(args) > 0):
 		
 		# Default Directory is the ./MangaName
@@ -162,7 +162,7 @@ def main():
 			
 		# Default OutputDir is the ./MangaName
 		if (options.OutputDir == 'DEFAULT_VALUE'):
-			SetOutputPathToName_Flag = True
+			SetOutputPathToDefault_Flag = True
 
 
 	PILAvailable = (isImageLibAvailable())
@@ -199,8 +199,10 @@ def main():
 			if SetDownloadPathToName_Flag:		
 				options.download_path = ('./' + fixFormatting(options.manga))
 			
-			if SetOutputPathToName_Flag:
-				options.OutputDir = ('./' + fixFormatting(options.manga))
+			if SetOutputPathToDefault_Flag:	
+				options.OutputDir = options.download_path 
+
+				
 			
 			options.download_path = os.path.realpath(options.download_path) + os.sep
 
