@@ -64,7 +64,7 @@ class MangaReaderParser(SiteParserBase):
 		if (self.verbose_FLAG):
 			print "Manga Reader - Download Chapter"
 		
-		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)(\s)*</div>')
+		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)(\s)*</div>', False)
 
 		if url == None:
 			return

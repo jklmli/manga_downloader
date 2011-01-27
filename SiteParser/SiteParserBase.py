@@ -170,14 +170,17 @@ class SiteParserBase:
 			else:
 				break
 	
-	def prepareDownload(self, current_chapter, queryString):
+	def prepareDownload(self, current_chapter, queryString, FlagPrependMangaName=True):
 		"""
 		Calculates some other necessary stuff before actual downloading can begin and does some checking.
 		"""
 		
 		# Do not need to ZeroFill the manga name because this should be consistent 
-		manga_chapter_prefix = fixFormatting(self.manga) + '_' +  ZeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
-		
+		if FlagPrependMangaName:
+			manga_chapter_prefix = fixFormatting(self.manga) + '_' +  ZeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
+		else:
+			manga_chapter_prefix = ZeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
+      
 		try:
 			# create download directory if not found
 			
