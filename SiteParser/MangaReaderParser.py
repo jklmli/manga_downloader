@@ -30,14 +30,15 @@ class MangaReaderParser(SiteParserBase):
 		info = re.compile('<li><a href="([^"]*)">([^<]*)</a>').findall(source_code[source_code.find('series_col'):])
 
 		keyword = self.selectFromResults(info)
+
 		url = 'http://www.mangareader.net%s' % keyword
 		source_code = getSourceCode(url)
-		
-		self.chapters = re.compile('<tr><td><a href="([^"]*)" class="chico">([^<]*)</a>([^<]*)</td>').findall(source_code)
+
+		self.chapters = re.compile('<a href="([^"]*)">([^<]*)</a>([^<]*)</td>').findall(source_code)
 		
 		lowerRange = 0
 		upperRange = 0
-			
+		print "Length = "+str(len(self.chapters))	
 		for i in range(0, len(self.chapters)):
 			self.chapters[i] = ('http://www.mangareader.net' + self.chapters[i][0], '%s%s' % (self.chapters[i][1], self.chapters[i][2]))
 			if (not self.auto):
