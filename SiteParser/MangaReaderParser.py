@@ -38,7 +38,7 @@ class MangaReaderParser(SiteParserBase):
 		
 		lowerRange = 0
 		upperRange = 0
-		print "Length = "+str(len(self.chapters))	
+	
 		for i in range(0, len(self.chapters)):
 			self.chapters[i] = ('http://www.mangareader.net' + self.chapters[i][0], '%s%s' % (self.chapters[i][1], self.chapters[i][2]))
 			if (not self.auto):
@@ -61,12 +61,14 @@ class MangaReaderParser(SiteParserBase):
 		return 
 	
 	def downloadChapter(self, current_chapter):
-			
-		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)            </div>')
-			
+		if (self.verbose_FLAG):
+			print "Manga Reader - Download Chapter"
+		
+		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)(\s)*</div>')
+
 		if url == None:
 			return
-			
+
 		hasDisplayLock = False
 			
 		if (not self.verbose_FLAG):
@@ -74,12 +76,14 @@ class MangaReaderParser(SiteParserBase):
 			hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
 		
 		pageIndex = 0
-		for page in re.compile("<option value='([^']*?)'[^>]*> (\d*)</option>").findall(getSourceCode(url)):
+
+		for page in re.compile("<option value=\"([^']*?)\"[^>]*>\s*(\d*)</option>").findall(getSourceCode(url)):
+
 			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
-					
+
 			pageUrl = 'http://www.mangareader.net' + page[0]
-			self.downloadImage(page[1], pageUrl, manga_chapter_prefix, 'img id="img" src="([^"]*)"')
+			self.downloadImage(page[1], pageUrl, manga_chapter_prefix, 'img id="img" .* src="([^"]*)"')
 			
 			pageIndex = pageIndex + 1
 			if (not self.verbose_FLAG):
@@ -96,5 +100,5 @@ class MangaReaderParser(SiteParserBase):
 				ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
 				ThreadProgressBar.UpdateProgressBar(max_pages + 1)
 				ThreadProgressBar.ReleaseDisplayLock()
-					
+
 		self.postDownloadProcessing(manga_chapter_prefix, max_pages)		
