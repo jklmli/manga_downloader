@@ -40,6 +40,7 @@ class SiteParserThread( threading.Thread ):
 		UpdateNode(self.dom, self.node, 'timeStamp', timeStamp)
 			
 	def run (self):
+		success = False
 		if (self.uptodate_FLAG):
 			return		
 			
@@ -48,20 +49,27 @@ class SiteParserThread( threading.Thread ):
 				#print "Current Chapter =" + str(current_chapter[0])
 				iLastChap = current_chapter[1]
 		
-			self.siteParser.downloadChapters()
+      
+			success = self.siteParser.downloadChapters()
 			
 		except SiteParserBase.MangaNotFound, (Instance):
 			print "Error: Manga ("+self.manga+")"
 			print Instance 
 			print "\n"
 			return 
+			
 		except SiteParserBase.NonExistantDownloadPath, (Instance):
 			print "Error: Manga ("+self.manga+")"
 			print Instance 
 			print "\n"
 			return 
+		
+		# Update the XML File only when all the chapters successfully download. If 1 of n chapters failed 
+		# to download, the next time the script is run the script will try to download all n chapters. However,
+		# autoskipping (unless the user specifies the --overwrite Flag) should skip the chapters that were already
+		# downloaded so little addtional time should be added.
 			
-		if self.xmlfile_path != None:
+		if self.xmlfile_path != None and success:
 			UpdateNode(self.dom, self.node, 'LastChapterDownloaded', str(iLastChap))
 			self.UpdateTimestamp()	
 		

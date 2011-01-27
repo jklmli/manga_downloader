@@ -52,6 +52,16 @@ class MangaXmlParser:
 			if SetOutputPathToName_Flag:
 				self.options.OutputDir = download_path
 			
+			# Because the SiteParserThread constructor parsers the site to retrieve which chapters to 
+			# download the following code would be faster
+			 
+			# thread = SiteParserThread(self.options, dom, node)
+			# thread.start()
+			# threadPool.append(thread)
+			
+			# Need to remove the loop which starts the threads downloading. The disadvantage is that the 
+			# the print statement would intermingle with the progress bar. It would be very difficult to 
+			# understand what was happening. Do not believe this change is worth it.
 			threadPool.append(SiteParserThread(self.options, dom, node))
 		
 		for thread in threadPool: 

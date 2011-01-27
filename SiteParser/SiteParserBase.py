@@ -300,7 +300,7 @@ class SiteParserBase:
 			threading.Thread.__init__(self)
 			self.siteParser = siteParser
 			self.chapter = chapter
-			
+			self.ThreadFailed = False
 			
 		@staticmethod
 		def InitializeSemaphore(value):
@@ -337,13 +337,14 @@ class SiteParserBase:
 				#
 				# If the semaphore was not released before the exception, it could cause deadlock
 				gChapterThreadSemaphopre.release()
+				self.ThreadFailed = True
 				raise FatalError("DownLoadChapter Thread Crashed: %s" % str(Instance))
 				
 
 	
 	def downloadChapters(self):
 		threadPool = []
-		
+		allPassed = True
 		SiteParserBase.DownloadChapterThread.InitializeSemaphore(self.maxChapterThreads)
 		"""
 		for loop that goes through the chapters we selected.
@@ -361,8 +362,13 @@ class SiteParserBase:
 		while (len(threadPool) > 0):
 			thread = threadPool.pop()
 			while (thread.isAlive()):
-				# Yields control to whoever is waiting 
+				# Yields control to whomever is waiting 
 				time.sleep(0)
+			if (thread.ThreadFailed and allPassed):
+				allPassed = False
+		
+		return allPassed
+				
 
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
 		if (self.timeLogging_FLAG):
