@@ -29,10 +29,15 @@ class MangaFoxParser(SiteParserBase):
 			raise self.MangaNotFound('It has been removed')
 		
 		# do a search
-		url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(self.manga.split())
+		url = 'http://www.mangafox.com/search.php?name_method=bw&name=%s' % '+'.join(self.manga.split())
 		try:
 			source_code = getSourceCode(url)
 			info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
+			if (0 == len(info) ):
+				url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(self.manga.split())
+				source_code = getSourceCode(url)
+				info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
+				
 		# 0 results
 		except AttributeError:
 			raise self.MangaNotFound('It doesn\'t exist, or cannot be resolved by autocorrect.')

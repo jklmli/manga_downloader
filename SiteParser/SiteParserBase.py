@@ -262,18 +262,25 @@ class SiteParserBase:
 		
 		found = False
 		
+		# Translate the manga name to lower case/
+		# Need to handle if it contains NonASCII characters
+		uSearchTerm = (self.manga.decode('utf-8')).lower()
+		
 		# info is a 2-tuple
 		# info[0] contains a keyword or string that needs to be passed back (generally the URL to the manga homepage)
 		# info[1] contains the manga name we'll be using
 		# When asking y/n, we pessimistically only accept 'y'
+		
 		for notes in info:
-			if notes[1].lower().find(self.manga.lower()) != -1:
+			uFoundTerm = (notes[1].decode('utf-8')).lower()
+			
+			if uFoundTerm.find(uSearchTerm) != -1:
 				# manual mode
 				if (not self.auto):
 					print(notes[1])
 				
 				# exact match
-				if notes[1].lower() == self.manga.lower():
+				if uFoundTerm == uSearchTerm:
 					self.manga = notes[1]
 					keyword = notes[0]
 					found = True

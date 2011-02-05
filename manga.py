@@ -30,7 +30,7 @@ from helper import *
 
 ##########
 
-VERSION = 'v0.8.6'
+VERSION = 'v0.8.7'
 
 siteDict = {
 		''  : 'MangaFox',
