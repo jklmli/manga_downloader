@@ -3,8 +3,11 @@
 ####################
 
 import string
-import urllib
+import urllib2
+import gzip
+import StringIO
 import re
+import time
 from xml.dom import minidom
 ####################
 
@@ -52,18 +55,46 @@ def fixFormatting(s):
 			s = s.replace(i, '')
 	return s.lower().lstrip('.').strip().replace(' ', '_')
 
+# overwrite default user-agent so we can download
+#class AppURLopener(urllib.FancyURLopener):
+#	version = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
+
+
 def getSourceCode(url):
+	# overwrite default user-agent so we can download
+	UserAgent = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
+	
 	"""
 	While loop to get around server denies for info or minor disconnects.
 	"""
-	
+	ret = None
 	while True:
 		try:
-			ret = urllib.urlopen(url).read()
+			# Modifies the user agent and notifies the server we accept gzip encoding
+			request = urllib2.Request(url) 
+			request.add_header('User-Agent', UserAgent)
+			request.add_header('Accept-encoding', 'gzip')
+			opener = urllib2.build_opener()
+			f = opener.open(request)
+			
+			encoding = f.headers.get('Content-Encoding')
+					
+			if encoding == None:
+				ret = f.read()
+			else:
+				encoding = encoding.upper()
+				if encoding == 'GZIP': 
+					compressedstream = StringIO.StringIO(f.read()) 
+					gzipper = gzip.GzipFile(fileobj=compressedstream)
+					ret = gzipper.read()
+				else:
+					raise FatalError('Uknown HTTP Encoding returned')
+							
 		except IOError:
 			pass
 		else:
 			break
+
 	return ret
 
 #=========================

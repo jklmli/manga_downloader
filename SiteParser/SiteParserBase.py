@@ -23,10 +23,6 @@ from ConvertPackage.ConversionQueue import ConversionQueue
 
 class SiteParserBase:
 
-	# overwrite default user-agent so we can download
-	class AppURLopener(urllib.FancyURLopener):
-		version = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
-	
 #####	
 	# typical misspelling of title and/or manga removal
 	class MangaNotFound(Exception):
@@ -66,7 +62,7 @@ class SiteParserBase:
 #####
 
 	def __init__(self,optDict):
-		urllib._urlopener = SiteParserBase.AppURLopener()
+		#urllib._urlopener = SiteParserBase.AppURLopener()
 		for elem in vars(optDict):
 			setattr(self, elem, getattr(optDict, elem))
 		self.chapters = []
@@ -213,11 +209,10 @@ class SiteParserBase:
 		url = self.chapters[current_chapter][0]
 		
 		if (self.verbose_FLAG):
-			print(url)
+			print("PrepareDownload: " + url)
 		
-		print url
 		source_code = getSourceCode(url)
-		
+
 		# legacy code that may be used to calculate a series of image URLs
 		# however, this is risky because some uploaders omit pages, double pages may also affect this
 		# an alternative to this is os.walk through the temporary download directory

@@ -92,16 +92,19 @@ h2. Issues
 
 h2. History
 
-*v0.8.7* (2/05/11)
+*v0.8.8* (02/11/11)
++ Added Support for HTTP GZIP Encoding. Reduces the bandwidth used by the program. Required for downloading images hosted by MangaFox.
+
+*v0.8.7* (02/05/11)
 + Fixed unicode issue. One of the found manga's contained a nonascii character. This caused the script to crash. I fixed the localized area.
   However, there are probably similar issues elsewhere in the code. I currently did not have time to hunt for similar issues. 
 + Manga Fox search has changed the matches are not as exact. If the matches take multiple pages, the script fails to find any manga after
   page one. I have modified the search in the script to match on the beginning. If zero mangas are found it reverts to the old search. 
 
-*v0.8.6* (1/27/11)
+*v0.8.6* (01/27/11)
 + Changed XML Update to occur only when all chapters are successfully download for the selected manga
 
-*v0.8.5* (1/27/11)
+*v0.8.5* (01/27/11)
 + Fixed double prepend of manga name when using MangaReader
 
 *v0.8.4* (12/31/10)
