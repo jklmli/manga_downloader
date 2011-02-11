@@ -146,9 +146,13 @@ class SiteParserBase:
 		# note that disconnects are already handled by getSourceCode, we use a regex to parse out the image URL and filter out garbage denies
 		while True:
 			try:
+				if (self.verbose_FLAG):
+					print pageUrl
 				source_code = getSourceCode(pageUrl)
 				img_url = re.compile(stringQuery).search(source_code).group(1)
+				
 			except AttributeError:
+				time.sleep(10)
 				pass
 			else:
 				break
@@ -211,6 +215,7 @@ class SiteParserBase:
 		if (self.verbose_FLAG):
 			print(url)
 		
+		print url
 		source_code = getSourceCode(url)
 		
 		# legacy code that may be used to calculate a series of image URLs
@@ -335,7 +340,7 @@ class SiteParserBase:
 			
 		def run (self):
 			try:
-				self.siteParser.downloadChapter(self.chapter)				
+				self.siteParser.downloadChapter(self.chapter)	
 			except Exception, (Instance):
 				# Assume semaphore has not been release
 				# This assumption could be faulty if the error was thrown in the compression function
@@ -353,6 +358,8 @@ class SiteParserBase:
 		threadPool = []
 		allPassed = True
 		SiteParserBase.DownloadChapterThread.InitializeSemaphore(self.maxChapterThreads)
+		if (self.verbose_FLAG):
+			print "Number of Threads: %d " % self.maxChapterThreads
 		"""
 		for loop that goes through the chapters we selected.
 		"""
