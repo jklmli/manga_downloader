@@ -60,15 +60,15 @@ def fixFormatting(s):
 #	version = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
 
 
-def getSourceCode(url):
+def getSourceCode(url, maxRetries=5, waitRetryTime=5):
 	# overwrite default user-agent so we can download
 	UserAgent = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
 	
 	"""
 	While loop to get around server denies for info or minor disconnects.
 	"""
-	ret = None
 	while True:
+		ret = None
 		try:
 			# Modifies the user agent and notifies the server we accept gzip encoding
 			request = urllib2.Request(url) 
@@ -89,9 +89,18 @@ def getSourceCode(url):
 					ret = gzipper.read()
 				else:
 					raise FatalError('Uknown HTTP Encoding returned')
-							
-		except IOError:
-			pass
+		except urllib2.URLError, e:
+			if e.code == 404:
+				ret = ""
+				break
+			else:
+				# Check maxrRetries. If we should try again, wait waitRetryTime seconds
+				if (maxRetries > 0):
+					time.sleep(waitRetryTime)
+					maxRetries = maxRetries - 1
+				else:
+					# We have already tries maxRetries times. Just break to avoid an infinite loop
+					break
 		else:
 			break
 
