@@ -5,6 +5,12 @@ It can be automated via an external .xml file, and can convert images for viewin
 Currently supports mangafox.com, mangareader.net, and otakuworks.com, with a total of over 5000 mangas.
 Downloads into .cbz format, can optionally download into .zip instead.
 
+h2. Dependencies
+
+Python 2.6+ (tested on this and higher, untested but may work on 2.3-3.3)
+
+PIL if using Kindle conversion.
+
 h2. Usage
 
 manga.py [options] <manga name> <manga name> <ect.>
