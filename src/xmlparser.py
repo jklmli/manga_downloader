@@ -2,13 +2,12 @@
 
 ######################
 
-import time
+from xml.dom import minidom
 
 ######################
 
-from SiteParser.SiteParserThread import SiteParserThread
-from xml.dom import minidom
-from helper import *
+from parsers.thread import SiteParserThread
+from util import fixFormatting, getText
 
 ######################
 
@@ -27,11 +26,10 @@ class MangaXmlParser:
 		
 		SetOutputPathToName_Flag = False
 		# Default OutputDir is the ./MangaName
-		if (self.options.OutputDir == 'DEFAULT_VALUE'):
+		if (self.options.outputDir == 'DEFAULT_VALUE'):
 			SetOutputPathToName_Flag = True
 			
 		for node in dom.getElementsByTagName("MangaSeries"):
-			iLastChap = 0;
 			name = getText(node.getElementsByTagName('name')[0])
 			site = getText(node.getElementsByTagName('HostSite')[0])
 			
@@ -47,27 +45,28 @@ class MangaXmlParser:
 			
 			self.options.site = site
 			self.options.manga = name
-			self.options.download_path = download_path
+			self.options.downloadPath = download_path
 			self.options.lastDownloaded = lastDownloaded
 			if SetOutputPathToName_Flag:
-				self.options.OutputDir = download_path
+				self.options.outputDir = download_path
 			
-			# Because the SiteParserThread constructor parsers the site to retrieve which chapters to 
+			# Because the SiteParserThread constructor parses the site to retrieve which chapters to 
 			# download the following code would be faster
-			 
+			
 			# thread = SiteParserThread(self.options, dom, node)
 			# thread.start()
 			# threadPool.append(thread)
 			
-			# Need to remove the loop which starts the threads downloading. The disadvantage is that the 
+			# Need to remove the loop which starts the thread's downloading. The disadvantage is that the 
 			# the print statement would intermingle with the progress bar. It would be very difficult to 
 			# understand what was happening. Do not believe this change is worth it.
+			
 			threadPool.append(SiteParserThread(self.options, dom, node))
 		
 		for thread in threadPool: 
 			thread.start()
 		
-		SiteParserThread.WaitForThreads(threadPool, self.options)
+		SiteParserThread.waitForThreads(threadPool, self.options)
 		
 		#print dom.toxml()		
 		f = open(self.xmlfile_path, 'w')

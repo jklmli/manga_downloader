@@ -2,48 +2,18 @@
 
 ####################
 
-import string
-import urllib2
 import gzip
-import StringIO
 import re
+import string
+import StringIO
 import time
-from xml.dom import minidom
+import urllib2
+
 ####################
 
 # something seriously wrong happened
 class FatalError(Exception):
 	pass
-
-def ZeroFillStr(inputString, numOfZeros):
-	startIndex = []
-	endIndex = []
-	
-	outputString = inputString
-	
-	for m in re.finditer('\d+', outputString):
-		startIndex.append(m.start())
-		endIndex.append(m.end())
-	
-	# Starting from the end converts the found substrings to their zero filled counterparts
-	# 
-	# Converting from the end of the string will not move the locations of
-	# any of the prior substrings (Thoses in the string before the one 
-	# currently being converted. 
-	while ((len(startIndex) > 0) and (len(endIndex))):
-		startIdx = startIndex.pop()
-		endIdx = endIndex.pop()
-		outputString = outputString[:startIdx] + outputString[startIdx:endIdx].zfill(numOfZeros) + outputString[endIdx:]	
-	
-	return outputString	
-
-def isImageLibAvailable():
-	try:
-		from ConvertPackage.ConvertFile import convertFile
-	except ImportError:
-		return False
-	else:
-		return True
 
 def fixFormatting(s):
 	"""
@@ -106,6 +76,36 @@ def getSourceCode(url, maxRetries=5, waitRetryTime=5):
 
 	return ret
 
+def isImageLibAvailable():
+	try:
+		from ConvertPackage.ConvertFile import convertFile
+	except ImportError:
+		return False
+	else:
+		return True
+	
+def zeroFillStr(inputString, numOfZeros):
+	startIndex = []
+	endIndex = []
+	
+	outputString = inputString
+	
+	for m in re.finditer('\d+', outputString):
+		startIndex.append(m.start())
+		endIndex.append(m.end())
+	
+	# Starting from the end converts the found substrings to their zero filled counterparts
+	# 
+	# Converting from the end of the string will not move the locations of
+	# any of the prior substrings (Thoses in the string before the one 
+	# currently being converted. 
+	while ((len(startIndex) > 0) and (len(endIndex))):
+		startIdx = startIndex.pop()
+		endIdx = endIndex.pop()
+		outputString = outputString[:startIdx] + outputString[startIdx:endIdx].zfill(numOfZeros) + outputString[endIdx:]	
+	
+	return outputString	
+
 #=========================
 #
 # XML Helper Functions
@@ -122,7 +122,6 @@ def getText(node):
 #		return ''.join([node.data for node in nodelist if node.nodeType == node.TEXT_NODE])			
 
 def setText(dom, node, text):
-		
 	for currNode in node.childNodes:
 		if currNode.nodeType == currNode.TEXT_NODE:
 			currNode.data = text
@@ -133,7 +132,7 @@ def setText(dom, node, text):
 	textNode = dom.createTextNode(text) 	
 	node.appendChild(textNode)
 
-def UpdateNode(dom, node, tagName, text):
+def updateNode(dom, node, tagName, text):
 	if (len(node.getElementsByTagName(tagName)) > 0):
 		updateNode = node.getElementsByTagName(tagName)[0]
 	else:

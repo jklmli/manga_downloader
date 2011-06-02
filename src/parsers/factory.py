@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-
 #####################
 
-from MangaFoxParser import MangaFoxParser
-from MangaReaderParser import MangaReaderParser
-from OtakuWorksParser import OtakuWorksParser
+from mangafox import MangaFox
+from mangareader import MangaReader
+from otakuworks import OtakuWorks
 
 #####################
 
@@ -16,9 +15,9 @@ class SiteParserFactory():
 	@staticmethod
 	def getInstance(options):
 		ParserClass = {
-			'MangaFox' 	: MangaFoxParser,
-			'MangaReader' 	: MangaReaderParser,
-			'OtakuWorks' 	: OtakuWorksParser
+			'MangaFox' 		: MangaFox,
+			'MangaReader' 	: MangaReader,
+			'OtakuWorks' 	: OtakuWorks
 			
 		}.get(options.site, None)
 		

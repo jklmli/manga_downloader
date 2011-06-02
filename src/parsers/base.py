@@ -6,16 +6,15 @@ import imghdr
 import os
 import re
 import shutil
-import sys
-import urllib
-import zipfile
 import tempfile
 import threading
 import time
+import urllib
+import zipfile
 
 #####################
 
-from helper import *
+from util import FatalError, fixFormatting, getSourceCode, zeroFillStr
 from ConvertPackage.ConversionQueue import ConversionQueue
 
 #####################
@@ -27,37 +26,28 @@ class SiteParserBase:
 	# typical misspelling of title and/or manga removal
 	class MangaNotFound(Exception):
 		
-		def __init__(self, str=""):
-			if (str == ""):
-				self.parameter = "Manga Not Found."
-			else:
-				self.parameter = "Manga Not Found: "+str	
+		def __init__(self, errorMsg=''):
+			self.errorMsg = 'Manga not found. %s' % errorMsg
 		
 		def __str__(self):
-			return self.parameter
+			return self.errorMsg
 	
 	# XML file config reports nothing to do
 	class NoUpdates(Exception):
 
-		def __init__(self, str=""):
-			if (str == ""):
-				self.parameter = "No Updates."
-			else:
-				self.parameter = "No Updates: "+str	
- 
+		def __init__(self, errorMsg=''):
+			self.errorMsg = 'No updates. %s' % errorMsg
+
 		def __str__(self):
-			return self.parameter
+			return self.errorMsg
 		
 	# Script Failed to Create Download path folder	
 	class NonExistantDownloadPath(Exception):
-		def __init__(self, str=""):
-			if (str == ""):
-				self.parameter = "Download Path does not exist."
-			else:
-				self.parameter = "Download Path does not exist: "+str	
- 
+		def __init__(self, errorMsg=''):
+			self.errorMsg = 'Download path does not exist. %s' % errorMsg
+
 		def __str__(self):
-			return self.parameter
+			return self.errorMsg
 		
 #####
 
@@ -67,14 +57,14 @@ class SiteParserBase:
 			setattr(self, elem, getattr(optDict, elem))
 		self.chapters = []
 		self.chapters_to_download = []
-		self.CreateDirLock = threading.Lock()
-		self.mangadl_tmp_path = tempfile.mkdtemp()
+		self.createNewDirLock = threading.Lock()
+		self.tempFolder = tempfile.mkdtemp()
 		self.garbageImages = {}
 
 	# this takes care of removing the temp directory after the last successful download
 	def __del__(self):
 		try:
-			shutil.rmtree(self.mangadl_tmp_path)
+			shutil.rmtree(self.tempFolder)
 		except:
 			pass
 		if len(self.garbageImages) > 0:
@@ -85,52 +75,51 @@ class SiteParserBase:
 #####	
 		
 	def downloadChapter(self):
-		raise NotImplementedError( 'Should have implemented this' )		
+		raise NotImplementedError('Should have implemented this')		
 		
 	def parseSite(self):
-		raise NotImplementedError( 'Should have implemented this' )
+		raise NotImplementedError('Should have implemented this')
 #####
 	
-	
-	def compress(self, manga_chapter_prefix, max_pages):
+	def compress(self, mangaChapterPrefix, max_pages):
 		"""
 		Looks inside the temporary directory and zips up all the image files.
 		"""
 		if self.verbose_FLAG:
 			print('Compressing...')
 		
-		compressedFile = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix) + self.download_format
+		compressedFile = os.path.join(self.tempFolder, mangaChapterPrefix) + self.downloadFormat
 			
 		z = zipfile.ZipFile( compressedFile, 'w')
 		
 		for page in range(1, max_pages + 1):	
-			temp_path = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
+			tempPath = os.path.join(self.tempFolder, mangaChapterPrefix + '_' + str(page).zfill(3))
 			# we got an image file
-			if imghdr.what(temp_path) != None:
-				z.write( temp_path, manga_chapter_prefix + '_' + str(page).zfill(3) + '.' + imghdr.what(temp_path))
+			if imghdr.what(tempPath) != None:
+				z.write( tempPath, mangaChapterPrefix + '_' + str(page).zfill(3) + '.' + imghdr.what(tempPath))
 			# site has thrown a 404 because image unavailable or using anti-leeching
 			else:
-				if manga_chapter_prefix not in self.garbageImages:
-					self.garbageImages[manga_chapter_prefix] = [page]
+				if mangaChapterPrefix not in self.garbageImages:
+					self.garbageImages[mangaChapterPrefix] = [page]
 				else:
-					self.garbageImages[manga_chapter_prefix].append(page)
+					self.garbageImages[mangaChapterPrefix].append(page)
 				
 		z.close()
 		
 		if self.overwrite_FLAG == True:
-			priorPath = os.path.join(self.download_path, manga_chapter_prefix) + self.download_format
+			priorPath = os.path.join(self.downloadPath, mangaChapterPrefix) + self.downloadFormat
 			if os.path.exists(priorPath):
 				os.remove(priorPath)
 		
- 		shutil.move( compressedFile, self.download_path)
- 		
- 		# The object conversionQueue (singleton) stores the path to every compressed file that  
- 		# has been downloaded. This object is used by the conversion code to convert the downloaded images
- 		# to the format specified by the Device parameter
- 		
+		shutil.move(compressedFile, self.downloadPath)
+		
+		# The object conversionQueue (singleton) stores the path to every compressed file that  
+		# has been downloaded. This object is used by the conversion code to convert the downloaded images
+		# to the format specified by the Device errorMsg
+		
 		compressedFile = os.path.basename(compressedFile)
-		compressedFile = os.path.join(self.download_path, compressedFile)
-		ConversionQueue.append(compressedFile, self.OutputDir)
+		compressedFile = os.path.join(self.downloadPath, compressedFile)
+		ConversionQueue.append(compressedFile, self.outputDir)
 	
 	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
 		"""
@@ -163,7 +152,7 @@ class SiteParserBase:
 		# while loop to protect against server denies for requests and/or minor disconnects
 		while True:
 			try:
-				temp_path = os.path.join(self.mangadl_tmp_path, manga_chapter_prefix + '_' + str(page).zfill(3))
+				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
 				urllib.urlretrieve(img_url, temp_path)
 			except IOError:
 				pass
@@ -177,28 +166,28 @@ class SiteParserBase:
 		
 		# Do not need to ZeroFill the manga name because this should be consistent 
 		if FlagPrependMangaName:
-			manga_chapter_prefix = fixFormatting(self.manga) + '_' +  ZeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
+			manga_chapter_prefix = fixFormatting(self.manga) + '_' +  zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
 		else:
-			manga_chapter_prefix = ZeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
-      
+			manga_chapter_prefix = zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
+
 		try:
 			# create download directory if not found
 			
 			#Check First to avoid unneeded contention on the loc
-			if os.path.exists(self.download_path) is False:
+			if os.path.exists(self.downloadPath) is False:
 				#acquire Lock
-				self.CreateDirLock.acquire()
+				self.createNewDirLock.acquire()
 				# Check is another thread has created the path, if not create directory
-				if os.path.exists(self.download_path) is False:	
-					os.mkdir(self.download_path)
+				if os.path.exists(self.downloadPath) is False:	
+					os.mkdir(self.downloadPath)
 				
 				#Release Lock	
-				self.CreateDirLock.release()
+				self.createNewDirLock.release()
 		except OSError:
 			raise self.NonExistantDownloadPath('Unable to create download directory. There may be a file with the same name, or you may not have permissions to write there.')
 
 		# we already have it
-		if os.path.exists(os.path.join(self.download_path, manga_chapter_prefix) + self.download_format) and self.overwrite_FLAG == False:
+		if os.path.exists(os.path.join(self.downloadPath, manga_chapter_prefix) + self.downloadFormat) and self.overwrite_FLAG == False:
 			print(self.chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
 			return (None, None, None)
 		
@@ -211,13 +200,13 @@ class SiteParserBase:
 		if (self.verbose_FLAG):
 			print("PrepareDownload: " + url)
 		
-		source_code = getSourceCode(url)
+		source = getSourceCode(url)
 
 		# legacy code that may be used to calculate a series of image URLs
 		# however, this is risky because some uploaders omit pages, double pages may also affect this
 		# an alternative to this is os.walk through the temporary download directory
 		# edit: this is actually required if you want a progress bar
-		max_pages = int(re.compile(queryString).search(source_code).group(1))
+		max_pages = int(re.compile(queryString).search(source).group(1))
 
 		return (manga_chapter_prefix, url, max_pages)
 	
@@ -254,7 +243,7 @@ class SiteParserBase:
 					chapter_list_array_decrypted.append((int)(i) - 1)
 		return chapter_list_array_decrypted
 	
-	def selectFromResults(self, info):
+	def selectFromResults(self, results):
 		"""
 		Basic error checking for manga titles, queries will return a list of all mangas that 
 		include the query, case-insensitively.
@@ -262,127 +251,118 @@ class SiteParserBase:
 		
 		found = False
 		
-		# Translate the manga name to lower case/
+		# Translate the manga name to lower case
 		# Need to handle if it contains NonASCII characters
-		uSearchTerm = (self.manga.decode('utf-8')).lower()
+		actualName = (self.manga.decode('utf-8')).lower()
 		
-		# info is a 2-tuple
-		# info[0] contains a keyword or string that needs to be passed back (generally the URL to the manga homepage)
-		# info[1] contains the manga name we'll be using
+		# each element in results is a 2-tuple
+		# elem[0] contains a keyword or string that needs to be passed back (generally the URL to the manga homepage)
+		# elem[1] contains the manga name we'll be using
 		# When asking y/n, we pessimistically only accept 'y'
 		
-		for notes in info:
-			uFoundTerm = (notes[1].decode('utf-8')).lower()
+		for elem in results:
+			proposedName = (elem[1].decode('utf-8')).lower()
 			
-			if uFoundTerm.find(uSearchTerm) != -1:
+			if actualName in proposedName:
 				# manual mode
 				if (not self.auto):
-					print(notes[1])
+					print(elem[1])
 				
 				# exact match
-				if uFoundTerm == uSearchTerm:
-					self.manga = notes[1]
-					keyword = notes[0]
+				if proposedName == actualName:
+					self.manga = elem[1]
+					keyword = elem[0]
 					found = True
 					break
 				else:
 					# only request input in manual mode
 					if (not self.auto):
-						print('Did you mean: %s? (y/n)' % notes[1])
+						print('Did you mean: %s? (y/n)' % elem[1])
 						answer = raw_input();
 	
 						if (answer == 'y'):
-							self.manga = notes[1]
-							keyword = notes[0]
+							self.manga = elem[1]
+							keyword = elem[0]
 							found = True
 							break
 		if (not found):
-			raise self.MangaNotFound("No strict match found. Check Query.")
+			raise self.MangaNotFound('No strict match found. Check query.')
 		return keyword
 	
-	gChapterThreadSemaphopre = None
+	chapterThreadSemaphore = None
 	
 	class DownloadChapterThread( threading.Thread ):
 		def __init__ ( self, siteParser, chapter):
 			threading.Thread.__init__(self)
 			self.siteParser = siteParser
 			self.chapter = chapter
-			self.ThreadFailed = False
+			self.isThreadFailed = False
 			
 		@staticmethod
-		def InitializeSemaphore(value):
-			global gChapterThreadSemaphopre
-			gChapterThreadSemaphopre = threading.Semaphore(value)
+		def initSemaphore(value):
+			global chapterThreadSemaphore
+			chapterThreadSemaphore = threading.Semaphore(value)
 			
-
 		@staticmethod
 		def acquireSemaphore():
-			global gChapterThreadSemaphopre
+			global chapterThreadSemaphore
 			
-			if (gChapterThreadSemaphopre == None):
-				raise FatalError('Semaphore Not Initialized')
+			if (chapterThreadSemaphore == None):
+				raise FatalError('Semaphore not initialized')
 				
-			gChapterThreadSemaphopre.acquire()
+			chapterThreadSemaphore.acquire()
 			
 		@staticmethod
 		def releaseSemaphore():	
-			global gChapterThreadSemaphopre
+			global chapterThreadSemaphore
 			
-			if (gChapterThreadSemaphopre == None):
-				raise FatalError('Semaphore Not Initialized')
+			if (chapterThreadSemaphore == None):
+				raise FatalError('Semaphore not initialized')
 				
-			gChapterThreadSemaphopre.release()
+			chapterThreadSemaphore.release()
 			
 		def run (self):
 			try:
 				self.siteParser.downloadChapter(self.chapter)	
-			except Exception, (Instance):
+			except Exception as exception:
 				# Assume semaphore has not been release
 				# This assumption could be faulty if the error was thrown in the compression function
 				# The worst case is that releasing the semaphore would allow one more thread to 
 				# begin downloading than it should
 				#
 				# If the semaphore was not released before the exception, it could cause deadlock
-				gChapterThreadSemaphopre.release()
-				self.ThreadFailed = True
-				raise FatalError("DownLoadChapter Thread Crashed: %s" % str(Instance))
-				
-
+				chapterThreadSemaphore.release()
+				self.isThreadFailed = True
+				raise FatalError("Thread crashed while downloading chapter: %s" % str(exception))
 	
 	def downloadChapters(self):
 		threadPool = []
-		allPassed = True
-		SiteParserBase.DownloadChapterThread.InitializeSemaphore(self.maxChapterThreads)
+		isAllPassed = True
+		SiteParserBase.DownloadChapterThread.initSemaphore(self.maxChapterThreads)
 		if (self.verbose_FLAG):
 			print "Number of Threads: %d " % self.maxChapterThreads
 		"""
 		for loop that goes through the chapters we selected.
 		"""
 		
-		#i = 0
 		for current_chapter in self.chapters_to_download:
 			thread = SiteParserBase.DownloadChapterThread(self, current_chapter)
 			threadPool.append(thread)
 			thread.start()
-			#i = i + 1
-			#print i
-			
 				
 		while (len(threadPool) > 0):
 			thread = threadPool.pop()
 			while (thread.isAlive()):
 				# Yields control to whomever is waiting 
 				time.sleep(0)
-			if (thread.ThreadFailed and allPassed):
-				allPassed = False
+			if (thread.isThreadFailed and isAllPassed):
+				isAllPassed = False
 		
-		return allPassed
-				
+		return isAllPassed
 
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
 		if (self.timeLogging_FLAG):
-			print manga_chapter_prefix+" (End Time): "+str(time.time())
+			print("%s (End Time): %s" % (manga_chapter_prefix, str(time.time())))
 
 		SiteParserBase.DownloadChapterThread.releaseSemaphore()
 		self.compress(manga_chapter_prefix, max_pages)
-

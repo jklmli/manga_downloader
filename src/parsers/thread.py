@@ -2,15 +2,16 @@
 
 #####################
 
+import datetime
 import threading
 import time
-import datetime
 
 #####################
 
-from SiteParserFactory import *
-from helper import *
+from base import SiteParserBase
 from ConvertPackage.ConversionQueue import ConversionQueue
+from factory import SiteParserFactory
+from util import isImageLibAvailable, updateNode
 
 #####################
 
@@ -32,12 +33,6 @@ class SiteParserThread( threading.Thread ):
 			self.uptodate_FLAG = True
 			print ("Manga ("+self.manga+") up-to-date.")
 		print '\n'	
-
-	def UpdateTimestamp(self):
-		t = datetime.datetime.today()
-		timeStamp = "%d-%02d-%02d %02d:%02d:%02d" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
-		
-		UpdateNode(self.dom, self.node, 'timeStamp', timeStamp)
 			
 	def run (self):
 		success = False
@@ -49,7 +44,6 @@ class SiteParserThread( threading.Thread ):
 				#print "Current Chapter =" + str(current_chapter[0])
 				iLastChap = current_chapter[1]
 		
-      
 			success = self.siteParser.downloadChapters()
 			
 		except SiteParserBase.MangaNotFound, (Instance):
@@ -70,28 +64,32 @@ class SiteParserThread( threading.Thread ):
 		# downloaded so little addtional time should be added.
 			
 		if self.xmlfile_path != None and success:
-			UpdateNode(self.dom, self.node, 'LastChapterDownloaded', str(iLastChap))
-			self.UpdateTimestamp()	
+			updateNode(self.dom, self.node, 'LastChapterDownloaded', str(iLastChap))
+			self.updateTimestamp()	
 		
-
+	def updateTimestamp(self):
+		t = datetime.datetime.today()
+		timeStamp = "%d-%02d-%02d %02d:%02d:%02d" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
+		
+		updateNode(self.dom, self.node, 'timeStamp', timeStamp)
 	
 	@staticmethod
-	def WaitForThreads(threadPool, conversionOptions):
+	def waitForThreads(threadPool, conversionOptions):
 		while (len(threadPool) > 0):
 			thread = threadPool.pop()
 			while (thread.isAlive()):
-				processedItems = SiteParserThread.ProcessConversionList(conversionOptions) 
+				processedItems = SiteParserThread.processConversionList(conversionOptions) 
 				if (processedItems == 0):
 					# Yields execution to whatever another thread
 					time.sleep(0)
 		
-		# This is to avoid a race condition where the last SiteParserThreads adds a compressionFile 
-		# to the list and then dies. Therfore thread.isAlive would be false but there would still
-		# be a compression File to process
-		SiteParserThread.ProcessConversionList(conversionOptions)			
+		# This is to avoid a race condition where the last SiteParserThread adds a compressionFile 
+		# to the list and then dies. Therefore thread.isAlive would be false but there would still
+		# be a compression file to process
+		SiteParserThread.processConversionList(conversionOptions)			
 	
 	@staticmethod
-	def ProcessConversionList(conversionOptions):
+	def processConversionList(conversionOptions):
 		i = 0
 		if (conversionOptions.conversion_FLAG):
 			if (not isImageLibAvailable()):
@@ -103,7 +101,7 @@ class SiteParserThread( threading.Thread ):
 				compressedFile, outputPath = ConversionQueue.pop()
 				while (compressedFile != None and outputPath != None):
 					i = i + 1
-					convertFileObj.convert(compressedFile, outputPath, conversionOptions.Device, conversionOptions.verbose_FLAG)
+					convertFileObj.convert(compressedFile, outputPath, conversionOptions.device, conversionOptions.verbose_FLAG)
 					compressedFile, outputPath = ConversionQueue.pop()
 		
 		return i			

@@ -24,9 +24,9 @@ import sys
 
 ##########
 
-from MangaXmlParser import MangaXmlParser
-from SiteParser.SiteParserThread import SiteParserThread
-from helper import *
+from parsers.thread import SiteParserThread
+from util import fixFormatting, isImageLibAvailable
+from xmlparser import MangaXmlParser
 
 ##########
 
@@ -65,11 +65,11 @@ def main():
 				auto = False,
 				conversion_FLAG = False,
 				convert_Directory = False,
-				Device = 'Kindle 3',
-				download_format = '.cbz', 
-				download_path = 'DEFAULT_VALUE', 
-				InputDir = None,
-				OutputDir = 'DEFAULT_VALUE',
+				device = 'Kindle 3',
+				downloadFormat = '.cbz', 
+				downloadPath = 'DEFAULT_VALUE', 
+				inputDir = None,
+				outputDir = 'DEFAULT_VALUE',
 				overwrite_FLAG = False,
 				verbose_FLAG = False,
 				timeLogging_FLAG = False,
@@ -81,7 +81,7 @@ def main():
 				help = 'Download all available chapters.'										)
 				
 	parser.add_option(	'-d', '--directory', 
-				dest = 'download_path', 
+				dest = 'downloadPath', 
 				help = 'The destination download directory.  Defaults to the directory of the script.'					)
 				
 	parser.add_option(	'--overwrite', 
@@ -104,7 +104,7 @@ def main():
 				help = 'Converts downloaded files to a Format/Size acceptable to the device specified by the --device parameter.'				)
 
 	parser.add_option( '--device', 
-				dest = 'Device', 
+				dest = 'device', 
 				help = 'Specifies the conversion device. Omitting this option default to %default.'				)
 	
 	parser.add_option( '--convertDirectory', 
@@ -113,16 +113,16 @@ def main():
 				help = 'Converts the image files stored in the directory specified by --inputDirectory. Stores the converted images in the directory specified by --outputDirectory'	)
 	
 	parser.add_option( '--inputDirectory', 
-				dest = 'InputDir', 
+				dest = 'inputDir', 
 				help = 'The directory containing the images to convert when --convertDirectory is specified.'					)
 	
 	parser.add_option( '--outputDirectory', 
-				dest = 'OutputDir', 
+				dest = 'outputDir', 
 				help = 'The directory to store the images when --convertDirectory is specified.'					)				
 											
 	parser.add_option(	'-z', '--zip', 
 				action = 'store_const', 
-				dest = 'download_format', 
+				dest = 'downloadFormat', 
 				const = '.zip', 
 				help = 'Downloads using .zip compression.  Omitting this option defaults to %default.'					)
 	
@@ -156,16 +156,16 @@ def main():
 	if(len(args) > 0):
 		
 		# Default Directory is the ./MangaName
-		if (options.download_path == 'DEFAULT_VALUE'):
+		if (options.downloadPath == 'DEFAULT_VALUE'):
 			SetDownloadPathToName_Flag = True
 
 			
-		# Default OutputDir is the ./MangaName
-		if (options.OutputDir == 'DEFAULT_VALUE'):
+		# Default outputDir is the ./MangaName
+		if (options.outputDir == 'DEFAULT_VALUE'):
 			SetOutputPathToDefault_Flag = True
 
 
-	PILAvailable = (isImageLibAvailable())
+	PILAvailable = isImageLibAvailable()
 	# Check if PIL Library is available if either of convert Flags are set 
 	if ((not PILAvailable)  and (options.convert_Directory or options.conversion_FLAG)):
 		print "\nConversion Functionality Not available.\nMust install the PIL (Python Image Library)"
@@ -179,11 +179,11 @@ def main():
 		os.chdir(os.path.dirname(sys.argv[0]))
 
 	if (options.convert_Directory):
-		if ( options.OutputDir == 'DEFAULT_VALUE' ):
-			options.OutputDir = '.'
+		if ( options.outputDir == 'DEFAULT_VALUE' ):
+			options.outputDir = '.'
 		
 		convertFileObj = convertFile()
-		convertFileObj.convert(options.InputDir, options.OutputDir, options.Device, options.verbose_FLAG)		
+		convertFileObj.convert(options.inputDir, options.outputDir, options.device, options.verbose_FLAG)		
 		sys.exit()
 	
 	# xmlfile option flagged
@@ -197,14 +197,14 @@ def main():
 			options.manga = manga
 			
 			if SetDownloadPathToName_Flag:		
-				options.download_path = ('./' + fixFormatting(options.manga))
+				options.downloadPath = ('./' + fixFormatting(options.manga))
 			
 			if SetOutputPathToDefault_Flag:	
-				options.OutputDir = options.download_path 
+				options.outputDir = options.downloadPath 
 
 				
 			
-			options.download_path = os.path.realpath(options.download_path) + os.sep
+			options.downloadPath = os.path.realpath(options.downloadPath) + os.sep
 
 			# site selection
 			print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
@@ -220,8 +220,8 @@ def main():
 		for thread in threadPool: 
 			thread.start()
 		
-		SiteParserThread.WaitForThreads(threadPool, options)
+		SiteParserThread.waitForThreads(threadPool, options)
 		
 		
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

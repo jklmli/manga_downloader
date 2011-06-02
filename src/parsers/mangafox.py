@@ -6,13 +6,16 @@ import re
 
 #####################
 
-from SiteParserBase import SiteParserBase
-from helper import *
-from ProgressBar.ThreadProgressBar import *
+from base import SiteParserBase
+from progressbar.threaded import ThreadProgressBar
+from util import fixFormatting, getSourceCode
 
 #####################
 
-class MangaFoxParser(SiteParserBase):
+class MangaFox(SiteParserBase):
+	
+	re_getSeries = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
+	re_getChapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"')
 	
 	def parseSite(self):
 		"""
@@ -22,45 +25,44 @@ class MangaFoxParser(SiteParserBase):
 		print('Beginning MangaFox check: %s' % self.manga)
 		
 		url = 'http://www.mangafox.com/manga/%s/' % fixFormatting(self.manga)
-		source_code = getSourceCode(url)
+		source = getSourceCode(url)
 		
 		# jump straight to expected URL and test if manga removed
-		if(source_code.find('it is not available in Manga Fox.') != -1):
-			raise self.MangaNotFound('It has been removed')
+		if('it is not available in Manga Fox.' in source):
+			raise self.MangaNotFound('It has been removed.')
 		
-		# do a search
+		# do a 'begins-with' search, then a 'contains' search
 		url = 'http://www.mangafox.com/search.php?name_method=bw&name=%s' % '+'.join(self.manga.split())
 		try:
-			source_code = getSourceCode(url)
-			info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
-			if (0 == len(info) ):
+			source = getSourceCode(url)
+			seriesResults = MangaFox.re_getSeries.findall(source)
+			if (0 == len(seriesResults) ):
 				url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(self.manga.split())
-				source_code = getSourceCode(url)
-				info = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>').findall(source_code)
+				source = getSourceCode(url)
+				seriesResults = MangaFox.re_getSeries.findall(source)
 				
 		# 0 results
 		except AttributeError:
 			raise self.MangaNotFound('It doesn\'t exist, or cannot be resolved by autocorrect.')
 		else:	
-			keyword = self.selectFromResults(info)
+			keyword = self.selectFromResults(seriesResults)
 			url = 'http://www.mangafox.com/manga/%s/' % keyword
-			source_code = getSourceCode(url)
+			source = getSourceCode(url)
 			# other check for manga removal if our initial guess for the name was wrong
-			if(source_code.find('it is not available in Manga Fox.') != -1):
-				raise self.MangaNotFound('It has been removed')
+			if('it is not available in Manga Fox.' in source):
+				raise self.MangaNotFound('It has been removed.')
 		
 			# that's nice of them
 			url = 'http://www.mangafox.com/cache/manga/%s/chapters.js' % keyword
-			source_code = getSourceCode(url)
+			source = getSourceCode(url)
 		
 			# chapters is a 2-tuple
 			# chapters[0] contains the chapter URL
 			# chapters[1] contains the chapter title
-			self.chapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"').findall(source_code)
+			self.chapters = MangaFox.re_getChapters.findall(source)
 
 			# code used to both fix URL from relative to absolute as well as verify last downloaded chapter for XML component
 			lowerRange = 0
-			upperRange = 0
 		
 			for i in range(0, len(self.chapters)):
 				self.chapters[i] = ('http://www.mangafox.com/manga/%s/' % keyword + self.chapters[i][1], self.chapters[i][0])
@@ -97,7 +99,7 @@ class MangaFoxParser(SiteParserBase):
 			
 		if (not self.verbose_FLAG):
 			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )			
+			hasDisplayLock = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )			
 				
 		for page in range(1, max_pages + 1):
 
@@ -109,18 +111,18 @@ class MangaFoxParser(SiteParserBase):
 				
 			if (not self.verbose_FLAG):
 				if (not hasDisplayLock):
-					hasDisplayLock = ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+					hasDisplayLock = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
 											
 				if (hasDisplayLock):
-					ThreadProgressBar.UpdateProgressBar(page+1)
+					ThreadProgressBar.updateProgressBar(page+1)
 			
 		if (hasDisplayLock):
-			ThreadProgressBar.ReleaseDisplayLock()
+			ThreadProgressBar.releaseDisplayLock()
 		else:
 			if (not self.verbose_FLAG):
-				ThreadProgressBar.AcquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
-				ThreadProgressBar.UpdateProgressBar(max_pages + 1)
-				ThreadProgressBar.ReleaseDisplayLock()
+				ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix, max_pages + 1, True )
+				ThreadProgressBar.updateProgressBar(max_pages + 1)
+				ThreadProgressBar.releaseDisplayLock()
 				
 		# Post Processing 
 		# Release locks/semaophores

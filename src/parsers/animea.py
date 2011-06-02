@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 ####################################################################
-# For more detailed commnets look at MangaFoxParser
+# For more detailed comments look at MangaFoxParser
 #
 # The code for this sites is similar enough to not need
 # explanation, but dissimilar enough to not warrant any further OOP
@@ -9,17 +9,18 @@
 
 ####################
 
+import os
 import re
 
 #####################
 
-from SiteParserBase import SiteParserBase
-from helper import *
-from ProgressBar.ThreadProgressBar import *
+from base import SiteParserBase
+from progressbar.threaded import ThreadProgressBar
+from util import getSourceCode
 
 #####################
 
-class AnimeaParser(SiteParserBase):
+class Animea(SiteParserBase):
 
 	##########
 	#Animea check
@@ -53,13 +54,13 @@ class AnimeaParser(SiteParserBase):
 				print('Chapter ' + str(current_chapter) + ' already downloaded, skipping to next chapter...')
 				continue;
 			url = 'http://manga.animea.net/'+ manga + '-chapter-' + str(current_chapter) + '-page-1.html'
-			source_code = getSourceCode(url)
-			max_pages = int(re.compile('of (.*?)</title>').search(source_code).group(1))
+			source = getSourceCode(url)
+			max_pages = int(re.compile('of (.*?)</title>').search(source).group(1))
 		
 			for page in range(1, max_pages + 1):
 				url = 'http://manga.animea.net/'+ manga + '-chapter-' + str(current_chapter) + '-page-' + str(page) + '.html'
-				source_code = getSourceCode(url)
-				img_url = re.compile('img src="(http.*?.[jp][pn]g)"').search(source_code).group(1)
+				source = getSourceCode(url)
+				img_url = re.compile('img src="(http.*?.[jp][pn]g)"').search(source).group(1)
 				print('Chapter ' + str(current_chapter) + ' / ' + 'Page ' + str(page))
 				print(img_url)
 				downloadImage(img_url, os.path.join('mangadl_tmp', manga_chapter_prefix + '_' + str(page).zfill(3)))

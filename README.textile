@@ -1,6 +1,6 @@
-h1. Manga Downloader
+h1. Manga-Downloader
 
-Manga Downloader is a cross-platform Windows/Mac/Linux python script.
+Manga-Downloader is a cross-platform Windows/Mac/Linux Python script.
 It can be automated via an external .xml file, and can convert images for viewing on the Kindle.
 Currently supports mangafox.com, mangareader.net, and otakuworks.com, with a total of over 5000 mangas.
 Downloads into .cbz format, can optionally download into .zip instead.
@@ -49,7 +49,7 @@ Converts the image files stored in the directory specified by the inputDirectory
 in the directory specified by the outputDirectory Parameter
 
 @--inputDirectory@
-The directory containg the images to covert when convertDirectory is specified. 
+The directory containing the images to covert when convertDirectory is specified. 
 
 @--outputDirectory@
 The directory to store the converted Images. Omitting this option defaults to DOWNLOAD_PATH/Pictures. 
@@ -91,6 +91,9 @@ h2. Issues
 * provided a detailed description of the issue. 
 
 h2. History
+
+*v0.8.8a
++ Code cleanup for clarity, adherence to naming conventions
 
 *v0.8.8* (02/11/11)
 + Added Support for HTTP GZIP Encoding. Reduces the bandwidth used by the program. Required for downloading images hosted by MangaFox.
@@ -182,10 +185,10 @@ h2. History
 + Fixed the download all flag (Broken by OOP changes)
  
 *v0.6.0a*
-+Initial Check-in with Kindle Conversion code.
++ Initial Check-in with Kindle Conversion code.
   
 *v0.6.0* (12/11/10)
-+ Begin Modulazition of the code base
++ Begin modularization of the code base
 + Added SiteParser.py - Uses the factory pattern to create different instances of SiteParser classes
 + Added MangaXMLParser.py - Contains the code for the XML Feature
 + Modified manga.py to use the new classes
