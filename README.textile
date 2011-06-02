@@ -92,7 +92,7 @@ h2. Issues
 
 h2. History
 
-*v0.8.8a
+*v0.8.8a*
 + Code cleanup for clarity, adherence to naming conventions
 
 *v0.8.8* (02/11/11)
