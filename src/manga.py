@@ -21,7 +21,6 @@ import optparse
 import os
 import sys
 
-
 ##########
 
 from parsers.thread import SiteParserThread
@@ -186,7 +185,6 @@ def main():
 		convertFileObj.convert(options.inputDir, options.outputDir, options.device, options.verbose_FLAG)		
 		sys.exit()
 	
-	# xmlfile option flagged
 	if options.xmlfile_path != None:
 		xmlParser = MangaXmlParser(options)
 		xmlParser.downloadManga()

@@ -51,12 +51,6 @@ class SiteParserThread( threading.Thread ):
 			print Instance 
 			print "\n"
 			return 
-			
-		except SiteParserBase.NonExistantDownloadPath as Instance:
-			print "Error: Manga ("+self.manga+")"
-			print Instance 
-			print "\n"
-			return 
 		
 		# Update the XML File only when all the chapters successfully download. If 1 of n chapters failed 
 		# to download, the next time the script is run the script will try to download all n chapters. However,

@@ -14,7 +14,6 @@ import re
 #####################
 
 from base import SiteParserBase
-from progressbar.threaded import ThreadProgressBar
 from util import getSourceCode
 
 #####################
@@ -65,37 +64,12 @@ class MangaReader(SiteParserBase):
 				self.chapters_to_download .append(i)
 		return 
 	
-	def downloadChapter(self, current_chapter):
-		if (self.verbose_FLAG):
-			print "Manga Reader - Download Chapter"
-		
-		manga_chapter_prefix, url, max_pages = self.processChapter(current_chapter, False)
-
-		if url == None:
-			return
-
-		isDisplayLocked = False
-			
-		if (not self.verbose_FLAG):
-			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			isDisplayLocked = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
-		
+	def downloadChapter(self, max_pages, url, manga_chapter_prefix, current_chapter):
 		pageIndex = 0
-
-		
 		for page in MangaReader.re_getPage.findall(getSourceCode(url)):
 			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
 
 			pageUrl = 'http://www.mangareader.net' + page[0]
 			self.downloadImage(page[1], pageUrl, manga_chapter_prefix)
-			
 			pageIndex = pageIndex + 1
-			if (not self.verbose_FLAG):
-				if (not isDisplayLocked):
-					isDisplayLocked = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
-											
-				if (isDisplayLocked):
-					ThreadProgressBar.updateProgressBar(pageIndex+ 1)
-
-		self.postDownloadProcessing(manga_chapter_prefix, max_pages)		

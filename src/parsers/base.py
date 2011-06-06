@@ -43,7 +43,6 @@ class SiteParserBase:
 #####
 
 	def __init__(self,optDict):
-		#urllib._urlopener = SiteParserBase.AppURLopener()
 		for elem in vars(optDict):
 			setattr(self, elem, getattr(optDict, elem))
 		self.chapters = []
@@ -191,7 +190,12 @@ class SiteParserBase:
 
 		max_pages = int(self.re_getMaxPages.search(source).group(1))
 
-		#return (manga_chapter_prefix, url, max_pages)
+		self.downloadChapter(max_pages, url, manga_chapter_prefix, current_chapter)
+		
+		# Post processing 
+		# Release locks/semaphores
+		# Zip Them up
+		self.postDownloadProcessing(manga_chapter_prefix, max_pages)	
 	
 	def selectChapters(self, chapters):
 		"""
@@ -344,7 +348,6 @@ class SiteParserBase:
 		return isAllPassed
 
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
-		
 		if (self.timeLogging_FLAG):
 			print("%s (End Time): %s" % (manga_chapter_prefix, str(time.time())))
 

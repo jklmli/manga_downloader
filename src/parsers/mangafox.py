@@ -7,7 +7,6 @@ import re
 #####################
 
 from base import SiteParserBase
-from progressbar.threaded import ThreadProgressBar
 from util import fixFormatting, getSourceCode
 
 #####################
@@ -89,44 +88,10 @@ class MangaFox(SiteParserBase):
 					self.chapters_to_download.append(i)
 			return 		
 	
-	def downloadChapter(self, current_chapter):
-		manga_chapter_prefix, url, max_pages = self.processChapter(current_chapter)
-			
-		# more or less due to the MangaFox js script sometimes leaving up chapter names and taking down URLs
-		# also if we already have the chapter
-		if url == None:
-			return
-				
-		isDisplayLocked = False
-			
-		if (not self.verbose_FLAG):
-			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			isDisplayLocked = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )			
-				
+	def downloadChapter(self, max_pages, url, manga_chapter_prefix, current_chapter):
 		for page in range(1, max_pages + 1):
-
 			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
 
 			pageUrl = '%s/%i.html' % (url, page)
 			self.downloadImage(page, pageUrl, manga_chapter_prefix)
-				
-			if (not self.verbose_FLAG):
-				if (not isDisplayLocked):
-					isDisplayLocked = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
-											
-				if (isDisplayLocked):
-					ThreadProgressBar.updateProgressBar(page+1)
-			
-		if (isDisplayLocked):
-			ThreadProgressBar.releaseDisplayLock()
-		else:
-			if (not self.verbose_FLAG):
-				ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix, max_pages + 1, True )
-				ThreadProgressBar.updateProgressBar(max_pages + 1)
-				ThreadProgressBar.releaseDisplayLock()
-				
-		# Post Processing 
-		# Release locks/semaophores
-		# Zip Them up
-		self.postDownloadProcessing(manga_chapter_prefix, max_pages)	

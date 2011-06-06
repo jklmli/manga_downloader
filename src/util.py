@@ -75,7 +75,7 @@ def isImageLibAvailable():
 		return True
 	except ImportError:
 		return False
-	
+
 def zeroFillStr(inputString, numOfZeros):
 	return re.sub(	'\d+', 
 					lambda matchObj:
