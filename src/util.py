@@ -44,7 +44,7 @@ def getSourceCode(url, maxRetries=5, waitRetryTime=5):
 	ret = None
 	request = urllib2.Request(url, headers=urlReqHeaders) 
 	
-	while True:
+	while (ret == None): 
 		try:
 			f = urllib2.urlopen(request)
 			encoding = f.headers.get('Content-Encoding')
