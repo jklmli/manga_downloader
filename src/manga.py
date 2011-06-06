@@ -102,20 +102,20 @@ def main():
 				dest = 'conversion_FLAG', 
 				help = 'Converts downloaded files to a Format/Size acceptable to the device specified by the --device parameter.'				)
 
-	parser.add_option( '--device', 
+	parser.add_option( 	'--device', 
 				dest = 'device', 
 				help = 'Specifies the conversion device. Omitting this option default to %default.'				)
 	
-	parser.add_option( '--convertDirectory', 
+	parser.add_option( 	'--convertDirectory', 
 				action = 'store_true', 
 				dest = 'convert_Directory', 
 				help = 'Converts the image files stored in the directory specified by --inputDirectory. Stores the converted images in the directory specified by --outputDirectory'	)
 	
-	parser.add_option( '--inputDirectory', 
+	parser.add_option( 	'--inputDirectory', 
 				dest = 'inputDir', 
 				help = 'The directory containing the images to convert when --convertDirectory is specified.'					)
 	
-	parser.add_option( '--outputDirectory', 
+	parser.add_option( 	'--outputDirectory', 
 				dest = 'outputDir', 
 				help = 'The directory to store the images when --convertDirectory is specified.'					)				
 											

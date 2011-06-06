@@ -14,7 +14,7 @@ PIL if using Kindle conversion.
 
 h2. Usage
 
-manga.py [options] <manga name> <manga name> <ect.>
+@manga.py [options] <manga name> <manga name> <etc.>@
 
 Options:
 @--version@
@@ -74,7 +74,7 @@ Usage examples:
 @manga.py -d "C:\Documents and Settings\admin\Documents\Manga\" -z Bleach@
 On a Windows machine, downloads 'Bleach' to C:\Documents and Settings\admin\Documents\Manga\, using .zip compression.
 
-@./manga.py --subdirectory --overwrite Bleach@
+@./manga.py --overwrite Bleach@
 On a Linux/Unix machine, downloads 'Bleach' to ./Bleach, using .cbz compression and overwriting previously downloaded chapters.
 
 @1,2,9-12@
