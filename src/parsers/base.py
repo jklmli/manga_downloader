@@ -129,8 +129,7 @@ class SiteParserBase:
 				if (self.verbose_FLAG):
 					print pageUrl
 				source_code = getSourceCode(pageUrl)
-				img_url = self.re_getImage.search(source_code).group(1)
-				
+				img_url = self.__class__.re_getImage.search(source_code).group(1)
 			except AttributeError:
 				time.sleep(10)
 				pass
@@ -188,7 +187,7 @@ class SiteParserBase:
 		
 		source = getSourceCode(url)
 
-		max_pages = int(self.re_getMaxPages.search(source).group(1))
+		max_pages = int(self.__class__.re_getMaxPages.search(source).group(1))
 
 		self.downloadChapter(max_pages, url, manga_chapter_prefix, current_chapter)
 		

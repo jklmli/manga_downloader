@@ -80,7 +80,7 @@ def zeroFillStr(inputString, numOfZeros):
 	return re.sub(	'\d+', 
 					lambda matchObj:
 						# string formatting trick to zero-pad 
-						'%0' + numOfZeros + 'i' % int(matchObj.group(0)), 
+						('%0' + str(numOfZeros) + 'i') % int(matchObj.group(0)), 
 					inputString	)
 
 #=========================

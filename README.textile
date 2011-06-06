@@ -8,6 +8,7 @@ Downloads into .cbz format, can optionally download into .zip instead.
 h2. Dependencies
 
 Python 2.6+ (tested on this and higher, untested but may work on 2.5-3.3)
+It can be backported by changing the exception-handling code, and removing parentheses after class declarations, but these changes will break compatibility with Python 3.
 
 PIL if using Kindle conversion.
 
