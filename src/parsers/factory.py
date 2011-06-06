@@ -15,9 +15,9 @@ class SiteParserFactory():
 	@staticmethod
 	def getInstance(options):
 		ParserClass = {
-			'MangaFox' 		: MangaFox,
-			'MangaReader' 	: MangaReader,
-			'OtakuWorks' 	: OtakuWorks
+			'[mf]' 		: MangaFox,
+			'[mr]'	 	: MangaReader,
+			'[ow]'	 	: OtakuWorks
 			
 		}.get(options.site, None)
 		

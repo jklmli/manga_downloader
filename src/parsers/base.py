@@ -19,7 +19,6 @@ from ConvertPackage.ConversionQueue import ConversionQueue
 
 #####################
 
-
 class SiteParserBase:
 
 #####	
@@ -41,14 +40,6 @@ class SiteParserBase:
 		def __str__(self):
 			return self.errorMsg
 		
-	# Script Failed to Create Download path folder	
-	class NonExistantDownloadPath(Exception):
-		def __init__(self, errorMsg=''):
-			self.errorMsg = 'Download path does not exist. %s' % errorMsg
-
-		def __str__(self):
-			return self.errorMsg
-		
 #####
 
 	def __init__(self,optDict):
@@ -57,9 +48,12 @@ class SiteParserBase:
 			setattr(self, elem, getattr(optDict, elem))
 		self.chapters = []
 		self.chapters_to_download = []
-		self.createNewDirLock = threading.Lock()
 		self.tempFolder = tempfile.mkdtemp()
 		self.garbageImages = {}
+		
+		# should be defined by subclasses
+		self.re_getImage = None
+		self.re_getMaxPages = None
 
 	# this takes care of removing the temp directory after the last successful download
 	def __del__(self):
@@ -121,20 +115,22 @@ class SiteParserBase:
 		compressedFile = os.path.join(self.downloadPath, compressedFile)
 		ConversionQueue.append(compressedFile, self.outputDir)
 	
-	def downloadImage(self, page, pageUrl, manga_chapter_prefix, stringQuery):
+	def downloadImage(self, page, pageUrl, manga_chapter_prefix):
 		"""
-		Given a page URL to download from, it searches using stringQuery as a regex to parse out the image URL, 
-		and downloads and names it using manga_chapter_prefix and page.
+		Given a page URL to download from, it searches using self.imageRegex
+		to parse out the image URL, and downloads and names it using 
+		manga_chapter_prefix and page.
 		"""
-		
+
 		# while loop to protect against server denies for requests
-		# note that disconnects are already handled by getSourceCode, we use a regex to parse out the image URL and filter out garbage denies
+		# note that disconnects are already handled by getSourceCode, we use a 
+		# regex to parse out the image URL and filter out garbage denies
 		while True:
 			try:
 				if (self.verbose_FLAG):
 					print pageUrl
 				source_code = getSourceCode(pageUrl)
-				img_url = re.compile(stringQuery).search(source_code).group(1)
+				img_url = self.re_getImage.search(source_code).group(1)
 				
 			except AttributeError:
 				time.sleep(10)
@@ -142,14 +138,14 @@ class SiteParserBase:
 			else:
 				break
 
-		# Line is encoding any special character in the URL must remove the http:// before encoding 
-		# because otherwise the :// would be encoded as well				
+		# Remove the 'http://' before encoding, otherwise the '://' would be 
+		# encoded as well				
 		img_url = 'http://' + urllib.quote(img_url.split('//')[1])
 		
 		if self.verbose_FLAG:
 			print(img_url)
 		
-		# while loop to protect against server denies for requests and/or minor disconnects
+		# Loop to protect against server denies for requests and/or minor disconnects
 		while True:
 			try:
 				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
@@ -159,32 +155,19 @@ class SiteParserBase:
 			else:
 				break
 	
-	def prepareDownload(self, current_chapter, queryString, FlagPrependMangaName=True):
+	def processChapter(self, current_chapter, isPrependMangaName=True):
 		"""
-		Calculates some other necessary stuff before actual downloading can begin and does some checking.
+		Calculates prefix for filenames, creates download directory if
+		nonexistent, checks to see if chapter previously downloaded, returns
+		data critical to downloadChapter()
 		"""
 		
 		# Do not need to ZeroFill the manga name because this should be consistent 
-		if FlagPrependMangaName:
+		# MangaFox already prepends the manga name
+		if isPrependMangaName:
 			manga_chapter_prefix = fixFormatting(self.manga) + '_' +  zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
 		else:
 			manga_chapter_prefix = zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
-
-		try:
-			# create download directory if not found
-			
-			#Check First to avoid unneeded contention on the loc
-			if os.path.exists(self.downloadPath) is False:
-				#acquire Lock
-				self.createNewDirLock.acquire()
-				# Check is another thread has created the path, if not create directory
-				if os.path.exists(self.downloadPath) is False:	
-					os.mkdir(self.downloadPath)
-				
-				#Release Lock	
-				self.createNewDirLock.release()
-		except OSError:
-			raise self.NonExistantDownloadPath('Unable to create download directory. There may be a file with the same name, or you may not have permissions to write there.')
 
 		# we already have it
 		if os.path.exists(os.path.join(self.downloadPath, manga_chapter_prefix) + self.downloadFormat) and self.overwrite_FLAG == False:
@@ -197,18 +180,18 @@ class SiteParserBase:
 		# get the URL of the chapter homepage
 		url = self.chapters[current_chapter][0]
 		
+		# mangafox .js sometimes leaves up invalid chapters
+		if (url == None):
+			return
+		
 		if (self.verbose_FLAG):
 			print("PrepareDownload: " + url)
 		
 		source = getSourceCode(url)
 
-		# legacy code that may be used to calculate a series of image URLs
-		# however, this is risky because some uploaders omit pages, double pages may also affect this
-		# an alternative to this is os.walk through the temporary download directory
-		# edit: this is actually required if you want a progress bar
-		max_pages = int(re.compile(queryString).search(source).group(1))
+		max_pages = int(self.re_getMaxPages.search(source).group(1))
 
-		return (manga_chapter_prefix, url, max_pages)
+		#return (manga_chapter_prefix, url, max_pages)
 	
 	def selectChapters(self, chapters):
 		"""
@@ -216,20 +199,20 @@ class SiteParserBase:
 		"""
 		
 		# this is the array form of the chapters we want
-		chapter_list_array_decrypted = []
+		chapterArray = []
 		
 		if(self.all_chapters_FLAG == False):
-			chapter_list_string = raw_input('\nDownload which chapters?\n')
+			inputChapterString = raw_input('\nDownload which chapters?\n')
 			
-		if(self.all_chapters_FLAG == True or chapter_list_string.lower() == 'all'):
+		if(self.all_chapters_FLAG == True or inputChapterString.lower() == 'all'):
 			print('\nDownloading all chapters...')
 			for i in range(0, len(chapters)):
-				chapter_list_array_decrypted.append(i)
+				chapterArray.append(i)
 		else:
-			# time to parse the user input
+			# parsing user input
 			
 			# ignore whitespace, split using comma delimiters
-			chapter_list_array = chapter_list_string.replace(' ', '').split(',')
+			chapter_list_array = inputChapterString.replace(' ', '').split(',')
 			
 			for i in chapter_list_array:
 				iteration = re.search('([0-9]*)-([0-9]*)', i)
@@ -237,11 +220,11 @@ class SiteParserBase:
 				# it's a range
 				if(iteration is not None):
 					for j in range((int)(iteration.group(1)), (int)(iteration.group(2)) + 1):
-						chapter_list_array_decrypted.append(j - 1)
+						chapterArray.append(j - 1)
 				# it's a single chapter
 				else:
-					chapter_list_array_decrypted.append((int)(i) - 1)
-		return chapter_list_array_decrypted
+					chapterArray.append((int)(i) - 1)
+		return chapterArray
 	
 	def selectFromResults(self, results):
 		"""
@@ -323,7 +306,7 @@ class SiteParserBase:
 			
 		def run (self):
 			try:
-				self.siteParser.downloadChapter(self.chapter)	
+				self.siteParser.processChapter(self.chapter)	
 			except Exception as exception:
 				# Assume semaphore has not been release
 				# This assumption could be faulty if the error was thrown in the compression function
@@ -335,7 +318,7 @@ class SiteParserBase:
 				self.isThreadFailed = True
 				raise FatalError("Thread crashed while downloading chapter: %s" % str(exception))
 	
-	def downloadChapters(self):
+	def download(self):
 		threadPool = []
 		isAllPassed = True
 		SiteParserBase.DownloadChapterThread.initSemaphore(self.maxChapterThreads)
@@ -361,6 +344,7 @@ class SiteParserBase:
 		return isAllPassed
 
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
+		
 		if (self.timeLogging_FLAG):
 			print("%s (End Time): %s" % (manga_chapter_prefix, str(time.time())))
 

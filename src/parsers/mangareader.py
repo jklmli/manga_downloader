@@ -24,6 +24,8 @@ class MangaReader(SiteParserBase):
 	re_getSeries = re.compile('<li><a href="([^"]*)">([^<]*)</a>')
 	re_getChapters = re.compile('<a href="([^"]*)">([^<]*)</a>([^<]*)</td>')
 	re_getPage = re.compile("<option value=\"([^']*?)\"[^>]*>\s*(\d*)</option>")
+	re_getImage = re.compile('img id="img" .* src="([^"]*)"')
+	re_getMaxPages = re.compile('</select> of (\d*)(\s)*</div>')
 
 	def parseSite(self):
 		print('Beginning MangaReader check: %s' % self.manga)
@@ -67,16 +69,16 @@ class MangaReader(SiteParserBase):
 		if (self.verbose_FLAG):
 			print "Manga Reader - Download Chapter"
 		
-		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '</select> of (\d*)(\s)*</div>', False)
+		manga_chapter_prefix, url, max_pages = self.processChapter(current_chapter, False)
 
 		if url == None:
 			return
 
-		hasDisplayLock = False
+		isDisplayLocked = False
 			
 		if (not self.verbose_FLAG):
 			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			hasDisplayLock = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
+			isDisplayLocked = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )	
 		
 		pageIndex = 0
 
@@ -86,22 +88,14 @@ class MangaReader(SiteParserBase):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
 
 			pageUrl = 'http://www.mangareader.net' + page[0]
-			self.downloadImage(page[1], pageUrl, manga_chapter_prefix, 'img id="img" .* src="([^"]*)"')
+			self.downloadImage(page[1], pageUrl, manga_chapter_prefix)
 			
 			pageIndex = pageIndex + 1
 			if (not self.verbose_FLAG):
-				if (not hasDisplayLock):
-					hasDisplayLock = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+				if (not isDisplayLocked):
+					isDisplayLocked = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
 											
-				if (hasDisplayLock):
+				if (isDisplayLocked):
 					ThreadProgressBar.updateProgressBar(pageIndex+ 1)
-			
-		if (hasDisplayLock):
-			ThreadProgressBar.releaseDisplayLock()
-		else:
-			if (not self.verbose_FLAG):
-				ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, True )
-				ThreadProgressBar.updateProgressBar(max_pages + 1)
-				ThreadProgressBar.releaseDisplayLock()
 
 		self.postDownloadProcessing(manga_chapter_prefix, max_pages)		

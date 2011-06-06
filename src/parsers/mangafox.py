@@ -16,6 +16,8 @@ class MangaFox(SiteParserBase):
 	
 	re_getSeries = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
 	re_getChapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"')
+	re_getImage = re.compile(';"><img src="([^"]*)"')
+	re_getMaxPages = re.compile('var total_pages=([^;]*?);')
 	
 	def parseSite(self):
 		"""
@@ -88,18 +90,18 @@ class MangaFox(SiteParserBase):
 			return 		
 	
 	def downloadChapter(self, current_chapter):
-		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, 'var total_pages=([^;]*?);')
+		manga_chapter_prefix, url, max_pages = self.processChapter(current_chapter)
 			
 		# more or less due to the MangaFox js script sometimes leaving up chapter names and taking down URLs
 		# also if we already have the chapter
 		if url == None:
 			return
 				
-		hasDisplayLock = False
+		isDisplayLocked = False
 			
 		if (not self.verbose_FLAG):
 			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			hasDisplayLock = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )			
+			isDisplayLocked = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )			
 				
 		for page in range(1, max_pages + 1):
 
@@ -107,16 +109,16 @@ class MangaFox(SiteParserBase):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
 
 			pageUrl = '%s/%i.html' % (url, page)
-			self.downloadImage(page, pageUrl, manga_chapter_prefix, ';"><img src="([^"]*)"')
+			self.downloadImage(page, pageUrl, manga_chapter_prefix)
 				
 			if (not self.verbose_FLAG):
-				if (not hasDisplayLock):
-					hasDisplayLock = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
+				if (not isDisplayLocked):
+					isDisplayLocked = ThreadProgressBar.acquireDisplayLock(manga_chapter_prefix,max_pages + 1, False )
 											
-				if (hasDisplayLock):
+				if (isDisplayLocked):
 					ThreadProgressBar.updateProgressBar(page+1)
 			
-		if (hasDisplayLock):
+		if (isDisplayLocked):
 			ThreadProgressBar.releaseDisplayLock()
 		else:
 			if (not self.verbose_FLAG):

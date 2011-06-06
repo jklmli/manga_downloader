@@ -3,11 +3,20 @@
 ####################
 
 import gzip
+import random
 import re
 import string
 import StringIO
 import time
 import urllib2
+
+####################
+
+# overwrite user agent for spoofing, enable GZIP
+urlReqHeaders = {	'User-agent':	"""Mozilla/5.0 (X11; U; Linux i686; 
+									en-US) AppleWebKit/534.3 (KHTML, like 
+									Gecko) Chrome/6.0.472.14 Safari/534.3""",
+					'Accept-encoding':'gzip'	}
 
 ####################
 
@@ -23,88 +32,56 @@ def fixFormatting(s):
 	for i in string.punctuation:
 		if(i != '-' and i != '.'):
 			s = s.replace(i, '')
-	return s.lower().lstrip('.').strip().replace(' ', '_')
-
-# overwrite default user-agent so we can download
-#class AppURLopener(urllib.FancyURLopener):
-#	version = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
-
+	return s.lower().lstrip('.').strip().replace(' ', '.')
 
 def getSourceCode(url, maxRetries=5, waitRetryTime=5):
-	# overwrite default user-agent so we can download
-	UserAgent = 'Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3'
+	"""
+	Loop to get around server denies for info or minor disconnects.
+	"""
 	
-	"""
-	While loop to get around server denies for info or minor disconnects.
-	"""
+	global urlReqHeaders
+	
+	ret = None
+	request = urllib2.Request(url, headers=urlReqHeaders) 
+	
 	while True:
-		ret = None
 		try:
-			# Modifies the user agent and notifies the server we accept gzip encoding
-			request = urllib2.Request(url) 
-			request.add_header('User-Agent', UserAgent)
-			request.add_header('Accept-encoding', 'gzip')
-			opener = urllib2.build_opener()
-			f = opener.open(request)
-			
+			f = urllib2.urlopen(request)
 			encoding = f.headers.get('Content-Encoding')
 					
 			if encoding == None:
 				ret = f.read()
 			else:
-				encoding = encoding.upper()
-				if encoding == 'GZIP': 
+				if encoding.upper() == 'GZIP': 
 					compressedstream = StringIO.StringIO(f.read()) 
 					gzipper = gzip.GzipFile(fileobj=compressedstream)
 					ret = gzipper.read()
 				else:
-					raise FatalError('Uknown HTTP Encoding returned')
-		except urllib2.URLError, e:
-			if e.code == 404:
-				ret = ""
+					raise FatalError('Unknown HTTP Encoding returned')
+		except urllib2.URLError:
+			if (maxRetries == 0):
 				break
 			else:
-				# Check maxrRetries. If we should try again, wait waitRetryTime seconds
-				if (maxRetries > 0):
-					time.sleep(waitRetryTime)
-					maxRetries = maxRetries - 1
-				else:
-					# We have already tries maxRetries times. Just break to avoid an infinite loop
-					break
-		else:
-			break
+				# random dist. for further protection against anti-leech
+				# idea from wget
+				time.sleep(random.uniform(0.5*waitRetryTime, 1.5*waitRetryTime))
+				maxRetries -= 1
 
 	return ret
 
 def isImageLibAvailable():
 	try:
 		from ConvertPackage.ConvertFile import convertFile
+		return True
 	except ImportError:
 		return False
-	else:
-		return True
 	
 def zeroFillStr(inputString, numOfZeros):
-	startIndex = []
-	endIndex = []
-	
-	outputString = inputString
-	
-	for m in re.finditer('\d+', outputString):
-		startIndex.append(m.start())
-		endIndex.append(m.end())
-	
-	# Starting from the end converts the found substrings to their zero filled counterparts
-	# 
-	# Converting from the end of the string will not move the locations of
-	# any of the prior substrings (Thoses in the string before the one 
-	# currently being converted. 
-	while ((len(startIndex) > 0) and (len(endIndex))):
-		startIdx = startIndex.pop()
-		endIdx = endIndex.pop()
-		outputString = outputString[:startIdx] + outputString[startIdx:endIdx].zfill(numOfZeros) + outputString[endIdx:]	
-	
-	return outputString	
+	return re.sub(	'\d+', 
+					lambda matchObj:
+						# string formatting trick to zero-pad 
+						'%0' + numOfZeros + 'i' % int(matchObj.group(0)), 
+					inputString	)
 
 #=========================
 #

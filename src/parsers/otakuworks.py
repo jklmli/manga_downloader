@@ -22,6 +22,8 @@ from util import fixFormatting, getSourceCode
 class OtakuWorks(SiteParserBase):
 	
 	re_getMangas = re.compile('a href="([^"]*?)"[^>]*?>([^<]*?) \(Manga\)')
+	re_getImage = re.compile('img src="(http://static.otakuworks.net/viewer/[^"]*)"')
+	re_getMaxPages = re.compile('<strong>(\d*)</strong>')
 	
 	def parseSite(self):
 		print('Beginning OtakuWorks check: %s' % self.manga)
@@ -67,7 +69,7 @@ class OtakuWorks(SiteParserBase):
 		
 	def downloadChapter(self, current_chapter):
 		
-		manga_chapter_prefix, url, max_pages = self.prepareDownload(current_chapter, '<strong>(\d*)</strong>')
+		manga_chapter_prefix, url, max_pages = self.processChapter(current_chapter)
 		
 		if url == None:
 			return
@@ -83,7 +85,7 @@ class OtakuWorks(SiteParserBase):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
 					
 			pageUrl = '%s/%i' % (url, page)
-			self.downloadImage(page, pageUrl, manga_chapter_prefix, 'img src="(http://static.otakuworks.net/viewer/[^"]*)"')
+			self.downloadImage(page, pageUrl, manga_chapter_prefix)
 
 			if (not self.verbose_FLAG):
 				if (not isDisplayLocked):
