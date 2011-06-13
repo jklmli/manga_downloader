@@ -1,6 +1,7 @@
 # Compiled source #
 ###################
 *.pyc
+src/__pycache__/
 
 # Vim temp #
 ############

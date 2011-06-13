@@ -9,8 +9,14 @@ import shutil
 import tempfile
 import threading
 import time
-import urllib
 import zipfile
+
+#####################
+
+try:
+	import urllib
+except ImportError:
+	import urllib.parse as urllib
 
 #####################
 

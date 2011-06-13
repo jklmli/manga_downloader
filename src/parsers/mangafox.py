@@ -6,7 +6,7 @@ import re
 
 #####################
 
-from base import SiteParserBase
+from parsers.base import SiteParserBase
 from util import fixFormatting, getSourceCode
 
 #####################

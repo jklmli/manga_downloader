@@ -2,9 +2,9 @@
 
 #####################
 
-from mangafox import MangaFox
-from mangareader import MangaReader
-from otakuworks import OtakuWorks
+from parsers.mangafox import MangaFox
+from parsers.mangareader import MangaReader
+from parsers.otakuworks import OtakuWorks
 
 #####################
 

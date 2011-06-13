@@ -14,8 +14,7 @@ import re
 
 #####################
 
-from base import SiteParserBase
-from progressbar.threaded import ThreadProgressBar
+from parsers.base import SiteParserBase
 from util import getSourceCode
 
 #####################

@@ -69,7 +69,7 @@ class convertFile():
 				z = zipfile.ZipFile(compressedFile, 'r')
 			except:
 				if (verbose):
-					print "Failed to convert %s. Check if it is a valid zipFile."
+					print("Failed to convert %s. Check if it is a valid zipFile.")
 				continue
 				
 			if (isDir):
