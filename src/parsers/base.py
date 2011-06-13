@@ -163,15 +163,15 @@ class SiteParserBase:
 		# Do not need to ZeroFill the manga name because this should be consistent 
 		# MangaFox already prepends the manga name
 		if isPrependMangaName:
-			manga_chapter_prefix = fixFormatting(self.manga) + '_' +  zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
+			manga_chapter_prefix = fixFormatting(self.manga) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
 		else:
-			manga_chapter_prefix = zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
+			manga_chapter_prefix = self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
 
 		# we already have it
 		if os.path.exists(os.path.join(self.downloadPath, manga_chapter_prefix) + self.downloadFormat) and self.overwrite_FLAG == False:
 			print(self.chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
-			return (None, None, None)
-		
+			return
+
 		SiteParserBase.DownloadChapterThread.acquireSemaphore()
 		if (self.timeLogging_FLAG):
 			print manga_chapter_prefix+" (Start Time): "+str(time.time())

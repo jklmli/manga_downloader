@@ -25,10 +25,9 @@ class MangaFox(SiteParserBase):
 		
 		print('Beginning MangaFox check: %s' % self.manga)
 		
-		url = 'http://www.mangafox.com/manga/%s/' % fixFormatting(self.manga)
-		source = getSourceCode(url)
-		
 		# jump straight to expected URL and test if manga removed
+		url = 'http://www.mangafox.com/manga/%s/' % self.manga.lower().strip().replace(' ', '_')
+		source = getSourceCode(url)
 		if('it is not available in Manga Fox.' in source):
 			raise self.MangaNotFound('It has been removed.')
 		
