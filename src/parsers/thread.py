@@ -8,9 +8,9 @@ import time
 
 #####################
 
-from base import SiteParserBase
+from parsers.base import SiteParserBase
 from ConvertPackage.ConversionQueue import ConversionQueue
-from factory import SiteParserFactory
+from parsers.factory import SiteParserFactory
 from util import isImageLibAvailable, updateNode
 
 #####################
@@ -32,7 +32,7 @@ class SiteParserThread( threading.Thread ):
 		except self.siteParser.NoUpdates:
 			self.uptodate_FLAG = True
 			print ("Manga ("+self.manga+") up-to-date.")
-		print '\n'	
+		print('\n')
 			
 	def run (self):
 		success = False
@@ -47,9 +47,9 @@ class SiteParserThread( threading.Thread ):
 			success = self.siteParser.download()
 			
 		except SiteParserBase.MangaNotFound as Instance:
-			print "Error: Manga ("+self.manga+")"
-			print Instance 
-			print "\n"
+			print("Error: Manga ("+self.manga+")")
+			print(Instance)
+			print("\n")
 			return 
 		
 		# Update the XML File only when all the chapters successfully download. If 1 of n chapters failed 
@@ -87,7 +87,7 @@ class SiteParserThread( threading.Thread ):
 		i = 0
 		if (conversionOptions.conversion_FLAG):
 			if (not isImageLibAvailable()):
-				print "PIL (Python Image Library) not available."
+				print("PIL (Python Image Library) not available.")
 			else:	
 				from ConvertPackage.ConvertFile import convertFile
 				

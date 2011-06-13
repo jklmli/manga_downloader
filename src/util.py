@@ -3,10 +3,10 @@
 ####################
 
 import gzip
+import io
 import random
 import re
 import string
-import StringIO
 import time
 import urllib2
 
@@ -14,9 +14,9 @@ import urllib2
 
 # overwrite user agent for spoofing, enable GZIP
 urlReqHeaders = {	'User-agent':	"""Mozilla/5.0 (X11; U; Linux i686; 
-									en-US) AppleWebKit/534.3 (KHTML, like 
-									Gecko) Chrome/6.0.472.14 Safari/534.3""",
-					'Accept-encoding':'gzip'	}
+					en-US) AppleWebKit/534.3 (KHTML, like 
+					Gecko) Chrome/6.0.472.14 Safari/534.3""",
+			'Accept-encoding':'gzip'				}
 
 ####################
 
@@ -53,7 +53,7 @@ def getSourceCode(url, maxRetries=5, waitRetryTime=5):
 				ret = f.read()
 			else:
 				if encoding.upper() == 'GZIP': 
-					compressedstream = StringIO.StringIO(f.read()) 
+					compressedstream = io.StringIO(f.read()) 
 					gzipper = gzip.GzipFile(fileobj=compressedstream)
 					ret = gzipper.read()
 				else:

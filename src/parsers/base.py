@@ -127,7 +127,7 @@ class SiteParserBase:
 		while True:
 			try:
 				if (self.verbose_FLAG):
-					print pageUrl
+					print(pageUrl)
 				source_code = getSourceCode(pageUrl)
 				img_url = self.__class__.re_getImage.search(source_code).group(1)
 			except AttributeError:
@@ -174,7 +174,7 @@ class SiteParserBase:
 
 		SiteParserBase.DownloadChapterThread.acquireSemaphore()
 		if (self.timeLogging_FLAG):
-			print manga_chapter_prefix+" (Start Time): "+str(time.time())
+			print(manga_chapter_prefixi + " (Start Time): " + str(time.time()))
 		# get the URL of the chapter homepage
 		url = self.chapters[current_chapter][0]
 		
@@ -326,7 +326,7 @@ class SiteParserBase:
 		isAllPassed = True
 		SiteParserBase.DownloadChapterThread.initSemaphore(self.maxChapterThreads)
 		if (self.verbose_FLAG):
-			print "Number of Threads: %d " % self.maxChapterThreads
+			print("Number of Threads: %d " % self.maxChapterThreads)
 		"""
 		for loop that goes through the chapters we selected.
 		"""

@@ -44,9 +44,9 @@ class InvalidSite(Exception):
 	pass
 
 def printLicenseInfo():
-		print "\nProgram: Copyright (c) 2010. GPL v3 (http://www.gnu.org/licenses/gpl.html)."
-		print "Icon:\tCopyright (c) 2006. GNU Free Document License v1.2 (Author:Kasuga) ."
-		print "\thttp://ja.wikipedia.org/wiki/%E5%88%A9%E7%94%A8%E8%80%85:Kasuga\n"
+		print( "\nProgram: Copyright (c) 2010. GPL v3 (http://www.gnu.org/licenses/gpl.html)." )
+		print( "Icon:\tCopyright (c) 2006. GNU Free Document License v1.2 (Author:Kasuga) ." )
+		print( "\thttp://ja.wikipedia.org/wiki/%E5%88%A9%E7%94%A8%E8%80%85:Kasuga\n" )
 		
 ##########
 		
@@ -167,7 +167,7 @@ def main():
 	PILAvailable = isImageLibAvailable()
 	# Check if PIL Library is available if either of convert Flags are set 
 	if ((not PILAvailable)  and (options.convert_Directory or options.conversion_FLAG)):
-		print "\nConversion Functionality Not available.\nMust install the PIL (Python Image Library)"
+		print ("\nConversion Functionality Not available.\nMust install the PIL (Python Image Library)")
 		sys.exit()
 	else:
 		if (PILAvailable):
@@ -191,7 +191,7 @@ def main():
 	else:
 		threadPool = []
 		for manga in args:
-			print manga
+			print( manga )
 			options.manga = manga
 			
 			if SetDownloadPathToName_Flag:		
