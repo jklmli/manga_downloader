@@ -202,16 +202,7 @@ def main():
 			
 			options.downloadPath = os.path.realpath(options.downloadPath) + os.sep
 			
-			# create download directory if not found
-			try:
-				if os.path.exists(options.downloadPath) is False:
-						os.mkdir(options.downloadPath)
-			except OSError:
-				print("""Unable to create download directory. There may be a file 
-					with the same name, or you may not have permissions to write 
-					there.""")
-				raise
-
+			
 			# site selection
 			print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
 

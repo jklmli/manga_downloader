@@ -5,7 +5,7 @@
 import datetime
 import threading
 import time
-
+import os
 #####################
 
 from parsers.base import SiteParserBase
@@ -28,7 +28,17 @@ class SiteParserThread( threading.Thread ):
 		self.node = node
 		self.siteParser = SiteParserFactory.getInstance(self)
 		try:
-			self.siteParser.parseSite()	
+			self.siteParser.parseSite()
+			# create download directory if not found
+			try:
+				if os.path.exists(self.downloadPath) is False:
+					os.mkdir(self.downloadPath)
+			except OSError:
+				print("""Unable to create download directory. There may be a file 
+					with the same name, or you may not have permissions to write 
+					there.""")
+				raise
+
 		except self.siteParser.NoUpdates:
 			self.uptodate_FLAG = True
 			print ("Manga ("+self.manga+") up-to-date.")
