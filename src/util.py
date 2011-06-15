@@ -58,7 +58,7 @@ def getSourceCode(url, maxRetries=5, waitRetryTime=5):
 				ret = f.read()
 			else:
 				if encoding.upper() == 'GZIP': 
-					compressedstream = io.StringIO(f.read()) 
+					compressedstream = io.BytesIO(f.read()) 
 					gzipper = gzip.GzipFile(fileobj=compressedstream)
 					ret = gzipper.read()
 				else:
@@ -75,11 +75,11 @@ def getSourceCode(url, maxRetries=5, waitRetryTime=5):
 	return ret
 
 def isImageLibAvailable():
-	try:
-		from ConvertPackage.ConvertFile import convertFile
-		return True
-	except ImportError:
-		return False
+	#try:
+	from ConvertPackage.ConvertFile import convertFile
+	return True
+	#except ImportError:
+	return False
 
 def zeroFillStr(inputString, numOfZeros):
 	return re.sub(	'\d+', 
