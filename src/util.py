@@ -75,11 +75,11 @@ def getSourceCode(url, maxRetries=5, waitRetryTime=5):
 	return ret
 
 def isImageLibAvailable():
-	#try:
-	from ConvertPackage.ConvertFile import convertFile
-	return True
-	#except ImportError:
-	return False
+	try:
+		from ConvertPackage.ConvertFile import convertFile
+		return True
+	except ImportError:
+		return False
 
 def zeroFillStr(inputString, numOfZeros):
 	return re.sub(	'\d+', 
