@@ -22,7 +22,6 @@ import imghdr
 import string
 import unicodedata
 
-from progressbar.threaded import ThreadProgressBar
 	
 class BookConvert():
     
@@ -35,12 +34,7 @@ class BookConvert():
 
     	if not os.path.isdir(self.directory):
     		os.makedirs(self.directory )
-    	
-    	hasDisplayLock = False
-    	ProgressBarTag = 'Converting ' + self.book.title
-    	if (not self.verbose):
-			# Function Tries to acquire the lock if it succeeds it initialize the progress bar
-			hasDisplayLock = ThreadProgressBar.acquireDisplayLock(ProgressBarTag, len(self.book.images), False )	
+    		
 			
         for index in range(0,len(self.book.images)):
           directory = os.path.join(unicode(self.directory), unicode(self.book.title))
@@ -84,22 +78,10 @@ class BookConvert():
                 image.convertImage(newSource, target, str(self.book.device), self.book.imageFlags)
                 if (self.verbose):
                 	print source + " -> " + target
-                else:
-				if (not hasDisplayLock):
-					hasDisplayLock = ThreadProgressBar.acquireDisplayLock(ProgressBarTag, len(self.book.images), False )
-											
-				if (hasDisplayLock):
-					ThreadProgressBar.updateProgressBar(index + 1)
+
 					
           except RuntimeError, error:
               print "ERROR"
           finally:
           	os.renames(newSource, source)
-        
-        if (hasDisplayLock):
-       	  ThreadProgressBar.releaseDisplayLock()
-        else:
-          if (not self.verbose):
-            ThreadProgressBar.acquireDisplayLock(ProgressBarTag, len(self.book.images), True )
-            ThreadProgressBar.updateProgressBar(len(self.book.images))
-            ThreadProgressBar.releaseDisplayLock()
+ 
