@@ -26,7 +26,7 @@ import sys
 from parsers.thread import SiteParserThread
 from util import fixFormatting, isImageLibAvailable
 from xmlparser import MangaXmlParser
-
+from outputManager.progressBarManager import progressBarManager
 ##########
 
 VERSION = 'v0.8.8'
@@ -185,6 +185,9 @@ def main():
 		convertFileObj.convert(options.inputDir, options.outputDir, options.device, options.verbose_FLAG)		
 		sys.exit()
 	
+	options.outputMgr = progressBarManager()
+	options.outputMgr.start()
+	
 	if options.xmlfile_path != None:
 		xmlParser = MangaXmlParser(options)
 		xmlParser.downloadManga()
@@ -223,6 +226,8 @@ def main():
 			thread.start()
 		
 		SiteParserThread.waitForThreads(threadPool, options)
+		
+		options.outputMgr.stop()
 		
 		
 if __name__ == '__main__':

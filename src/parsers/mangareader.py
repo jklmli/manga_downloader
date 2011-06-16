@@ -64,12 +64,12 @@ class MangaReader(SiteParserBase):
 				self.chapters_to_download .append(i)
 		return 
 	
-	def downloadChapter(self, max_pages, url, manga_chapter_prefix, current_chapter):
+	def downloadChapter(self, downloadThread, max_pages, url, manga_chapter_prefix, current_chapter):
 		pageIndex = 0
 		for page in MangaReader.re_getPage.findall(getSourceCode(url)):
 			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
 
 			pageUrl = 'http://www.mangareader.net' + page[0]
-			self.downloadImage(page[1], pageUrl, manga_chapter_prefix)
+			self.downloadImage(downloadThread, page[1], pageUrl, manga_chapter_prefix)
 			pageIndex = pageIndex + 1

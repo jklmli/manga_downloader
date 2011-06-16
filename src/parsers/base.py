@@ -120,7 +120,7 @@ class SiteParserBase:
 		compressedFile = os.path.join(self.downloadPath, compressedFile)
 		ConversionQueue.append(compressedFile, self.outputDir)
 	
-	def downloadImage(self, page, pageUrl, manga_chapter_prefix):
+	def downloadImage(self, downloadThread, page, pageUrl, manga_chapter_prefix):
 		"""
 		Given a page URL to download from, it searches using self.imageRegex
 		to parse out the image URL, and downloads and names it using 
@@ -158,8 +158,10 @@ class SiteParserBase:
 				pass
 			else:
 				break
+		
+		self.outputMgr.updateOutputObj( downloadThread.outputIdx )
 	
-	def processChapter(self, current_chapter, isPrependMangaName=True):
+	def processChapter(self, downloadThread, current_chapter, isPrependMangaName=True):
 		"""
 		Calculates prefix for filenames, creates download directory if
 		nonexistent, checks to see if chapter previously downloaded, returns
@@ -180,7 +182,7 @@ class SiteParserBase:
 
 		SiteParserBase.DownloadChapterThread.acquireSemaphore()
 		if (self.timeLogging_FLAG):
-			print(manga_chapter_prefixi + " (Start Time): " + str(time.time()))
+			print(manga_chapter_prefix + " (Start Time): " + str(time.time()))
 		# get the URL of the chapter homepage
 		url = self.chapters[current_chapter][0]
 		
@@ -194,8 +196,10 @@ class SiteParserBase:
 		source = getSourceCode(url)
 
 		max_pages = int(self.__class__.re_getMaxPages.search(source).group(1))
+		
+		downloadThread.outputIdx = self.outputMgr.createOutputObj(manga_chapter_prefix, max_pages)
 
-		self.downloadChapter(max_pages, url, manga_chapter_prefix, current_chapter)
+		self.downloadChapter(downloadThread, max_pages, url, manga_chapter_prefix, current_chapter)
 		
 		# Post processing 
 		# Release locks/semaphores
@@ -289,6 +293,7 @@ class SiteParserBase:
 			self.siteParser = siteParser
 			self.chapter = chapter
 			self.isThreadFailed = False
+			self.outputIdx = -1
 			
 		@staticmethod
 		def initSemaphore(value):
@@ -315,7 +320,7 @@ class SiteParserBase:
 			
 		def run (self):
 			try:
-				self.siteParser.processChapter(self.chapter)	
+				self.siteParser.processChapter(self, self.chapter)	
 			except Exception as exception:
 				# Assume semaphore has not been release
 				# This assumption could be faulty if the error was thrown in the compression function

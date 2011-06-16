@@ -87,10 +87,10 @@ class MangaFox(SiteParserBase):
 					self.chapters_to_download.append(i)
 			return 		
 	
-	def downloadChapter(self, max_pages, url, manga_chapter_prefix, current_chapter):
+	def downloadChapter(self, downloadThread, max_pages, url, manga_chapter_prefix, current_chapter):
 		for page in range(1, max_pages + 1):
 			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %i / %i' % (page, max_pages))
 
 			pageUrl = '%s/%i.html' % (url, page)
-			self.downloadImage(page, pageUrl, manga_chapter_prefix)
+			self.downloadImage(downloadThread, page, pageUrl, manga_chapter_prefix)
