@@ -13,18 +13,21 @@ class progressBarManager(outputManager):
 		outputManager.__init__(self)
 		
 	def createOutputObj( self, title, numberOfPages ):
-		id = self.nextId 
-		self.nextId = self.nextId + 1
-		
 		outputObj = outputStruct()
-		outputObj.id = id
 		outputObj.updateObjSem = threading.Semaphore(0)
 		outputObj.title = title
 
 		outputObj.numOfInc = numberOfPages
 		
+		# Aquiring the List Lock to protect the dictionary structured
 		self.outputListLock.acquire(True)
+		
+		id = self.nextId 
+		self.nextId = self.nextId + 1
+		outputObj.id = id
 		self.outputObjs[id] = outputObj
+		
+		#  Releasing lock
 		self.outputListLock.release()
 		
 		return id
