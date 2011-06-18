@@ -361,7 +361,7 @@ class SiteParserBase:
 			while (thread.isAlive()):
 				# Yields control to whomever is waiting 
 				time.sleep(0)
-			if (thread.isThreadFailed and isAllPassed):
+			if (isAllPassed and thread.isThreadFailed):
 				isAllPassed = False
 		
 		return isAllPassed
