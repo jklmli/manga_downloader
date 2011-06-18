@@ -3,6 +3,7 @@
 ####################
 
 import re
+import string
 
 #####################
 
@@ -18,15 +19,29 @@ class MangaFox(SiteParserBase):
 	re_getImage = re.compile(';"><img src="([^"]*)"')
 	re_getMaxPages = re.compile('var total_pages=([^;]*?);')
 	
+	def fixFormatting(self, s):
+		
+		for i in string.punctuation:
+			if(i != '-'):
+				s = s.replace(i, '')
+			else: 
+				s = s.replace(i, " ")
+		
+		p = re.compile( '\s+')
+		s = p.sub( ' ', s )
+		
+		s = s.lower().strip().replace(' ', '_')
+		return s
+		
 	def parseSite(self):
 		"""
 		Parses list of chapters and URLs associated with each one for the given manga and site.
 		"""
 		
 		print('Beginning MangaFox check: %s' % self.manga)
-		
+
 		# jump straight to expected URL and test if manga removed
-		url = 'http://www.mangafox.com/manga/%s/' % self.manga.lower().strip().replace(' ', '_')
+		url = 'http://www.mangafox.com/manga/%s/' % self.fixFormatting( self.manga )
 		source = getSourceCode(url)
 		if('it is not available in Manga Fox.' in source):
 			raise self.MangaNotFound('It has been removed.')
