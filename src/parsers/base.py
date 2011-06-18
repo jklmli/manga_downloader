@@ -20,8 +20,7 @@ except ImportError:
 
 #####################
 
-from util import FatalError, fixFormatting, getSourceCode, zeroFillStr
-from ConvertPackage.ConversionQueue import ConversionQueue
+from util import * 
 
 #####################
 
@@ -118,7 +117,7 @@ class SiteParserBase:
 		
 		compressedFile = os.path.basename(compressedFile)
 		compressedFile = os.path.join(self.downloadPath, compressedFile)
-		ConversionQueue.append(compressedFile, self.outputDir)
+		return compressedFile
 	
 	def downloadImage(self, downloadThread, page, pageUrl, manga_chapter_prefix):
 		"""
@@ -158,8 +157,8 @@ class SiteParserBase:
 				pass
 			else:
 				break
-		
-		self.outputMgr.updateOutputObj( downloadThread.outputIdx )
+		if (not self.verbose_FLAG):
+			self.outputMgr.updateOutputObj( downloadThread.outputIdx )
 	
 	def processChapter(self, downloadThread, current_chapter, isPrependMangaName=True):
 		"""
@@ -197,7 +196,8 @@ class SiteParserBase:
 
 		max_pages = int(self.__class__.re_getMaxPages.search(source).group(1))
 		
-		downloadThread.outputIdx = self.outputMgr.createOutputObj(manga_chapter_prefix, max_pages)
+		if (not self.verbose_FLAG):
+			downloadThread.outputIdx = self.outputMgr.createOutputObj(manga_chapter_prefix, max_pages)
 
 		self.downloadChapter(downloadThread, max_pages, url, manga_chapter_prefix, current_chapter)
 		
@@ -362,4 +362,18 @@ class SiteParserBase:
 			print("%s (End Time): %s" % (manga_chapter_prefix, str(time.time())))
 
 		SiteParserBase.DownloadChapterThread.releaseSemaphore()
-		self.compress(manga_chapter_prefix, max_pages)
+		compressedFile = self.compress(manga_chapter_prefix, max_pages)
+		self.convertChapter( compressedFile )	
+	
+	def convertChapter(self, compressedFile):
+		# Check if the conversion flag is set
+		if ( self.conversion_FLAG ):
+			if (not isImageLibAvailable()):
+				print("PIL (Python Image Library) not available.")
+			else:	
+				from ConvertPackage.ConvertFile import convertFile
+				if (self.verbose_FLAG):
+					print ("Compressed File "+str(compressedFile))							
+				
+				if (compressedFile != None and self.outputDir != None):
+					convertFile.convert(self.outputMgr, compressedFile, self.outputDir, self.device, self.verbose_FLAG)

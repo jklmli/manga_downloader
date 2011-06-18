@@ -65,9 +65,8 @@ class MangaXmlParser:
 		
 		for thread in threadPool: 
 			thread.start()
-		
-		SiteParserThread.waitForThreads(threadPool, self.options)
-		
-		#print dom.toxml()		
+			thread.join()
+
+		#print (dom.toxml())		
 		f = open(self.xmlfile_path, 'w')
-		f.write(dom.toxml())       	    
+		f.write(dom.toxml()) 

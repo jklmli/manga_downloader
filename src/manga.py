@@ -177,16 +177,15 @@ def main():
 	if (os.path.dirname(sys.argv[0]) != ""):
 		os.chdir(os.path.dirname(sys.argv[0]))
 
+	options.outputMgr = progressBarManager()
+	options.outputMgr.start()
+	
 	if (options.convert_Directory):
 		if ( options.outputDir == 'DEFAULT_VALUE' ):
 			options.outputDir = '.'
 		
-		convertFileObj = convertFile()
-		convertFileObj.convert(options.inputDir, options.outputDir, options.device, options.verbose_FLAG)		
+		convertFileObj.convert(options.outputMgr, options.inputDir, options.outputDir, options.device, options.verbose_FLAG)		
 		sys.exit()
-	
-	options.outputMgr = progressBarManager()
-	options.outputMgr.start()
 	
 	if options.xmlfile_path != None:
 		xmlParser = MangaXmlParser(options)
@@ -224,10 +223,9 @@ def main():
 			
 		for thread in threadPool: 
 			thread.start()
-		
-		SiteParserThread.waitForThreads(threadPool, options)
-		
-		options.outputMgr.stop()
+			thread.join()
+				
+	options.outputMgr.stop()
 		
 		
 if __name__ == '__main__':

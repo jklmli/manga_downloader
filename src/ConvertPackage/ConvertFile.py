@@ -12,7 +12,8 @@ class convertFile():
 	def __init__(self):
 		pass
 		
-	def convert(self, filePath, outDir, Device, verbose):
+	@staticmethod	
+	def convert(outputMgr, filePath, outDir, Device, verbose):
 		listDir = []
 		isDir = os.path.isdir(filePath)
 
@@ -55,14 +56,14 @@ class convertFile():
 		if (len(files) > 0):
 			outputBook.addImageFiles(files)
 			outputBook.title = title
-			bookConvert = BookConvert(outputBook, os.path.abspath(outDir), verbose)
+			bookConvert = BookConvert(outputBook, outputMgr, os.path.abspath(outDir), verbose)
 			bookConvert.Export()			
 		
 
 		outDir = os.path.join(outDir, title)	
 			
 		for directory in directories:
-			self.convert(directory, outDir, Device, verbose)
+			convertFile.convert(outputMgr, directory, outDir, Device, verbose)
 		
 		for compressedFile in compressedFiles:
 			try:
@@ -84,13 +85,14 @@ class convertFile():
 				
 			for name in z.namelist():
 				tempName = os.path.join(temp_dir, name)
-				self.extract_from_zip(name, tempName, z)
+				convertFile.extract_from_zip(name, tempName, z)
 			z.close
-			self.convert(temp_dir, outDir, Device, verbose)
+			convertFile.convert(outputMgr, temp_dir, outDir, Device, verbose)
 			if os.path.exists(temp_dir):
 				shutil.rmtree(temp_dir)
 	
-	def extract_from_zip(self, name, dest_path, zip_file):
+	@staticmethod
+	def extract_from_zip( name, dest_path, zip_file ):
 		dest_file = open(dest_path, 'wb')
 		dest_file.write(zip_file.read(name))
 		dest_file.close()
