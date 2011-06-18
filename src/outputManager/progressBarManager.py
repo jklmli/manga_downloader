@@ -33,7 +33,7 @@ class progressBarManager(outputManager):
 		return id
 		
 	def updateOutputObj( self, objectId ):
-		self.outputObjs[objectId].updateObjSem.release()	
+		self.releaseSemaphore(objectId)	
 	
 	def getNextIdx(self):
 		index = None
@@ -53,6 +53,28 @@ class progressBarManager(outputManager):
 		del self.outputObjs[index]
 		self.outputListLock.release()
 	
+	def acquireSemaphore(self, index):
+		# Get a pointer to the semaphore
+		# Lock the list to protect the interior map structure while 
+		# retrieving the pointer to the semaphore
+		self.outputListLock.acquire(True)
+		sem = self.outputObjs[index].updateObjSem
+		self.outputListLock.release()
+		
+		sem.acquire()
+		
+		return
+	
+	def releaseSemaphore(self, index):
+		# Get a pointer to the semaphore
+		# Lock the list to protect the interior map structure while 
+		# retrieving the pointer to the semaphore
+		self.outputListLock.acquire(True)
+		sem = self.outputObjs[index].updateObjSem
+		self.outputListLock.release()
+		
+		sem.release()
+	
 	def run (self):
 		while(self.isAlive):
 			# Sleep to give priority to another thread
@@ -63,7 +85,7 @@ class progressBarManager(outputManager):
 				progressBar = ProgressBar(widgets=widgets, maxval=self.outputObjs[index].numOfInc).start()
 				
 				for i in range(self.outputObjs[index].numOfInc):
-					self.outputObjs[index].updateObjSem.acquire()
+					self.acquireSemaphore(index)
 					progressBar.update( i + 1 )
 				print "\n"
 				self.removeOuputObj(index)
