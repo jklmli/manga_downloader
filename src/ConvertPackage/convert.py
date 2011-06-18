@@ -25,8 +25,9 @@ import unicodedata
 	
 class BookConvert():
     
-    def __init__(self, book, directory, verbose):
+    def __init__(self, book, outputMgr, directory, verbose):
         self.book = book
+        self.outputMgr = outputMgr
         self.directory = directory
         self.verbose = verbose
                     
@@ -34,8 +35,10 @@ class BookConvert():
 
     	if not os.path.isdir(self.directory):
     		os.makedirs(self.directory )
-    		
-			
+    	
+    	if (not self.verbose):
+			outputIdx = self.outputMgr.createOutputObj("Converting "+self.book.title, len(self.book.images))
+		
         for index in range(0,len(self.book.images)):
           directory = os.path.join(unicode(self.directory), unicode(self.book.title))
           source = unicode(self.book.images[index])
@@ -78,6 +81,8 @@ class BookConvert():
                 image.convertImage(newSource, target, str(self.book.device), self.book.imageFlags)
                 if (self.verbose):
                 	print source + " -> " + target
+                else:	
+                	self.outputMgr.updateOutputObj( outputIdx )	
 
 					
           except RuntimeError, error:

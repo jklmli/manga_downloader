@@ -54,12 +54,10 @@ class progressBarManager(outputManager):
 		self.outputListLock.release()
 	
 	def run (self):
-		print "Running"
 		while(self.isAlive):
 			# Sleep to give priority to another thread
 			time.sleep(0)
 			index = self.getNextIdx()
-			#print index
 			if (index != None):
 				widgets = ['%s: ' % self.outputObjs[index].title, Percentage(), ' ', Bar(), ' ', ETA(), ]
 				progressBar = ProgressBar(widgets=widgets, maxval=self.outputObjs[index].numOfInc).start()

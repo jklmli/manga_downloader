@@ -76,36 +76,3 @@ class SiteParserThread( threading.Thread ):
 		timeStamp = "%d-%02d-%02d %02d:%02d:%02d" % (t.year, t.month, t.day, t.hour, t.minute, t.second)
 		
 		updateNode(self.dom, self.node, 'timeStamp', timeStamp)
-	
-	@staticmethod
-	def waitForThreads(threadPool, conversionOptions):
-		while (len(threadPool) > 0):
-			thread = threadPool.pop()
-			while (thread.isAlive()):
-				processedItems = SiteParserThread.processConversionList(conversionOptions) 
-				if (processedItems == 0):
-					# Yields execution to whatever another thread
-					time.sleep(0)
-		
-		# This is to avoid a race condition where the last SiteParserThread adds a compressionFile 
-		# to the list and then dies. Therefore thread.isAlive would be false but there would still
-		# be a compression file to process
-		SiteParserThread.processConversionList(conversionOptions)			
-	
-	@staticmethod
-	def processConversionList(conversionOptions):
-		i = 0
-		if (conversionOptions.conversion_FLAG):
-			if (not isImageLibAvailable()):
-				print("PIL (Python Image Library) not available.")
-			else:	
-				from ConvertPackage.ConvertFile import convertFile
-				
-				convertFileObj = convertFile()
-				compressedFile, outputPath = ConversionQueue.pop()
-				while (compressedFile != None and outputPath != None):
-					i = i + 1
-					convertFileObj.convert(compressedFile, outputPath, conversionOptions.device, conversionOptions.verbose_FLAG)
-					compressedFile, outputPath = ConversionQueue.pop()
-		
-		return i			
