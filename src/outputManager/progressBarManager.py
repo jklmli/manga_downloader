@@ -87,7 +87,7 @@ class progressBarManager(outputManager):
 				for i in range(self.outputObjs[index].numOfInc):
 					self.acquireSemaphore(index)
 					progressBar.update( i + 1 )
-				print "\n"
+				print ("\n")
 				self.removeOuputObj(index)
 					
 			

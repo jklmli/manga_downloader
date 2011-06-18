@@ -9,7 +9,6 @@ import os
 #####################
 
 from parsers.base import SiteParserBase
-from ConvertPackage.ConversionQueue import ConversionQueue
 from parsers.factory import SiteParserFactory
 from util import isImageLibAvailable, updateNode
 
