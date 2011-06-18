@@ -93,7 +93,7 @@ class SiteParserBase:
 		for page in range(1, max_pages + 1):	
 			tempPath = os.path.join(self.tempFolder, mangaChapterPrefix + '_' + str(page).zfill(3))
 			# we got an image file
-			if imghdr.what(tempPath) != None:
+			if os.path.exists(tempPath) is True and imghdr.what(tempPath) != None:
 				z.write( tempPath, mangaChapterPrefix + '_' + str(page).zfill(3) + '.' + imghdr.what(tempPath))
 			# site has thrown a 404 because image unavailable or using anti-leeching
 			else:
@@ -129,6 +129,8 @@ class SiteParserBase:
 		# while loop to protect against server denies for requests
 		# note that disconnects are already handled by getSourceCode, we use a 
 		# regex to parse out the image URL and filter out garbage denies
+		maxRetries = 5
+		waitRetryTime = 5
 		while True:
 			try:
 				if (self.verbose_FLAG):
@@ -136,8 +138,15 @@ class SiteParserBase:
 				source_code = getSourceCode(pageUrl)
 				img_url = self.__class__.re_getImage.search(source_code).group(1)
 			except AttributeError:
-				time.sleep(10)
-				pass
+				if (maxRetries == 0):
+					if (not self.verbose_FLAG):
+						self.outputMgr.updateOutputObj( downloadThread.outputIdx )
+					return	
+				else:
+					# random dist. for further protection against anti-leech
+					# idea from wget
+					time.sleep(random.uniform(0.5*waitRetryTime, 1.5*waitRetryTime))
+					maxRetries -= 1
 			else:
 				break
 
