@@ -183,8 +183,7 @@ def main():
 	if (options.convert_Directory):
 		if ( options.outputDir == 'DEFAULT_VALUE' ):
 			options.outputDir = '.'
-		
-		convertFileObj.convert(options.outputMgr, options.inputDir, options.outputDir, options.device, options.verbose_FLAG)		
+		convertFile.convert(options.outputMgr, options.inputDir, options.outputDir, options.device, options.verbose_FLAG)		
 		sys.exit()
 	
 	if options.xmlfile_path != None:
