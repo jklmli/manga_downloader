@@ -183,10 +183,9 @@ def main():
 	if (options.convert_Directory):
 		if ( options.outputDir == 'DEFAULT_VALUE' ):
 			options.outputDir = '.'
-		convertFile.convert(options.outputMgr, options.inputDir, options.outputDir, options.device, options.verbose_FLAG)		
-		sys.exit()
+		convertFile.convert(options.outputMgr, options.inputDir, options.outputDir, options.device, options.verbose_FLAG)
 	
-	if options.xmlfile_path != None:
+	elif options.xmlfile_path != None:
 		xmlParser = MangaXmlParser(options)
 		xmlParser.downloadManga()
 	else:
