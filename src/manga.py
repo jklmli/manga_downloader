@@ -179,51 +179,52 @@ def main():
 
 	options.outputMgr = progressBarManager()
 	options.outputMgr.start()
+	try:
+		if (options.convert_Directory):
+			if ( options.outputDir == 'DEFAULT_VALUE' ):
+				options.outputDir = '.'
+			convertFile.convert(options.outputMgr, options.inputDir, options.outputDir, options.device, options.verbose_FLAG)
 	
-	if (options.convert_Directory):
-		if ( options.outputDir == 'DEFAULT_VALUE' ):
-			options.outputDir = '.'
-		convertFile.convert(options.outputMgr, options.inputDir, options.outputDir, options.device, options.verbose_FLAG)
-	
-	elif options.xmlfile_path != None:
-		xmlParser = MangaXmlParser(options)
-		xmlParser.downloadManga()
-	else:
-		threadPool = []
-		for manga in args:
-			print( manga )
-			options.manga = manga
+		elif options.xmlfile_path != None:
+			xmlParser = MangaXmlParser(options)
+			xmlParser.downloadManga()
+		else:
+			threadPool = []
+			for manga in args:
+				print( manga )
+				options.manga = manga
 			
-			if SetDownloadPathToName_Flag:		
-				options.downloadPath = ('./' + fixFormatting(options.manga))
+				if SetDownloadPathToName_Flag:		
+					options.downloadPath = ('./' + fixFormatting(options.manga))
 			
-			if SetOutputPathToDefault_Flag:	
-				options.outputDir = options.downloadPath 
+				if SetOutputPathToDefault_Flag:	
+					options.outputDir = options.downloadPath 
 			
-			options.downloadPath = os.path.realpath(options.downloadPath) + os.sep
-			
-			
-			# site selection
-			print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
-
-			# Python3 fix - removal of raw_input()
-			try:
-				site = raw_input()
-			except NameError:
-				site = input()
-
-			try:
-				options.site = siteDict[site]
-			except KeyError:
-				raise InvalidSite('Site selection invalid.')	
-			
-			threadPool.append(SiteParserThread(options, None, None))
-			
-		for thread in threadPool: 
-			thread.start()
-			thread.join()
+				options.downloadPath = os.path.realpath(options.downloadPath) + os.sep
 				
-	options.outputMgr.stop()
+			
+				# site selection
+				print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n')
+	
+				# Python3 fix - removal of raw_input()
+				try:
+					site = raw_input()
+				except NameError:
+					site = input()
+
+				try:
+					options.site = siteDict[site]
+				except KeyError:
+					raise InvalidSite('Site selection invalid.')	
+			
+				threadPool.append(SiteParserThread(options, None, None))
+			
+			for thread in threadPool: 
+				thread.start()
+				thread.join()
+	finally:
+		# Must always stop the manager
+		options.outputMgr.stop()
 		
 		
 if __name__ == '__main__':
