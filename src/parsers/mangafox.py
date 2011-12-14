@@ -13,10 +13,10 @@ from util import fixFormatting, getSourceCode
 #####################
 
 class MangaFox(SiteParserBase):
-	
-	re_getSeries = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
-	re_getChapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"')
-	re_getImage = re.compile(';"><img src="([^"]*)"')
+	re_getSeries = re.compile('a href="http://www.mangafox.com/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
+	#re_getSeries = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
+	#re_getChapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"')
+	re_getImage = re.compile('"><img src="([^"]*)"')
 	re_getMaxPages = re.compile('var total_pages=([^;]*?);')
 	
 	def fixFormatting(self, s):
@@ -42,17 +42,23 @@ class MangaFox(SiteParserBase):
 
 		# jump straight to expected URL and test if manga removed
 		url = 'http://www.mangafox.com/manga/%s/' % self.fixFormatting( self.manga )
+		if self.verbose_FLAG:
+			print(url)
 		source = getSourceCode(url)
 		if('it is not available in Manga Fox.' in source):
 			raise self.MangaNotFound('It has been removed.')
 		
 		# do a 'begins-with' search, then a 'contains' search
 		url = 'http://www.mangafox.com/search.php?name_method=bw&name=%s' % '+'.join(self.manga.split())
+		if self.verbose_FLAG:
+			print(url)
 		try:
 			source = getSourceCode(url)
 			seriesResults = MangaFox.re_getSeries.findall(source)
 			if (0 == len(seriesResults) ):
 				url = 'http://www.mangafox.com/search.php?name=%s' % '+'.join(self.manga.split())
+				if self.verbose_FLAG:
+					print(url)
 				source = getSourceCode(url)
 				seriesResults = MangaFox.re_getSeries.findall(source)
 				
@@ -61,6 +67,8 @@ class MangaFox(SiteParserBase):
 			raise self.MangaNotFound('It doesn\'t exist, or cannot be resolved by autocorrect.')
 		else:	
 			keyword = self.selectFromResults(seriesResults)
+			if self.verbose_FLAG:
+				print ("Keyword: %s" % keyword)
 			url = 'http://www.mangafox.com/manga/%s/' % keyword
 			source = getSourceCode(url)
 			# other check for manga removal if our initial guess for the name was wrong
@@ -68,19 +76,24 @@ class MangaFox(SiteParserBase):
 				raise self.MangaNotFound('It has been removed.')
 		
 			# that's nice of them
-			url = 'http://www.mangafox.com/cache/manga/%s/chapters.js' % keyword
-			source = getSourceCode(url)
+			#url = 'http://www.mangafox.com/cache/manga/%s/chapters.js' % keyword
+			#source = getSourceCode(url)
 		
 			# chapters is a 2-tuple
 			# chapters[0] contains the chapter URL
 			# chapters[1] contains the chapter title
-			self.chapters = MangaFox.re_getChapters.findall(source)
-
+			
+			# can't pre-compile this because relies on class name
+			re_getChapters = re.compile('a href="http://www.mangafox.com/manga/%s/(v[\d]+)/(c[\d]+)/[^"]*?" title' % keyword)
+			self.chapters = re_getChapters.findall(source)
+			self.chapters.reverse()
+			
 			# code used to both fix URL from relative to absolute as well as verify last downloaded chapter for XML component
 			lowerRange = 0
 		
 			for i in range(0, len(self.chapters)):
-				self.chapters[i] = ('http://www.mangafox.com/manga/%s/' % keyword + self.chapters[i][1], self.chapters[i][0])
+				#print("%s %s" % (self.chapters[i][0], self.chapters[i][1]))
+				self.chapters[i] = ('http://www.mangafox.com/manga/%s/%s/%s' % (keyword, self.chapters[i][0], self.chapters[i][1]), self.chapters[i][0] + "." + self.chapters[i][1])
 				if (not self.auto):
 					print('(%i) %s' % (i + 1, self.chapters[i][1]))
 				else:

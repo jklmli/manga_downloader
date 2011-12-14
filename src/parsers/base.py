@@ -137,6 +137,8 @@ class SiteParserBase:
 					print(pageUrl)
 				source_code = getSourceCode(pageUrl)
 				img_url = self.__class__.re_getImage.search(source_code).group(1)
+				if (self.verbose_FLAG):
+					print("Image URL: %s" % img_url)
 			except AttributeError:
 				if (maxRetries == 0):
 					if (not self.verbose_FLAG):
