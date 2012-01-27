@@ -45,6 +45,8 @@ class convertFile():
 				directories.append(filename)
 			else:
 				if (outputBook.isImageFile(filename)):
+					if (verbose):
+						print("ConvertPkg: Found Image %s" % filename)
 					files.append(filename)
 				else:
 					imageExts = ['.cbz', '.zip']
@@ -54,6 +56,7 @@ class convertFile():
 		
 				
 		if (len(files) > 0):
+			files.sort()
 			outputBook.addImageFiles(files)
 			outputBook.title = title
 			bookConvert = BookConvert(outputBook, outputMgr, os.path.abspath(outDir), verbose)
