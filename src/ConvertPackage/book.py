@@ -112,7 +112,7 @@ class Book:
                     path = os.path.join(root, filename)
                     if self.isImageFile(path):
                         filenames.append(path)
-
+        filenames.sort()
         self.addImageFiles(filenames)
         return filenames
 

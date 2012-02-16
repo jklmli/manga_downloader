@@ -40,7 +40,8 @@ class convertFile():
 		for filename in listDir:
 			if (isDir):
 				filename = os.path.join(filePath, filename)
-				
+			if (verbose):
+				print("Pre-Processing %s." % filename)
 			if (os.path.isdir(str(filename))):	
 				directories.append(filename)
 			else:
@@ -62,18 +63,21 @@ class convertFile():
 			bookConvert = BookConvert(outputBook, outputMgr, os.path.abspath(outDir), verbose)
 			bookConvert.Export()			
 		
-
 		outDir = os.path.join(outDir, title)	
 			
 		for directory in directories:
+			if(verbose):
+				print("Converting %s", directory)
 			convertFile.convert(outputMgr, directory, outDir, Device, verbose)
 		
 		for compressedFile in compressedFiles:
 			try:
+				if(verbose):
+					print("Uncompressing %s" % compressedFile)
 				z = zipfile.ZipFile(compressedFile, 'r')
 			except:
 				if (verbose):
-					print("Failed to convert %s. Check if it is a valid zipFile.")
+					print("Failed to convert %s. Check if it is a valid zipFile." % compressedFile)
 				continue
 				
 			if (isDir):

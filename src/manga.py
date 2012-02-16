@@ -172,7 +172,10 @@ def main():
 	else:
 		if (PILAvailable):
 			from ConvertPackage.ConvertFile import convertFile
-			
+	
+	if (options.convert_Directory):	
+		options.inputDir = os.path.abspath(options.inputDir)
+	
 	# Changes the working directory to the script location
 	if (os.path.dirname(sys.argv[0]) != ""):
 		os.chdir(os.path.dirname(sys.argv[0]))
@@ -183,6 +186,7 @@ def main():
 		if (options.convert_Directory):
 			if ( options.outputDir == 'DEFAULT_VALUE' ):
 				options.outputDir = '.'
+			print("Converting Files: %s" % options.inputDir)	
 			convertFile.convert(options.outputMgr, options.inputDir, options.outputDir, options.device, options.verbose_FLAG)
 	
 		elif options.xmlfile_path != None:

@@ -44,7 +44,9 @@ class BookConvert():
           source = unicode(self.book.images[index])
           newSource = os.path.join(self.book.images[index]+"."+ imghdr.what(str(source)))    
           target = os.path.join(directory, '%05d.png' % index) 
-          
+          if (self.verbose):
+              print(str(index) +" Target = " + target)
+			
           if index == 0:
             try:
                 if not os.path.isdir(directory ):
@@ -67,6 +69,8 @@ class BookConvert():
                 if self.book.overwrite or not os.path.isfile(mangaSaveName):
                     mangaSave = open(base + '.manga_save', 'w')
                     saveData = u'LAST=/mnt/us/pictures/%s/%s' % (self.book.title, os.path.split(target)[1])
+                    if (self.verbose):
+                        print("SaveData = " + saveData)
                     mangaSave.write(saveData.encode('utf-8'))
                     mangaSave.close()
 
