@@ -44,7 +44,7 @@ class MangaReader(SiteParserBase):
 		lowerRange = 0
 	
 		for i in range(0, len(self.chapters)):
-			self.chapters[i] = ('http://www.mangareader.net%s' % self.chapters[i][0], '%s%s' % (self.chapters[i][1], self.chapters[i][2]))
+			self.chapters[i] = ('http://www.mangareader.net%s' % self.chapters[i][0], '%s%s' % (self.chapters[i][1], self.chapters[i][2]), self.chapters[i][1])
 			if (not self.auto):
 				print('(%i) %s' % (i + 1, self.chapters[i][1]))
 			else:
@@ -53,7 +53,7 @@ class MangaReader(SiteParserBase):
 		
 		# this might need to be len(self.chapters) + 1, I'm unsure as to whether python adds +1 to i after the loop or not
 		upperRange = len(self.chapters)
-						
+		self.isPrependMangaName = False				
 		if (not self.auto):
 			self.chapters_to_download = self.selectChapters(self.chapters)
 		else:
@@ -62,6 +62,9 @@ class MangaReader(SiteParserBase):
 			
 			for i in range (lowerRange, upperRange):
 				self.chapters_to_download .append(i)
+		
+		self.isPrependMangaName = True
+		
 		return 
 	
 	def downloadChapter(self, downloadThread, max_pages, url, manga_chapter_prefix, current_chapter):

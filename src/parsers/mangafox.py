@@ -93,7 +93,7 @@ class MangaFox(SiteParserBase):
 		
 			for i in range(0, len(self.chapters)):
 				#print("%s %s" % (self.chapters[i][0], self.chapters[i][1]))
-				self.chapters[i] = ('http://www.mangafox.com/manga/%s/%s/%s' % (keyword, self.chapters[i][0], self.chapters[i][1]), self.chapters[i][0] + "." + self.chapters[i][1])
+				self.chapters[i] = ('http://www.mangafox.com/manga/%s/%s/%s' % (keyword, self.chapters[i][0], self.chapters[i][1]), self.chapters[i][0] + "." + self.chapters[i][1], self.chapters[i][1])
 				if (not self.auto):
 					print('(%i) %s' % (i + 1, self.chapters[i][1]))
 				else:

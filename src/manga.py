@@ -72,7 +72,10 @@ def main():
 				overwrite_FLAG = False,
 				verbose_FLAG = False,
 				timeLogging_FLAG = False,
-				maxChapterThreads = 3 														)
+				maxChapterThreads = 3,
+				useShortName = False,
+				spaceToken = '.' 
+				)
 				
 	parser.add_option(	'--all', 
 				action = 'store_true', 
@@ -133,6 +136,15 @@ def main():
 				action = 'store_true', 
 				dest = 'timeLogging_FLAG', 
 				help = 'Output time logging.'					)	
+
+	parser.add_option(	'--useShortName', 
+				action = 'store_true', 
+				dest = 'useShortName_FLAG', 
+				help = 'To support devices that limit the size of the filename, this parameter uses a short name'				)				
+
+	parser.add_option( 	'--spaceToken', 
+				dest = 'spaceToken', 
+				help = 'Specifies the character used to replace spaces in the manga name.'				)				
 						
 	(options, args) = parser.parse_args()
 	
@@ -199,7 +211,7 @@ def main():
 				options.manga = manga
 			
 				if SetDownloadPathToName_Flag:		
-					options.downloadPath = ('./' + fixFormatting(options.manga))
+					options.downloadPath = ('./' + fixFormatting(options.manga, options.spaceToken))
 			
 				if SetOutputPathToDefault_Flag:	
 					options.outputDir = options.downloadPath 

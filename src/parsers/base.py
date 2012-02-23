@@ -58,6 +58,7 @@ class SiteParserBase:
 		# should be defined by subclasses
 		self.re_getImage = None
 		self.re_getMaxPages = None
+		self.isPrependMangaName = False
 
 	# this takes care of removing the temp directory after the last successful download
 	def __del__(self):
@@ -171,7 +172,7 @@ class SiteParserBase:
 		if (not self.verbose_FLAG):
 			self.outputMgr.updateOutputObj( downloadThread.outputIdx )
 	
-	def processChapter(self, downloadThread, current_chapter, isPrependMangaName=True):
+	def processChapter(self, downloadThread, current_chapter):
 		"""
 		Calculates prefix for filenames, creates download directory if
 		nonexistent, checks to see if chapter previously downloaded, returns
@@ -180,11 +181,15 @@ class SiteParserBase:
 		
 		# Do not need to ZeroFill the manga name because this should be consistent 
 		# MangaFox already prepends the manga name
-		if isPrependMangaName:
-			manga_chapter_prefix = fixFormatting(self.manga) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
+		if self.useShortName_FLAG:
+			if (not self.isPrependMangaName):
+				manga_chapter_prefix = fixFormatting(self.manga, self.spaceToken)+ self.spaceToken + zeroFillStr(fixFormatting(self.chapters[current_chapter][2], self.spaceToken), 3)
+			else:	
+				manga_chapter_prefix = zeroFillStr(fixFormatting(self.chapters[current_chapter][2], self.spaceToken), 3)
 		else:
-			manga_chapter_prefix = self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1]), 3)
+			manga_chapter_prefix = fixFormatting(self.manga, self.spaceToken) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1], self.spaceToken), 3)
 
+		
 		# we already have it
 		if os.path.exists(os.path.join(self.downloadPath, manga_chapter_prefix) + self.downloadFormat) and self.overwrite_FLAG == False:
 			print(self.chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')

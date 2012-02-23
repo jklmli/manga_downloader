@@ -41,13 +41,13 @@ class OtakuWorks(SiteParserBase):
 			raise self.MangaNotFound('It has been removed.')
 		
 		# can't pre-compile this because relies on class name
-		self.chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#[^<]*)</a>' % '-'.join(fixFormatting(self.manga).replace('_', ' ').split())).findall(source)
+		self.chapters = re.compile('a href="([^>]*%s[^>]*)">([^<]*#([^<]*))</a>' % '-'.join(fixFormatting(self.manga, '.').replace('_', ' ').split())).findall(source)
 		self.chapters.reverse()
 
 		lowerRange = 0
 		
 		for i in range(0, len(self.chapters)):
-			self.chapters[i] = ('http://www.otakuworks.com' + self.chapters[i][0] + '/read', self.chapters[i][1])
+			self.chapters[i] = ('http://www.otakuworks.com' + self.chapters[i][0] + '/read', self.chapters[i][1], self.chapters[i][2])
 			if (not self.auto):
 				print('(%i) %s' % (i + 1, self.chapters[i][1]))
 			else:
