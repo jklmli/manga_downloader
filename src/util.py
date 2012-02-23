@@ -29,15 +29,15 @@ urlReqHeaders = {	'User-agent':	"""Mozilla/5.0 (X11; U; Linux i686;
 class FatalError(Exception):
 	pass
 
-def fixFormatting(s):
+def fixFormatting(s, spaceToken):
 	"""
 	Special character fix for filesystem paths.
 	"""
 	
 	for i in string.punctuation:
-		if(i != '-' and i != '.'):
+		if(i != '-' and i != spaceToken):
 			s = s.replace(i, '')
-	return s.lower().lstrip('.').strip().replace(' ', '.')
+	return s.lower().lstrip(spaceToken).strip().replace(' ', spaceToken)
 
 def getSourceCode(url, maxRetries=5, waitRetryTime=5):
 	"""
