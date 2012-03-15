@@ -13,7 +13,7 @@ from util import fixFormatting, getSourceCode
 #####################
 
 class MangaFox(SiteParserBase):
-	re_getSeries = re.compile('a href="http://www.mangafox.com/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
+	re_getSeries = re.compile('a href="http://.*?mangafox.*?/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
 	#re_getSeries = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
 	#re_getChapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"')
 	re_getImage = re.compile('"><img src="([^"]*)"')
@@ -84,7 +84,7 @@ class MangaFox(SiteParserBase):
 			# chapters[1] contains the chapter title
 			
 			# can't pre-compile this because relies on class name
-			re_getChapters = re.compile('a href="http://www.mangafox.com/manga/%s/(v[\d]+)/(c[\d]+)/[^"]*?" title' % keyword)
+			re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(v[\d]+)/(c[\d]+)/[^"]*?" title' % keyword)
 			self.chapters = re_getChapters.findall(source)
 			self.chapters.reverse()
 			
