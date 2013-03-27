@@ -36,7 +36,8 @@ siteDict = {
 		'1' : '[mf]',
 		'2' : '[ow]',
 		'3' : '[mr]',
-		'4' : '[mp]'
+		'4' : '[mp]',
+		'5' : '[bt]',
 					}
 
 ##########
@@ -221,7 +222,7 @@ def main():
 				
 			
 				# site selection
-				print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n(4) MangaPanda\n')
+				print('\nWhich site?\n(1) MangaFox\n(2) OtakuWorks\n(3) MangaReader\n(4) MangaPanda\n(5) Batoto\n')
 	
 				# Python3 fix - removal of raw_input()
 				try:
