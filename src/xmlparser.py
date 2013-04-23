@@ -8,7 +8,7 @@ from xml.dom import minidom
 
 from parsers.thread import SiteParserThread
 from util import fixFormatting, getText
-
+import os
 ######################
 
 class MangaXmlParser:
@@ -19,6 +19,9 @@ class MangaXmlParser:
 
 	def downloadManga(self):
 		print("Parsing XML File...")
+		if (self.verbose_FLAG):
+			print("XML Path = %s" % self.xmlfile_path)
+ 
 		dom = minidom.parse(self.xmlfile_path)
 		
 		threadPool = []
@@ -68,5 +71,13 @@ class MangaXmlParser:
 			thread.join()
 
 		#print (dom.toxml())		
+		#Backs up file
+		backupFileName = self.xmlfile_path + "_bak"
+		os.rename(self.xmlfile_path, backupFileName)
 		f = open(self.xmlfile_path, 'w')
-		f.write(dom.toxml()) 
+		outputStr = dom.toxml()
+		outputStr = outputStr.encode('utf-8')
+		f.write(outputStr) 
+		
+		# The file was succesfully saved and now remove backup
+		os.remove(backupFileName)

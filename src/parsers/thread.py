@@ -6,6 +6,8 @@ import datetime
 import threading
 import time
 import os
+import socks
+import socket
 #####################
 
 from parsers.base import SiteParserBase
@@ -26,6 +28,7 @@ class SiteParserThread( threading.Thread ):
 		self.dom = dom
 		self.node = node
 		self.siteParser = SiteParserFactory.getInstance(self)
+				
 		try:
 			self.siteParser.parseSite()
 			# create download directory if not found

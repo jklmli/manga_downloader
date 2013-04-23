@@ -28,14 +28,14 @@ class OtakuWorks(SiteParserBase):
 		print('Beginning OtakuWorks check: %s' % self.manga)
 		url = 'http://www.otakuworks.com/search/%s' % '+'.join(self.manga.split())
 
-		source = getSourceCode(url)
+		source = getSourceCode(url, self.proxy)
 		
 		info = OtakuWorks.re_getMangas.findall(source)
 		
 		# we either have 0 search results or we have already been redirected to the manga homepage
 		if len(info) != 0:
 			keyword = self.selectFromResults(info)
-			source = getSourceCode(keyword)
+			source = getSourceCode(keyword, self.proxy)
 	
 		if(source.find('has been licensed and as per request all releases under it have been removed.') != -1):
 			raise self.MangaNotFound('It has been removed.')

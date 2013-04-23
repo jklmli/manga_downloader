@@ -136,7 +136,7 @@ class SiteParserBase:
 			try:
 				if (self.verbose_FLAG):
 					print(pageUrl)
-				source_code = getSourceCode(pageUrl)
+				source_code = getSourceCode(pageUrl, self.proxy)
 				img_url = self.__class__.re_getImage.search(source_code).group(1)
 				if (self.verbose_FLAG):
 					print("Image URL: %s" % img_url)
@@ -208,7 +208,7 @@ class SiteParserBase:
 		if (self.verbose_FLAG):
 			print("PrepareDownload: " + url)
 		
-		source = getSourceCode(url)
+		source = getSourceCode(url, self.proxy)
 
 		max_pages = int(self.__class__.re_getMaxPages.search(source).group(1))
 		

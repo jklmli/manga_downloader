@@ -8,6 +8,8 @@ import random
 import re
 import string
 import time
+import socks
+import socket
 ###################
 
 try:
@@ -39,11 +41,15 @@ def fixFormatting(s, spaceToken):
 			s = s.replace(i, '')
 	return s.lower().lstrip(spaceToken).strip().replace(' ', spaceToken)
 
-def getSourceCode(url, maxRetries=5, waitRetryTime=5):
+def getSourceCode(url, proxy, maxRetries=1, waitRetryTime=1):
 	"""
 	Loop to get around server denies for info or minor disconnects.
 	"""
-	
+	if (proxy <> None):
+		proxySettings = proxy.split(':')
+		socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS4, proxySettings[0], int(proxySettings[1]), True)
+		socket.socket = socks.socksocket
+				
 	global urlReqHeaders
 	
 	ret = None
@@ -115,6 +121,7 @@ def setText(dom, node, text):
 	node.appendChild(textNode)
 
 def updateNode(dom, node, tagName, text):
+	text = text.decode('utf-8')
 	if (len(node.getElementsByTagName(tagName)) > 0):
 		updateNode = node.getElementsByTagName(tagName)[0]
 	else:

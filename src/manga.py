@@ -20,6 +20,8 @@
 import optparse
 import os
 import sys
+import socks
+import socket
 
 ##########
 
@@ -75,7 +77,8 @@ def main():
 				timeLogging_FLAG = False,
 				maxChapterThreads = 3,
 				useShortName = False,
-				spaceToken = '.' 
+				spaceToken = '.',
+				proxy = None	
 				)
 				
 	parser.add_option(	'--all', 
@@ -146,7 +149,11 @@ def main():
 	parser.add_option( 	'--spaceToken', 
 				dest = 'spaceToken', 
 				help = 'Specifies the character used to replace spaces in the manga name.'				)				
-						
+	
+	parser.add_option( 	'--proxy', 
+				dest = 'proxy', 
+				help = 'Specifies the proxy.'				)				
+					
 	(options, args) = parser.parse_args()
 	
 	try:
