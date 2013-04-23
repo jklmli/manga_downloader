@@ -212,6 +212,8 @@ class SiteParserBase:
 
 		max_pages = int(self.__class__.re_getMaxPages.search(source).group(1))
 		
+		if (self.verbose_FLAG):
+				print ("Pages: "+ str(max_pages))
 		if (not self.verbose_FLAG):
 			downloadThread.outputIdx = self.outputMgr.createOutputObj(manga_chapter_prefix, max_pages)
 
