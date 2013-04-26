@@ -31,13 +31,13 @@ class MangaReader(SiteParserBase):
 		
 		url = 'http://www.mangareader.net/alphabetical'
 
-		source = getSourceCode(url)
+		source = getSourceCode(url, self.proxy)
 		allSeries = MangaReader.re_getSeries.findall(source[source.find('series_col'):])
 
 		keyword = self.selectFromResults(allSeries)
 
 		url = 'http://www.mangareader.net%s' % keyword
-		source = getSourceCode(url)
+		source = getSourceCode(url, self.proxy)
 
 		self.chapters = MangaReader.re_getChapters.findall(source)
 		
@@ -69,7 +69,7 @@ class MangaReader(SiteParserBase):
 	
 	def downloadChapter(self, downloadThread, max_pages, url, manga_chapter_prefix, current_chapter):
 		pageIndex = 0
-		for page in MangaReader.re_getPage.findall(getSourceCode(url)):
+		for page in MangaReader.re_getPage.findall(getSourceCode(url, self.proxy)):
 			if (self.verbose_FLAG):
 				print(self.chapters[current_chapter][1] + ' | ' + 'Page %s / %i' % (page[1], max_pages))
 
