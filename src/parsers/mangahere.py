@@ -109,14 +109,14 @@ class MangaHere(SiteParserBase):
 			if isChapterOnly:
 				for i in range(0, len(self.chapters)):
 					if self.verbose_FLAG:
-						print("%s" % self.chapters[i])
+						print("%s" % self.chapters[i][0])
 					if (not self.auto):
-						print('(%i) %s' % (i + 1, self.chapters[i]))
+						print('(%i) %s' % (i + 1, self.chapters[i][0]))
 					else:
-						if (self.lastDownloaded == self.chapters[i]):
+						if (self.lastDownloaded == self.chapters[i][0]):
 							lowerRange = i + 1
 													
-					self.chapters[i] = ('http://www.mangahere.com/manga/%s/%s' % (keyword, self.chapters[i]), self.chapters[i], self.chapters[i])
+					self.chapters[i] = ('http://www.mangahere.com/manga/%s/%s' % (keyword, self.chapters[i][0]), self.chapters[i][0], self.chapters[i][0])
 
 			else:				
 				for i in range(0, len(self.chapters)):
