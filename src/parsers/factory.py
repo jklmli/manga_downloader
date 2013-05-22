@@ -25,7 +25,7 @@ class SiteParserFactory():
 				'MangaFox'    : MangaFox,
 				'MangaReader' : MangaReader,
 				'MangaPanda'  : MangaPanda,
-				'MangaHere'   : MangaHere
+				'MangaHere'   : MangaHere,
 			        'Batoto'      : Batoto,
 
 				}.get(options.site, None)
