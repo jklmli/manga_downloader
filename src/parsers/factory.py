@@ -6,6 +6,7 @@ from parsers.mangafox import MangaFox
 from parsers.mangareader import MangaReader
 from parsers.mangapanda import MangaPanda
 from parsers.mangahere import MangaHere
+from parsers.batoto import Batoto
 
 #####################
 
@@ -20,10 +21,12 @@ class SiteParserFactory():
 				'[mr]'        : MangaReader,
 				'[mp]'        : MangaPanda,
 				'[mh]'        : MangaHere, 
+			        '[bt]'        : Batoto,
 				'MangaFox'    : MangaFox,
 				'MangaReader' : MangaReader,
 				'MangaPanda'  : MangaPanda,
 				'MangaHere'   : MangaHere
+			        'Batoto'      : Batoto,
 
 				}.get(options.site, None)
 
