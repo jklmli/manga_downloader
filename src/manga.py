@@ -20,7 +20,11 @@
 import optparse
 import os
 import sys
-import socks
+try:
+	import socks
+	NO_SOCKS = False
+except ImportError:
+	NO_SOCKS = True
 import socket
 
 ##########
