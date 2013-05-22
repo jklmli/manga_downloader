@@ -14,6 +14,7 @@ class convertFile():
 		
 	@staticmethod	
 	def convert(outputMgr, filePath, outDir, Device, verbose):
+		kindleDir = 'images' if Device == 'Kindle 5' else 'Pictures'
 		listDir = []
 		isDir = os.path.isdir(filePath)
 
@@ -22,14 +23,14 @@ class convertFile():
 			listDir = os.listdir(filePath)
 		else:
 			listDir.append(filePath)
-			title = 'Pictures'
+			title = kindleDir
 			
 		
 		outputBook = Book()
 		outputBook.DefaultDevice = Device
 		
 		if (title == None or title == ""):
-			title = 'Pictures'
+			title = kindleDir
 		
 		files = []
 		directories = []
