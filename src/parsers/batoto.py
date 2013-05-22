@@ -29,7 +29,7 @@ class Batoto(SiteParserBase):
         SiteParserBase.__init__(self, optDict)
 
     def get_next_url(self, c):
-        s = getSourceCode(c)
+        s = getSourceCode(c, self.proxy)
         soup = BeautifulSoup(s)
         l = soup.find("img", title="Next Chapter").parent
         return l['href']
@@ -38,7 +38,7 @@ class Batoto(SiteParserBase):
         print("Beginning Batoto check: {}".format(self.manga))
 
         url = "http://www.batoto.net/search?name={}&name_cond=c".format('+'.join(self.manga.split()))
-        s = getSourceCode(url)
+        s = getSourceCode(url, self.proxy)
         soup = BeautifulSoup(s)
         a = soup.find("div", id="comic_search_results")
         r = a.tbody.find_all("tr")[1:]
@@ -56,7 +56,7 @@ class Batoto(SiteParserBase):
         if self.verbose_FLAG:
             print manga
         mname = [i for i in seriesl if i[0] == manga][0][1]
-        s = getSourceCode(manga)
+        s = getSourceCode(manga, self.proxy)
         soup = BeautifulSoup(s)
         t = soup.find("table", class_="chapters_list").tbody
         cl = t.find_all("tr", class_="lang_English")
@@ -106,7 +106,7 @@ class Batoto(SiteParserBase):
 
     def downloadChapter(self, downloadThread, max_pages, url, manga_chapter_prefix, current_chapter):
         """We ignore max_pages, because you can't regex-search that under Batoto."""
-        s = getSourceCode(url)
+        s = getSourceCode(url, self.proxy)
         soup = BeautifulSoup(s)
         ol = soup.find("select", id="page_select")("option")
         n = 1
