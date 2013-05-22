@@ -16,6 +16,7 @@ class MangaHere(SiteParserBase):
 	re_getSeries = re.compile('a href="http://.*?mangahere.*?/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
 	#re_getSeries = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
 	#re_getChapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"')
+	re_getOngoing = re.compile('<label>Status:</label>Ongoing')
 	re_getImage = re.compile('<img src="([^"]*.jpg)[^"]*"')
 	re_getMaxPages = re.compile('var total_pages = ([^;]*?);')
 	
@@ -96,7 +97,12 @@ class MangaHere(SiteParserBase):
 				self.chapters = re_getChapters.findall(source)
 			
 			self.chapters.reverse()
-			
+
+			ongoing = MangaHere.re_getOngoing.findall(source)
+			if ongoing:
+				# MangaHere links to the next (non-existent) chapter, so trim it off
+				del self.chapters[-1]
+
 			# code used to both fix URL from relative to absolute as well as verify last downloaded chapter for XML component
 			lowerRange = 0
 			
