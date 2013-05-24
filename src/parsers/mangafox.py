@@ -22,10 +22,7 @@ class MangaFox(SiteParserBase):
 	def fixFormatting(self, s):
 		
 		for i in string.punctuation:
-			if(i != '-'):
-				s = s.replace(i, '')
-			else: 
-				s = s.replace(i, " ")
+			s = s.replace(i, " ")
 		
 		p = re.compile( '\s+')
 		s = p.sub( ' ', s )
@@ -44,99 +41,114 @@ class MangaFox(SiteParserBase):
 		url = 'http://www.mangafox.me/manga/%s/' % self.fixFormatting( self.manga )
 		if self.verbose_FLAG:
 			print(url)
-		source = getSourceCode(url, self.proxy)
-		if('it is not available in Manga Fox.' in source):
-			raise self.MangaNotFound('It has been removed.')
 		
-		# do a 'begins-with' search, then a 'contains' search
-		url = 'http://www.mangafox.me/search.php?name_method=bw&name=%s' % '+'.join(self.manga.split())
-		if self.verbose_FLAG:
-			print(url)
-		try:
-			source = getSourceCode(url, self.proxy)
-			seriesResults = MangaFox.re_getSeries.findall(source)
-			if (0 == len(seriesResults) ):
-				url = 'http://www.mangafox.me/search.php?name=%s' % '+'.join(self.manga.split())
-				if self.verbose_FLAG:
-					print(url)
+		source = getSourceCode(url, self.proxy)
+
+		if (source is None or 'the page you have requested cannot be found' in source):
+			# Could not find the manga page by guessing 
+			# Use the website search
+			url = 'http://www.mangafox.me/search.php?name_method=bw&name=%s' % '+'.join(self.manga.split())
+			if self.verbose_FLAG:
+				print(url)
+			try:
 				source = getSourceCode(url, self.proxy)
-				seriesResults = MangaFox.re_getSeries.findall(source)
+				seriesResults = []
+				if source is not None:
+					seriesResults = MangaFox.re_getSeries.findall(source)
 				
-		# 0 results
-		except AttributeError:
-			raise self.MangaNotFound('It doesn\'t exist, or cannot be resolved by autocorrect.')
-		else:	
-			keyword = self.selectFromResults(seriesResults)
+				if ( 0 == len(seriesResults) ):
+					url = 'http://www.mangafox.me/search.php?name=%s' % '+'.join(self.manga.split())
+					if self.verbose_FLAG:
+						print(url)
+					source = getSourceCode(url, self.proxy)
+					if source is not None:
+						seriesResults = MangaFox.re_getSeries.findall(source)
+					
+			# 0 results
+			except AttributeError:
+				raise self.MangaNotFound('It doesn\'t exist, or cannot be resolved by autocorrect.')
+			else:	
+				keyword = self.selectFromResults(seriesResults)
+				if self.verbose_FLAG:
+					print ("Keyword: %s" % keyword)
+				url = 'http://www.mangafox.me/manga/%s/' % keyword			
+				source = getSourceCode(url, self.proxy)
+				
+				if (source is None):
+					raise self.MangaNotFound('Search Failed to find Manga.')		
+		else:
+			# The Guess worked
+			keyword = self.fixFormatting( self.manga )
 			if self.verbose_FLAG:
 				print ("Keyword: %s" % keyword)
-			url = 'http://www.mangafox.me/manga/%s/' % keyword
-			source = getSourceCode(url, self.proxy)
-			# other check for manga removal if our initial guess for the name was wrong
-			if('it is not available in Manga Fox.' in source):
-				raise self.MangaNotFound('It has been removed.')
 		
-			# that's nice of them
-			#url = 'http://www.mangafox.me/cache/manga/%s/chapters.js' % keyword
-			#source = getSourceCode(url, self.proxy)
+
+		if('it is not available in Manga Fox.' in source):
+			raise self.MangaNotFound('It has been removed.')
+			
+
+		# that's nice of them
+		#url = 'http://www.mangafox.me/cache/manga/%s/chapters.js' % keyword
+		#source = getSourceCode(url, self.proxy)
 		
-			# chapters is a 2-tuple
-			# chapters[0] contains the chapter URL
-			# chapters[1] contains the chapter title
+		# chapters is a 2-tuple
+		# chapters[0] contains the chapter URL
+		# chapters[1] contains the chapter title
 			
-			isChapterOnly = False
-			
-			# can't pre-compile this because relies on class name
-			re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(v[\d]+)/(c[\d]+)/[^"]*?" title' % keyword)
+		isChapterOnly = False
+		
+		# can't pre-compile this because relies on class name
+		re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(v[\d]+)/(c[\d]+)/[^"]*?" title' % keyword)
+		self.chapters = re_getChapters.findall(source)
+		if not self.chapters:
+			if self.verbose_FLAG:
+				print ("Trying chapter only regex")
+			isChapterOnly = True
+			re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(c[\d]+)/[^"]*?" title' % keyword)
 			self.chapters = re_getChapters.findall(source)
-			if not self.chapters:
+			
+		self.chapters.reverse()
+			
+		# code used to both fix URL from relative to absolute as well as verify last downloaded chapter for XML component
+		lowerRange = 0
+			
+		if isChapterOnly:
+			for i in range(0, len(self.chapters)):
 				if self.verbose_FLAG:
-					print ("Trying chapter only regex")
-				isChapterOnly = True
-				re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(c[\d]+)/[^"]*?" title' % keyword)
-				self.chapters = re_getChapters.findall(source)
-			
-			self.chapters.reverse()
-			
-			# code used to both fix URL from relative to absolute as well as verify last downloaded chapter for XML component
-			lowerRange = 0
-			
-			if isChapterOnly:
-				for i in range(0, len(self.chapters)):
-					if self.verbose_FLAG:
-						print("%s" % self.chapters[i])
-					if (not self.auto):
-						print('(%i) %s' % (i + 1, self.chapters[i]))
-					else:
-						if (self.lastDownloaded == self.chapters[i]):
-							lowerRange = i + 1
-													
-					self.chapters[i] = ('http://www.mangafox.me/manga/%s/%s' % (keyword, self.chapters[i]), self.chapters[i], self.chapters[i])
+					print("%s" % self.chapters[i])
+				if (not self.auto):
+					print('(%i) %s' % (i + 1, self.chapters[i]))
+				else:
+					if (self.lastDownloaded == self.chapters[i]):
+						lowerRange = i + 1
+												
+				self.chapters[i] = ('http://www.mangafox.me/manga/%s/%s' % (keyword, self.chapters[i]), self.chapters[i], self.chapters[i])
 
-			else:				
-				for i in range(0, len(self.chapters)):
-					if self.verbose_FLAG:
-						print("%s %s" % (self.chapters[i][0], self.chapters[i][1]))
-					self.chapters[i] = ('http://www.mangafox.me/manga/%s/%s/%s' % (keyword, self.chapters[i][0], self.chapters[i][1]), self.chapters[i][0] + "." + self.chapters[i][1], self.chapters[i][1])
-					if (not self.auto):
-						print('(%i) %s' % (i + 1, self.chapters[i][1]))
-					else:
-						if (self.lastDownloaded == self.chapters[i][1]):
-							lowerRange = i + 1
+		else:				
+			for i in range(0, len(self.chapters)):
+				if self.verbose_FLAG:
+					print("%s %s" % (self.chapters[i][0], self.chapters[i][1]))
+				self.chapters[i] = ('http://www.mangafox.me/manga/%s/%s/%s' % (keyword, self.chapters[i][0], self.chapters[i][1]), self.chapters[i][0] + "." + self.chapters[i][1], self.chapters[i][1])
+				if (not self.auto):
+					print('(%i) %s' % (i + 1, self.chapters[i][1]))
+				else:
+					if (self.lastDownloaded == self.chapters[i][1]):
+						lowerRange = i + 1
 
-			# this might need to be len(self.chapters) + 1, I'm unsure as to whether python adds +1 to i after the loop or not
-			upperRange = len(self.chapters)
+		# this might need to be len(self.chapters) + 1, I'm unsure as to whether python adds +1 to i after the loop or not
+		upperRange = len(self.chapters)
 			
-			# which ones do we want?
-			if (not self.auto):
-				self.chapters_to_download = self.selectChapters(self.chapters)
-			# XML component
-			else:
-				if ( lowerRange == upperRange):
-					raise self.NoUpdates
+		# which ones do we want?
+		if (not self.auto):
+			self.chapters_to_download = self.selectChapters(self.chapters)
+		# XML component
+		else:
+			if ( lowerRange == upperRange):
+				raise self.NoUpdates
 				
-				for i in range (lowerRange, upperRange):
-					self.chapters_to_download.append(i)
-			return 		
+			for i in range (lowerRange, upperRange):
+				self.chapters_to_download.append(i)
+		return 		
 	
 	def downloadChapter(self, downloadThread, max_pages, url, manga_chapter_prefix, current_chapter):
 		for page in range(1, max_pages + 1):
