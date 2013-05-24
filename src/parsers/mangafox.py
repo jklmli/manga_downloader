@@ -38,16 +38,16 @@ class MangaFox(SiteParserBase):
 		print('Beginning MangaFox check: %s' % self.manga)
 
 		# jump straight to expected URL and test if manga removed
-		url = 'http://www.mangafox.me/manga/%s/' % self.fixFormatting( self.manga )
+		url = 'http://mangafox.me/manga/%s/' % self.fixFormatting( self.manga )
 		if self.verbose_FLAG:
 			print(url)
 		
-		source = getSourceCode(url, self.proxy)
+		source, redirectURL = getSourceCode(url, self.proxy, True)
 
-		if (source is None or 'the page you have requested cannot be found' in source):
+		if (redirectURL != url or source is None or 'the page you have requested cannot be found' in source):
 			# Could not find the manga page by guessing 
 			# Use the website search
-			url = 'http://www.mangafox.me/search.php?name_method=bw&name=%s' % '+'.join(self.manga.split())
+			url = 'http://mangafox.me/search.php?name_method=bw&name=%s&is_completed=&advopts=1' % '+'.join(self.manga.split())
 			if self.verbose_FLAG:
 				print(url)
 			try:
@@ -57,7 +57,7 @@ class MangaFox(SiteParserBase):
 					seriesResults = MangaFox.re_getSeries.findall(source)
 				
 				if ( 0 == len(seriesResults) ):
-					url = 'http://www.mangafox.me/search.php?name=%s' % '+'.join(self.manga.split())
+					url = 'http://mangafox.me/search.php?name_method=cw&name=%s&is_completed=&advopts=1' % '+'.join(self.manga.split())
 					if self.verbose_FLAG:
 						print(url)
 					source = getSourceCode(url, self.proxy)
