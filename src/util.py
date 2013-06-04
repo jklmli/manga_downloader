@@ -45,7 +45,7 @@ def fixFormatting(s, spaceToken):
 			s = s.replace(i, '')
 	return s.lower().lstrip(spaceToken).strip().replace(' ', spaceToken)
 
-def getSourceCode(url, proxy, maxRetries=1, waitRetryTime=1):
+def getSourceCode(url, proxy, returnRedirctUrl = False, maxRetries=1, waitRetryTime=1):
 	"""
 	Loop to get around server denies for info or minor disconnects.
 	"""
@@ -84,7 +84,10 @@ def getSourceCode(url, proxy, maxRetries=1, waitRetryTime=1):
 				time.sleep(random.uniform(0.5*waitRetryTime, 1.5*waitRetryTime))
 				maxRetries -= 1
 
-	return ret
+	if returnRedirctUrl:
+		return ret, f.geturl()
+	else:
+		return ret
 
 def isImageLibAvailable():
 	try:
