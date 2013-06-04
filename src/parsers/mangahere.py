@@ -4,6 +4,7 @@
 
 import re
 import string
+import time
 
 #####################
 
@@ -55,6 +56,9 @@ class MangaHere(SiteParserBase):
 			print(url)
 		try:
 			source = getSourceCode(url, self.proxy)
+			if('Sorry you have just searched, please try 5 seconds later.' in source):
+				print('Searched too soon, waiting 5 seconds...')
+				time.sleep(5)
 			seriesResults = MangaHere.re_getSeries.findall(source)
 			if (0 == len(seriesResults) ):
 				url = 'http://www.mangahere.com/search.php?name=%s' % '+'.join(self.manga.split())
