@@ -27,7 +27,7 @@ class convertFile():
 			
 		
 		outputBook = Book()
-		outputBook.DefaultDevice = Device
+		outputBook.device = Device
 		
 		if (title == None or title == ""):
 			title = kindleDir
