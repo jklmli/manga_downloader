@@ -103,13 +103,13 @@ class MangaHere(SiteParserBase):
 		isChapterOnly = False
 		
 		# can't pre-compile this because relies on class name
-		re_getChapters = re.compile('a.*?href="http://.*?mangahere.*?/manga/%s/(v[\d]+)/(c[\d]+)/[^"]*?"' % keyword)
+		re_getChapters = re.compile('a.*?href="http://.*?mangahere.*?/manga/%s/(v[\d]+)/(c[\d]+(\.[\d]+)?)/[^"]*?"' % keyword)
 		self.chapters = re_getChapters.findall(source)
 		if not self.chapters:
 			if self.verbose_FLAG:
 				print ("Trying chapter only regex")
 			isChapterOnly = True
-			re_getChapters = re.compile('a.*?href="http://.*?mangahere.*?/manga/%s/(c[\d]+)/[^"]*?"' % keyword)
+			re_getChapters = re.compile('a.*?href="http://.*?mangahere.*?/manga/%s/(c[\d]+(\.[\d]+)?)/[^"]*?"' % keyword)
 			self.chapters = re_getChapters.findall(source)
 		
 		self.chapters.reverse()
@@ -120,12 +120,12 @@ class MangaHere(SiteParserBase):
 		if isChapterOnly:
 			for i in range(0, len(self.chapters)):
 				if self.verbose_FLAG:
-					print("%s" % self.chapters[i])
+					print("%s" % self.chapters[i][0])
 				if (self.auto):
-					if (self.lastDownloaded == self.chapters[i]):
+					if (self.lastDownloaded == self.chapters[i][0]):
 						lowerRange = i + 1
 												
-				self.chapters[i] = ('http://www.mangahere.com/manga/%s/%s' % (keyword, self.chapters[i]), self.chapters[i], self.chapters[i])
+				self.chapters[i] = ('http://www.mangahere.com/manga/%s/%s' % (keyword, self.chapters[i][0]), self.chapters[i][0], self.chapters[i][0])
 
 		else:				
 			for i in range(0, len(self.chapters)):
@@ -154,7 +154,10 @@ class MangaHere(SiteParserBase):
 		# which ones do we want?
 		if (not self.auto):
 			for i in range(0, upperRange):
-				print('(%i) %s' % (i + 1, self.chapters[i][1]))
+				if isChapterOnly:
+					print('(%i) %s' % (i + 1, self.chapters[i][0]))
+				else:
+					print('(%i) %s' % (i + 1, self.chapters[i][1]))
 				
 			self.chapters_to_download = self.selectChapters(self.chapters)
 		# XML component
