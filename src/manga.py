@@ -20,8 +20,17 @@
 import optparse
 import os
 import sys
-import socks
+try:
+	import socks
+	NO_SOCKS = False
+except ImportError:
+	NO_SOCKS = True
 import socket
+try:
+	from bs4 import BeautifulSoup
+	HAVE_SOUP = True
+except ImportError:
+	HAVE_SOUP = False
 
 ##########
 
@@ -38,8 +47,10 @@ siteDict = {
 		'1' : '[mf]',
 		'2' : '[mr]',
 		'3' : '[mp]',
-		'4' : '[mh]'
+		'4' : '[mh]',
 					}
+if HAVE_SOUP:
+	siteDict['5'] = '[bt]'
 
 ##########
 
@@ -228,7 +239,10 @@ def main():
 				
 			
 				# site selection
-				print('\nWhich site?\n(1) MangaFox\n(2) MangaReader\n(3) MangaPanda\n(4) MangaHere\n')
+				if HAVE_SOUP:
+					print('\nWhich site?\n(1) MangaFox\n(2) MangaReader\n(3) MangaPanda\n(4) MangaHere\n(5) Batoto\n')
+				else:
+					print('\nWhich site?\n(1) MangaFox\n(2) MangaReader\n(3) MangaPanda\n(4) MangaHere\n')
 	
 				# Python3 fix - removal of raw_input()
 				try:

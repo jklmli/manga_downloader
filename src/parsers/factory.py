@@ -6,6 +6,11 @@ from parsers.mangafox import MangaFox
 from parsers.mangareader import MangaReader
 from parsers.mangapanda import MangaPanda
 from parsers.mangahere import MangaHere
+try:
+	from bs4 import BeautifulSoup
+	from parsers.batoto import Batoto
+except ImportError:
+	Batoto = None
 
 #####################
 
@@ -20,10 +25,12 @@ class SiteParserFactory():
 				'[mr]'        : MangaReader,
 				'[mp]'        : MangaPanda,
 				'[mh]'        : MangaHere, 
+			        '[bt]'        : Batoto,
 				'MangaFox'    : MangaFox,
 				'MangaReader' : MangaReader,
 				'MangaPanda'  : MangaPanda,
-				'MangaHere'   : MangaHere
+				'MangaHere'   : MangaHere,
+			        'Batoto'      : Batoto,
 
 				}.get(options.site, None)
 

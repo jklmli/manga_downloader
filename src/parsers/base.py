@@ -155,7 +155,7 @@ class SiteParserBase:
 
 		# Remove the 'http://' before encoding, otherwise the '://' would be 
 		# encoded as well				
-		img_url = 'http://' + urllib.quote(img_url.split('//')[1])
+#		img_url = 'http://' + urllib.quote(img_url.split('//')[1])
 		
 		if self.verbose_FLAG:
 			print(img_url)
