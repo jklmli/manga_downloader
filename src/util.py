@@ -8,7 +8,11 @@ import random
 import re
 import string
 import time
-import socks
+try:
+	import socks
+	NO_SOCKS = False
+except ImportError:
+	NO_SOCKS = True
 import socket
 ###################
 
@@ -46,6 +50,8 @@ def getSourceCode(url, proxy, returnRedirctUrl = False, maxRetries=1, waitRetryT
 	Loop to get around server denies for info or minor disconnects.
 	"""
 	if (proxy <> None):
+		if (NO_SOCKS):
+			raise FatalError('socks library required to use proxy (e.g. SocksiPy)')
 		proxySettings = proxy.split(':')
 		socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS4, proxySettings[0], int(proxySettings[1]), True)
 		socket.socket = socks.socksocket

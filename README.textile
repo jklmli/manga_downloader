@@ -2,8 +2,8 @@ h1. Manga-Downloader
 
 Manga-Downloader is a cross-platform Windows/Mac/Linux Python 2/3 script.
 It can be automated via an external .xml file, and can convert images for viewing on the Kindle.
-Currently supports mangafox.com, mangareader.net, and otakuworks.com, with a total of over 5000 mangas.
-Downloads into .cbz format, can optionally download into .zip instead.
+Currently supports mangafox.com, mangareader.net, mangapanda.com and mangahere.com with a total
+of over 10,000 mangas. Downloads into .cbz format, can optionally download into .zip instead.
 
 h2. Dependencies
 

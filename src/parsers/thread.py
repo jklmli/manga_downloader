@@ -6,7 +6,11 @@ import datetime
 import threading
 import time
 import os
-import socks
+try:
+	import socks
+	NO_SOCKS = False
+except ImportError:
+	NO_SOCKS = True
 import socket
 #####################
 
