@@ -1,3 +1,5 @@
+# Changelog
+
 **v0.9.0** (06/13/11)
 
   - Support for Python 3.x
@@ -8,18 +10,23 @@
 
 **v0.8.8** (02/11/11)
 
-  - Added Support for HTTP GZIP Encoding. Reduces the bandwidth used by the program. Required for downloading images hosted by MangaFox.
+  - Added Support for HTTP GZIP Encoding. Reduces the bandwidth used by the program. Required for
+  downloading images hosted by MangaFox.
 
 **v0.8.7** (02/05/11)
 
-  - Fixed unicode issue. One of the found manga's contained a nonascii character. This caused the script to crash. I fixed the localized area.
-  However, there are probably similar issues elsewhere in the code. I currently did not have time to hunt for similar issues.
-  - Manga Fox search has changed the matches are not as exact. If the matches take multiple pages, the script fails to find any manga after
-  page one. I have modified the search in the script to match on the beginning. If zero mangas are found it reverts to the old search.
+  - Fixed unicode issue. One of the found manga's contained a nonascii character. This caused the
+  script to crash. I fixed the localized area.
+  However, there are probably similar issues elsewhere in the code. I currently did not have time to
+  hunt for similar issues.
+  - Manga Fox search has changed the matches are not as exact. If the matches take multiple pages,
+  the script fails to find any manga after page one. I have modified the search in the script to
+  match on the beginning. If zero mangas are found it reverts to the old search.
 
 **v0.8.6** (01/27/11)
 
-  - Changed XML Update to occur only when all chapters are successfully download for the selected manga
+  - Changed XML Update to occur only when all chapters are successfully download for the selected
+  manga
 
 **v0.8.5** (01/27/11)
 
@@ -50,7 +57,8 @@
 
 **v0.7.9** (12/30/10)
 
-  - Replaced `mangadl_temp` folder with `tempfile.mkdtemp` which uses the OS Temporary File mechanics.
+  - Replaced `mangadl_temp` folder with `tempfile.mkdtemp` which uses the OS Temporary File
+  mechanics.
 
 **v0.7.8** (12/30/10)
 
@@ -62,14 +70,16 @@
 
   - Displays error if expected image not found on site
   - Fixed double cleaning of temporary directory
-  - Changed default behavior of overwrite and chapter skipping to be relative to the download format specified
+  - Changed default behavior of overwrite and chapter skipping to be relative to the download format
+  specified
   - Applied 3-digit zero-padding to all sites, this restores chapter skipping for MangaReader.
   - Delayed chapter removal when overwriting until just before copy
   - Removed obsolete 'Upcoming features' in readme
 
 **v0.7.5** (12/29/10)
 
-  - Add code to zero pad the chapter string from Manga Reader. Code zero pads any number in the string to 3 digits.
+  - Add code to zero pad the chapter string from Manga Reader. Code zero pads any number in the
+  string to 3 digits.
 
 **v0.7.4** (12/29/10)
 
@@ -98,11 +108,12 @@
 
 **v0.6.3a**
 
-  - Added check for the PIL Library. The script now works (w/o conversion functionality) without the PIL
+  - Added check for the PIL Library. The script now works (w/o conversion functionality) without the
+  PIL
   - Added Help (`-h`) command-line parameter. Prints out the command-line switches.
   - Added `-v` command-line to retrieve the current version of the script/executable.
-  - Added MAC OSX executable. The executable is compiled with the correct libraries (PIL, ect) and is self
-contained executable.
+  - Added MAC OSX executable. The executable is compiled with the correct libraries (PIL, ect) and
+  is self contained executable.
   - Added Icon files to use when compiling the Windows executable.
 
 **v0.6.2a**
@@ -111,8 +122,8 @@ contained executable.
 
 **v0.6.1a**
 
-  - Fixed an encoding issued in the download Image function. If the retrieved Image URL contained special characters such as spaces
-  the python (at least python 2.5) failed to load the url.
+  - Fixed an encoding issued in the download Image function. If the retrieved Image URL contained
+  special characters such as spaces the python (at least python 2.5) failed to load the url.
 
 **v0.6.1** (12/12/10)
 
@@ -125,7 +136,8 @@ contained executable.
 **v0.6.0** (12/11/10)
 
   - Begin modularization of the code base
-  - Added `SiteParser.py` - Uses the factory pattern to create different instances of SiteParser classes
+  - Added `SiteParser.py` - Uses the factory pattern to create different instances of SiteParser
+  classes
   - Added `MangaXMLParser.py` - Contains the code for the XML Feature
   - Modified `manga.py` to use the new classes
 
@@ -144,16 +156,20 @@ contained executable.
 
 **v0.5.1** (11/3/10)
 
-  - Modified the MangaReader parse function to find all entries returned by the search query instead of just the first one. The other two parse functions already work this way.
-  - Removed absolute paths that were added in `v0.5.0` due to increased complexity especially considering the multiple OS platforms. Relative paths enabled via os.chdir.
+  - Modified the MangaReader parse function to find all entries returned by the search query instead
+  of just the first one. The other two parse functions already work this way.
+  - Removed absolute paths that were added in `v0.5.0` due to increased complexity especially
+  considering the multiple OS platforms. Relative paths enabled via os.chdir.
 
 **v0.5.0** (11/1/10)
 
   - Added XML File Feature
   - New Command-line Flag added (`-x`)
   - Added internal flag to automate the parse functions
-  - Modified the OtakuWorks parse function to find all entries returned by the search query instead of just the first one.
-  - Modified script to use absolute paths to remove the built in limitation that the initial working directory is the directory the script is located.
+  - Modified the OtakuWorks parse function to find all entries returned by the search query instead
+  of just the first one.
+  - Modified script to use absolute paths to remove the built in limitation that the initial working
+  directory is the directory the script is located.
 
 **v0.4.1** (10/17/10)
 
@@ -211,7 +227,8 @@ contained executable.
 **v0.2.0** (08/04/10)
 
   - successfully spoofed downloader as Chrome 6/Ubuntu Lucid Lynx
-  - able to navigate site structures via Google now - this should make adding future sites much easier if needed and helps spell check (some overhead bandwidth might be in order though)
+  - able to navigate site structures via Google now - this should make adding future sites much
+  easier if needed and helps spell check (some overhead bandwidth might be in order though)
   - implemented auto-spell correction for cloudmanga + mangavolume + animea via Google
   - added cloudmanga.com as a source
 
@@ -233,7 +250,8 @@ contained executable.
 
   - now checks for valid starting/ending chapters
   - images now no longer compressed inside a temp directory
-  - optimized code; no longer wastes bandwidth or cycles redownloading pages for source code / checking manga validity
+  - optimized code; no longer wastes bandwidth or cycles redownloading pages for source code /
+  checking manga validity
   - tweaked code so it's more object-oriented, support for other sites coming in next release
   - added option (`-a`) to download all chapters in a series
   - improved code readability

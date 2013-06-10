@@ -21,8 +21,10 @@ How to backport to:
 `manga.py [options] <manga name> <manga name> <etc.>`
 
 The script will offer a choice of 3 manga sites, it will default to the first upon pressing 'enter'.
-After selecting a site, the script will output a list of all chapters of the series it has found on the site you selected.
-When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.  You can also type 'all' if you did not specify `--all` before.
+After selecting a site, the script will output a list of all chapters of the series it has found on
+the site you selected.
+When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.
+You can also type 'all' if you did not specify `--all` before.
 
 See Usage for examples of acceptable inputs.
 
@@ -58,7 +60,8 @@ Verbose output.
 
 > `-x <xmlfile path>, --xml=<xmlfile path>`
 
-Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the listed mangas.
+Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the
+listed mangas.
 
 > `-z, --zip`
 
@@ -66,8 +69,9 @@ Downloads using .zip compression.  Omitting this option defaults to .cbz.
 
 > `-c, --convertFiles`
 
-Converts the files that are downloaded to a Format/Size ratio acceptable to the device specified by the device
-parameter. The converted images are saved in the directory specified by the outputDirectory paraemter.
+Converts the files that are downloaded to a Format/Size ratio acceptable to the device specified by
+the device parameter. The converted images are saved in the directory specified by the
+outputDirectory paraemter.
 
 > `--device`
 
@@ -75,8 +79,8 @@ Specifies the target device for the image conversion.
 
 > `--convertDirectory`
 
-Converts the image files stored in the directory specified by the inputDirectory parameter. Stores the images
-in the directory specified by the outputDirectory Parameter
+Converts the image files stored in the directory specified by the inputDirectory parameter. Stores
+the images in the directory specified by the outputDirectory Parameter
 
 > `--inputDirectory`
 
@@ -84,17 +88,20 @@ The directory containing the images to covert when convertDirectory is specified
 
 > `--outputDirectory`
 
-The directory to store the converted Images. Omitting this option defaults to DOWNLOAD_PATH/Pictures. 
+The directory to store the converted Images. Omitting this option defaults to
+DOWNLOAD_PATH/Pictures.
 
 ### Usage
 
 > `manga.py -d "C:\Documents and Settings\admin\Documents\Manga\" -z Bleach`
 
-On a Windows machine, downloads 'Bleach' to `C:\Documents and Settings\admin\Documents\Manga\`, using `.zip` compression.
+On a Windows machine, downloads 'Bleach' to `C:\Documents and Settings\admin\Documents\Manga\`,
+using `.zip` compression.
 
 > `./manga.py --overwrite Bleach`
 
-On a Linux/Unix machine, downloads 'Bleach' to `./Bleach`, using `.cbz` compression and overwriting previously downloaded chapters.
+On a Linux/Unix machine, downloads 'Bleach' to `./Bleach`, using `.cbz` compression and overwriting
+previously downloaded chapters.
 
 > `1,2,9-12`
 
@@ -110,14 +117,17 @@ Parses `example.xml` to run the script.
  
 ## Bugs
 
-- Input between the two prompts "Which site?" and "Download which chapters?" is queued up for chapter selection.
+- Input between the two prompts "Which site?" and "Download which chapters?" is queued up for
+chapter selection.
 
 ## Issues
 
-- Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be suspicious of out-of-order chapters if they appear.
-- The script can be a bandwidth hog when downloading a lot of manga chapters and `--threads` is set to a large number.
-- UNICODE characters have caused the script issues in the past. If a UNICODE issue is found, create a new issue under the Issue tab and
-- provided a detailed description of the issue.
+- Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be
+suspicious of out-of-order chapters if they appear.
+- The script can be a bandwidth hog when downloading a lot of manga chapters and `--threads` is set
+to a large number.
+- UNICODE characters have caused the script issues in the past. If a UNICODE issue is found, create
+a new issue under the Issue tab and provided a detailed description of the issue.
 
 ## Future Features
 
