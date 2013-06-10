@@ -1,7 +1,9 @@
 # Manga-Downloader
 
 Manga-Downloader is a cross-platform Windows/Mac/Linux Python 2/3 script.
-It can be automated via an external .xml file, and can convert images for viewing on the Kindle.
+
+It can be automated via an external xml file, and can convert images for viewing on the Kindle.
+
 Currently supports mangafox.com, mangareader.net, mangapanda.com and mangahere.com with a total
 of over 10,000 mangas. Downloads into .cbz format, can optionally download into .zip instead.
 
@@ -21,8 +23,10 @@ How to backport to:
 `manga.py [options] <manga name> <manga name> <etc.>`
 
 The script will offer a choice of 3 manga sites, it will default to the first upon pressing 'enter'.
+
 After selecting a site, the script will output a list of all chapters of the series it has found on
 the site you selected.
+
 When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.
 You can also type 'all' if you did not specify `--all` before.
 
@@ -52,7 +56,7 @@ Overwrites previous copies of downloaded chapters.
 
 > `-t <number>, --threads=<number>`
 
-Limits the number of chapter threads to the user specified value. Default value is 3.
+Limits the number of chapter threads to the user specified value. Default value is `3`.
 
 > `--verbose`
 
@@ -60,18 +64,18 @@ Verbose output.
 
 > `-x <xmlfile path>, --xml=<xmlfile path>`
 
-Parses the .xml file and downloads all chapters newer than the last chapter downloaded for the
+Parses the `.xml` file and downloads all chapters newer than the last chapter downloaded for the
 listed mangas.
 
 > `-z, --zip`
 
-Downloads using .zip compression.  Omitting this option defaults to .cbz.
+Downloads using `.zip` compression.  Omitting this option defaults to `.cbz.`
 
 > `-c, --convertFiles`
 
 Converts the files that are downloaded to a Format/Size ratio acceptable to the device specified by
-the device parameter. The converted images are saved in the directory specified by the
-outputDirectory paraemter.
+the `device` parameter. The converted images are saved in the directory specified by the
+`outputDirectory` paraemter.
 
 > `--device`
 
@@ -79,17 +83,17 @@ Specifies the target device for the image conversion.
 
 > `--convertDirectory`
 
-Converts the image files stored in the directory specified by the inputDirectory parameter. Stores
-the images in the directory specified by the outputDirectory Parameter
+Converts the image files stored in the directory specified by the `inputDirectory` parameter. Stores
+the images in the directory specified by the `outputDirectory` Parameter
 
 > `--inputDirectory`
 
-The directory containing the images to covert when convertDirectory is specified. 
+The directory containing the images to convert when `convertDirectory` is specified.
 
 > `--outputDirectory`
 
 The directory to store the converted Images. Omitting this option defaults to
-DOWNLOAD_PATH/Pictures.
+`DOWNLOAD_PATH/Pictures`.
 
 ### Usage
 
