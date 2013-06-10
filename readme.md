@@ -30,8 +30,6 @@ the site you selected.
 When it prompts "Download which chapters?", type in the ones you want delimited by '-' and ','.
 You can also type 'all' if you did not specify `--all` before.
 
-See Usage for examples of acceptable inputs.
-
 ### Options
 
 > `--version`
@@ -118,21 +116,3 @@ Downloads all chapters
 > `./manga.py -x example.xml`
 
 Parses `example.xml` to run the script.
- 
-## Bugs
-
-- Input between the two prompts "Which site?" and "Download which chapters?" is queued up for
-chapter selection.
-
-## Issues
-
-- Careful! MangaFox sometimes leaves up invalid chapters that it has marked for deletion.  Be
-suspicious of out-of-order chapters if they appear.
-- The script can be a bandwidth hog when downloading a lot of manga chapters and `--threads` is set
-to a large number.
-- UNICODE characters have caused the script issues in the past. If a UNICODE issue is found, create
-a new issue under the Issue tab and provided a detailed description of the issue.
-
-## Future Features
-
-Add manga.animea.net support.
