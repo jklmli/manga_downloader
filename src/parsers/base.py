@@ -187,12 +187,12 @@ class SiteParserBase:
 			else:	
 				manga_chapter_prefix = zeroFillStr(fixFormatting(self.chapters[current_chapter][2], self.spaceToken), 3)
 		else:
-			manga_chapter_prefix = fixFormatting(self.manga, self.spaceToken) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1], self.spaceToken), 3)
+			manga_chapter_prefix = fixFormatting(self.manga, self.spaceToken) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1].decode('utf-8'), self.spaceToken), 3)
 
 		
 		# we already have it
 		if os.path.exists(os.path.join(self.downloadPath, manga_chapter_prefix) + self.downloadFormat) and self.overwrite_FLAG == False:
-			print(self.chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
+			print(self.chapters[current_chapter][1].decode('utf-8') + ' already downloaded, skipping to next chapter...')
 			return
 
 		SiteParserBase.DownloadChapterThread.acquireSemaphore()

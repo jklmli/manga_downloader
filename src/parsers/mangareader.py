@@ -48,7 +48,7 @@ class MangaReader(SiteParserBase):
 			if (not self.auto):
 				print('(%i) %s' % (i + 1, self.chapters[i][1]))
 			else:
-				if (self.lastDownloaded == self.chapters[i][1]):
+				if (self.lastDownloaded == self.chapters[i][1].decode('utf-8')):
 					lowerRange = i + 1
 		
 		# this might need to be len(self.chapters) + 1, I'm unsure as to whether python adds +1 to i after the loop or not
