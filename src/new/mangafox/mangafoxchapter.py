@@ -30,4 +30,3 @@ class MangaFoxChapter(HasUrl):
     def pages(self):
         total_pages = int(MangaFoxChapter.TOTAL_PAGES_REGEX.findall(self.source)[0])
         return [MangaFoxPage(self, '{}/{}.html'.format(self.url, index)) for index in range(1, total_pages + 1)]
-
