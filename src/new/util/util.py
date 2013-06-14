@@ -76,3 +76,8 @@ class Util:
                 cache[key] = obj(*args, **kwargs)
             return cache[key]
         return memoizer
+
+    @staticmethod
+    def post_hookable(cls):
+        cls.post_hook()
+        return cls

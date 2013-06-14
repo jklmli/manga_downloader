@@ -1,8 +1,10 @@
 import re
 
 from noez import Noez
+from src.new.util.util import Util
 
 
+@Util.post_hookable
 class MangaHere(Noez):
     class Chapter(Noez.Chapter):
         URL_REGEX = re.compile('http://mangahere.com/manga/[^/]*/(v(?P<volume>[^/]*/))?c(?P<chapter>[^/]*)')
@@ -14,5 +16,3 @@ class MangaHere(Noez):
     class Series(Noez.Series):
         CHAPTER_BASE_URL = 'a.*?href="(?P<url>http://.*?mangahere.*?/manga/{}/[^/]*(/[^/]*)?)/"'
         SITE_BASE_URL = 'http://mangahere.com/manga/{}/'
-
-MangaHere.post_initialize()

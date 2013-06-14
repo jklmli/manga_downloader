@@ -6,13 +6,14 @@ from src.new.base.image import Image
 from src.new.util.hasurl import HasUrl
 
 
+@Util.post_hookable
 class Noez:
     @classmethod
     def series(cls, name):
         return cls.Series(name)
 
     @classmethod
-    def post_initialize(cls):
+    def post_hook(cls):
         cls.Chapter.SITE = cls.Series.SITE = cls
 
     class Chapter(HasUrl):
