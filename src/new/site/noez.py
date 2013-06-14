@@ -6,19 +6,20 @@ from src.new.base.image import Image
 from src.new.util.hasurl import HasUrl
 
 
-@Util.matryoshka
 class Noez:
-    URL_REGEX = NotImplementedError
-    TOTAL_PAGES_REGEX = NotImplementedError
-    IMAGE_REGEX = NotImplementedError
-    CHAPTER_BASE_URL = NotImplementedError
-    SITE_BASE_URL = NotImplementedError
-
     @classmethod
     def series(cls, name):
         return cls.Series(name)
 
+    @classmethod
+    def post_initialize(cls):
+        cls.Chapter.SITE = cls.Series.SITE = cls
+
     class Chapter(HasUrl):
+        URL_REGEX = NotImplemented
+        TOTAL_PAGES_REGEX = NotImplemented
+        SITE = None
+
         def __init__(self, series, url):
             self.series = series
             self.url = url
@@ -39,10 +40,11 @@ class Noez:
         @Util.memoize
         def pages(self):
             total_pages = int(self.TOTAL_PAGES_REGEX.search(self.source).group('count'))
-            return [Noez.Page(self, '{}/{}.html'.format(self.url, index)) for index in range(1, total_pages + 1)]
-
+            return [self.SITE.Page(self, '{}/{}.html'.format(self.url, index)) for index in range(1, total_pages + 1)]
 
     class Page(HasUrl):
+        IMAGE_REGEX = NotImplemented
+
         def __init__(self, chapter, url):
             self.chapter = chapter
             self.url = url
@@ -52,8 +54,11 @@ class Noez:
         def image(self):
             return Image(self.IMAGE_REGEX.search(self.source).group('link'))
 
-
     class Series(HasUrl):
+        SITE_BASE_URL = NotImplemented
+        CHAPTER_BASE_URL = NotImplemented
+        SITE = None
+
         def __init__(self, name):
             self.name = name
 
@@ -80,7 +85,7 @@ class Noez:
         def chapters(self):
             chapter_regex = re.compile(self.CHAPTER_BASE_URL.format(self.normalized_name))
 
-            ret = [Noez.Chapter(self, match.group('url')) for match in chapter_regex.finditer(self.source)]
+            ret = [self.SITE.Chapter(self, match.group('url')) for match in chapter_regex.finditer(self.source)]
             ret.reverse()
 
             return ret
