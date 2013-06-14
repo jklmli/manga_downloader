@@ -64,6 +64,7 @@ class Util:
         else:
             return ret
 
+    # :SEE: http://wiki.python.org/moin/PythonDecoratorLibrary/#Alternate_memoize_as_nested_functions
     @staticmethod
     def memoize(obj):
         cache = obj.cache = {}
