@@ -2,7 +2,7 @@ import re
 import urllib2
 
 from mangasite import MangaSite
-from src.new.util.util import Util
+from redux.helper.util import Util
 
 
 class Aftv(MangaSite):

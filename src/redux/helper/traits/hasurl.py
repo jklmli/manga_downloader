@@ -1,4 +1,4 @@
-from src.new.util.util import Util
+from redux.helper.util import Util
 
 
 class HasUrl(object):

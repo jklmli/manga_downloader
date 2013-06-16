@@ -1,9 +1,9 @@
 import abc
 from abc import ABCMeta
 
-from src.new.base.image import Image
-from src.new.util.util import Util
-from src.new.util.hasurl import HasUrl
+from redux.helper.image import Image
+from redux.helper.util import Util
+from redux.helper.traits.hasurl import HasUrl
 
 
 class MangaSite(object):

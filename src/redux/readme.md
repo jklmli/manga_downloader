@@ -1,11 +1,11 @@
 ## Usage
-Navigate to the root directory (the one above `src/`)
+Navigate to the `src/` directory.
 
-> \>\>\> from src.new.site.mangafox import *
+> \>\>\> from redux.site.mangafox import *
 
 > \>\>\> MangaFox.series('toriko')
 
-> <src.new.site.mangafox.Series object at 0x1018a1f10>
+> <redux.site.mangafox.Series object at 0x1018a1f10>
 
 > \>\>\> MangaFox.series('toriko').chapters[0].pages[0].image.url
 
