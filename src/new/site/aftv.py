@@ -14,7 +14,7 @@ class Aftv(MangaSite):
         @property
         def chapter(self):
             match = self.VOLUME_AND_CHAPTER_FROM_URL_REGEX.match(self.url)
-            return match.group('chapter').lstrip('0') if match is not None else None
+            return match.group('chapter').lstrip('0') if (match is not None and match.group('chapter') is not None) else None
 
         @property
         def pages(self):
@@ -44,7 +44,7 @@ class Aftv(MangaSite):
 
         @property
         def url(self):
-            return self.TEMPLATE_URL.format(self.normalized_name)
+            return self.TEMPLATE_URL.format(name=self.normalized_name)
 
         @property
         def chapters(self):
