@@ -20,7 +20,7 @@ Noez and Aftv appear to be the parent companies of the sites that exist under th
 ## Usage
 
 ### Use Case
-Q: What's image url for the first page of the first chapter of 'Toriko'?
+Q: What's the image url for the first page of the first chapter of 'Toriko'?
 
 Step 1:  Navigate to the `src/` directory.
 
