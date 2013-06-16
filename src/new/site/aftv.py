@@ -2,7 +2,6 @@ import re
 import urllib2
 
 from src.new.base.image import Image
-
 from mangasite import MangaSite
 
 

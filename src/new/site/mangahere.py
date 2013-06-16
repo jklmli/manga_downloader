@@ -1,7 +1,6 @@
 import re
 
 from noez import Noez
-from src.new.util.util import Util
 
 
 class MangaHere(Noez):
