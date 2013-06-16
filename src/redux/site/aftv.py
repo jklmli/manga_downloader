@@ -1,8 +1,8 @@
 import re
 import urllib2
 
+from redux.helper.decorators import memoize
 from mangasite import MangaSite
-from redux.helper.util import Util
 
 
 class Aftv(MangaSite):
@@ -44,7 +44,7 @@ class Aftv(MangaSite):
             return self.TEMPLATE_URL.format(path=self.metadata.path)
 
         @property
-        @Util.memoize
+        @memoize
         def metadata(self):
             url = self.TEMPLATE_URL.format(path=('/actions/search/?q={}'.format(self.name.replace(' ', '+'))))
 

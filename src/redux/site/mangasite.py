@@ -1,8 +1,8 @@
 import abc
 from abc import ABCMeta
 
+from redux.helper.decorators import memoize
 from redux.helper.image import Image
-from redux.helper.util import Util
 from redux.helper.traits.hasurl import HasUrl
 
 
@@ -28,7 +28,7 @@ class MangaSite(object):
             self.url = url
 
         @property
-        @Util.memoize
+        @memoize
         def volume(self):
             """
             :rtype: str or None
@@ -37,7 +37,7 @@ class MangaSite(object):
             return match.group('volume').lstrip('0') if (match is not None and match.group('volume') is not None) else None
 
         @property
-        @Util.memoize
+        @memoize
         def chapter(self):
             """
             :rtype: str
@@ -46,7 +46,7 @@ class MangaSite(object):
             return match.group('chapter').lstrip('0') if (match is not None and match.group('chapter') is not None) else None
 
         @property
-        @Util.memoize
+        @memoize
         def number_of_pages(self):
             """
             :rtype: int
@@ -54,7 +54,7 @@ class MangaSite(object):
             return int(self.TOTAL_PAGES_FROM_SOURCE_REGEX.search(self.source).group('count'))
 
         @abc.abstractproperty
-        @Util.memoize
+        @memoize
         def pages(self):
             """
             :rtype: list of Page
@@ -75,7 +75,7 @@ class MangaSite(object):
             self.url = url
 
         @property
-        @Util.memoize
+        @memoize
         def image(self):
             """
             :rtype: Image
@@ -97,7 +97,7 @@ class MangaSite(object):
             self.name = name
 
         @property
-        @Util.memoize
+        @memoize
         def url(self):
             """
             :rtype: str
@@ -105,7 +105,7 @@ class MangaSite(object):
             return self.TEMPLATE_URL.format(name=self.normalized_name)
 
         @abc.abstractproperty
-        @Util.memoize
+        @memoize
         def normalized_name(self):
             """
             :rtype: str
@@ -113,7 +113,7 @@ class MangaSite(object):
             pass
 
         @abc.abstractproperty
-        @Util.memoize
+        @memoize
         def chapters(self):
             """
             :rtype: list of Chapter

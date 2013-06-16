@@ -1,6 +1,5 @@
 ####################
 
-import functools
 import gzip
 import io
 import random
@@ -63,21 +62,3 @@ class Util:
             return ret, f.geturl()
         else:
             return ret
-
-    # :SEE: http://wiki.python.org/moin/PythonDecoratorLibrary/#Alternate_memoize_as_nested_functions
-    @staticmethod
-    def memoize(obj):
-        cache = obj.cache = {}
-
-        @functools.wraps(obj)
-        def memoizer(*args, **kwargs):
-            key = str(args) + str(kwargs)
-            if key not in cache:
-                cache[key] = obj(*args, **kwargs)
-            return cache[key]
-        return memoizer
-
-    @staticmethod
-    def post_hookable(cls):
-        cls.post_hook()
-        return cls
