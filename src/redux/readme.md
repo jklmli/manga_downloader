@@ -15,6 +15,8 @@ is removed.)
 >     - MangaPanda
 >     - MangaReader
 
+Noez and Aftv appear to be the parent companies of the sites that exist under them.
+
 ## Usage
 
 ### Use Case
