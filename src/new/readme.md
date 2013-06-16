@@ -1,11 +1,11 @@
 ## Usage
 Navigate to the root directory (the one above `src/`)
 
-> \>\>\> from src.new.mangafox.mangafox import *
+> \>\>\> from src.new.site.mangafox import *
 
 > \>\>\> MangaFox.series('toriko')
 
-> <src.new.mangafox.mangafoxseries.MangaFoxSeries instance at 0x1048c2b90>
+> <src.new.site.mangafox.Series object at 0x1018a1f10>
 
 > \>\>\> MangaFox.series('toriko').chapters[0].pages[0].image.url
 
