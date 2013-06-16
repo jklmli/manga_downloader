@@ -4,15 +4,14 @@ from noez import Noez
 from src.new.util.util import Util
 
 
-@Util.post_hookable
 class MangaHere(Noez):
     class Chapter(Noez.Chapter):
-        URL_REGEX = re.compile('http://mangahere.com/manga/[^/]*/(v(?P<volume>[^/]*/))?c(?P<chapter>[^/]*)')
-        TOTAL_PAGES_REGEX = re.compile('var total_pages = (?P<count>[^;]*?);')
+        VOLUME_AND_CHAPTER_FROM_URL_REGEX = re.compile('http://www.mangahere.com/manga/[^/]*/(v(?P<volume>[^/]*/))?c(?P<chapter>[^/]*)')
+        TOTAL_PAGES_FROM_SOURCE_REGEX = re.compile('var total_pages = (?P<count>[^;]*?);')
 
     class Page(Noez.Page):
-        IMAGE_REGEX = re.compile('<img src="(?P<link>[^"]*.jpg)[^"]*"')
+        IMAGE_FROM_SOURCE_REGEX = re.compile('<img src="(?P<link>[^"]*.jpg)[^"]*"')
 
     class Series(Noez.Series):
-        CHAPTER_BASE_URL = 'a.*?href="(?P<url>http://.*?mangahere.*?/manga/{}/[^/]*(/[^/]*)?)/"'
-        SITE_BASE_URL = 'http://mangahere.com/manga/{}/'
+        CHAPTER_FROM_SOURCE_REGEX = re.compile('a.*?href="(?P<url>[^"]*)"[^>]*>[^<]*</a>[^<]*<span class="mr6"')
+        TEMPLATE_URL = 'http://www.mangahere.com/manga/{name}/'

@@ -1,7 +1,7 @@
 from src.new.util.util import Util
 
 
-class HasUrl:
+class HasUrl(object):
     @property
     @Util.memoize
     def source(self):
