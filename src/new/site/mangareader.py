@@ -12,5 +12,5 @@ class MangaReader(Aftv):
         IMAGE_FROM_SOURCE_REGEX = re.compile('img id="img" .* src="(?P<link>[^"]*)"')
 
     class Series(Aftv.Series):
-        CHAPTER_FROM_SOURCE_REGEX = re.compile('<a href="(?P<url>[^"]*)">[^<]*</a>[^<]*</td>')
-        TEMPLATE_URL = 'http://www.mangareader.net{}'
+        CHAPTER_FROM_SOURCE_REGEX = re.compile('<a href="(?P<path>[^"]*)">[^<]*</a>[^<]*</td>')
+        TEMPLATE_URL = 'http://www.mangareader.net{path}'

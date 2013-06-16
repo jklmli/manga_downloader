@@ -1,8 +1,8 @@
 import re
 import urllib2
 
-from src.new.base.image import Image
 from mangasite import MangaSite
+from src.new.util.util import Util
 
 
 class Aftv(MangaSite):
@@ -12,42 +12,43 @@ class Aftv(MangaSite):
             return None
 
         @property
-        def chapter(self):
-            match = self.VOLUME_AND_CHAPTER_FROM_URL_REGEX.match(self.url)
-            return match.group('chapter').lstrip('0') if (match is not None and match.group('chapter') is not None) else None
-
-        @property
         def pages(self):
-            total_pages = int(self.TOTAL_PAGES_FROM_SOURCE_REGEX.search(self.source).group('count'))
-
             if (self.url.endswith('.html')):
                 page_base_url = re.sub('(\d+)-(\d+)-(\d+)', '\\1-\\2-{}', self.url)
             else:
                 page_base_url = self.url + '/{}'
 
-            return [self.series.site.Page(self, page_base_url.format(index)) for index in range(1, total_pages + 1)]
-
-    class Page(MangaSite.Page):
-        @property
-        def image(self):
-            return Image(self.IMAGE_FROM_SOURCE_REGEX.search(self.source).group('link'))
+            return [self.series.site.Page(self, page_base_url.format(index)) for index in range(1, self.number_of_pages + 1)]
 
     class Series(MangaSite.Series):
+        class Metadata(object):
+            def __init__(self, name1, picture_link, name2, author_name, path, id):
+                self.name = name1
+                self.picture_link = picture_link
+                self.author_name = author_name
+                self.path = path
+                self.id = id
+
         @property
         def normalized_name(self):
-            url = self.TEMPLATE_URL.format('/actions/search/?q={}'.format(self.name.replace(' ', '+')))
+            return self.metadata.name
+
+        @property
+        def chapters(self):
+            ret = [self.site.Chapter(self, self.TEMPLATE_URL.format(path=match.group('path'))) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
+
+            return ret
+
+        @property
+        def url(self):
+            return self.TEMPLATE_URL.format(path=self.metadata.path)
+
+        @property
+        @Util.memoize
+        def metadata(self):
+            url = self.TEMPLATE_URL.format(path=('/actions/search/?q={}'.format(self.name.replace(' ', '+'))))
 
             lines = urllib2.urlopen(url)
             first_result = lines.readline()
 
-            return first_result.split('|')[-2]
-
-        @property
-        def url(self):
-            return self.TEMPLATE_URL.format(name=self.normalized_name)
-
-        @property
-        def chapters(self):
-            ret = [self.site.Chapter(self, self.TEMPLATE_URL.format(match.group('url'))) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
-
-            return ret
+            return self.Metadata(*first_result.split('|'))

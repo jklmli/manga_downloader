@@ -27,21 +27,31 @@ class MangaSite(object):
             self.series = series
             self.url = url
 
-        @abc.abstractproperty
+        @property
         @Util.memoize
         def volume(self):
             """
             :rtype: str or None
             """
-            pass
+            match = self.VOLUME_AND_CHAPTER_FROM_URL_REGEX.match(self.url)
+            return match.group('volume').lstrip('0') if (match is not None and match.group('volume') is not None) else None
 
-        @abc.abstractproperty
+        @property
         @Util.memoize
         def chapter(self):
             """
             :rtype: str
             """
-            pass
+            match = self.VOLUME_AND_CHAPTER_FROM_URL_REGEX.match(self.url)
+            return match.group('chapter').lstrip('0') if (match is not None and match.group('chapter') is not None) else None
+
+        @property
+        @Util.memoize
+        def number_of_pages(self):
+            """
+            :rtype: int
+            """
+            return int(self.TOTAL_PAGES_FROM_SOURCE_REGEX.search(self.source).group('count'))
 
         @abc.abstractproperty
         @Util.memoize
@@ -64,13 +74,13 @@ class MangaSite(object):
             self.chapter = chapter
             self.url = url
 
-        @abc.abstractproperty
+        @property
         @Util.memoize
         def image(self):
             """
             :rtype: Image
             """
-            pass
+            return Image(self.IMAGE_FROM_SOURCE_REGEX.search(self.source).group('link'))
 
     class Series(HasUrl):
         __metaclass__ = ABCMeta
@@ -86,17 +96,17 @@ class MangaSite(object):
             self.site = site
             self.name = name
 
-        @abc.abstractproperty
+        @property
         @Util.memoize
-        def normalized_name(self):
+        def url(self):
             """
             :rtype: str
             """
-            pass
+            return self.TEMPLATE_URL.format(name=self.normalized_name)
 
         @abc.abstractproperty
         @Util.memoize
-        def url(self):
+        def normalized_name(self):
             """
             :rtype: str
             """
