@@ -1,5 +1,8 @@
 import re
-import urllib2
+try:
+    import urllib2
+except ImportError:
+    import urllib.request as urllib2
 
 from redux.helper.decorators import memoize
 from redux.site.mangasite import MangaSite
