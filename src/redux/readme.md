@@ -1,5 +1,7 @@
 # Redux
 
+[![Build Status](https://travis-ci.org/jiaweihli/manga_downloader.png)](https://travis-ci.org/jiaweihli/manga_downloader)
+
 ## Layout
 `helper` contains some shared, non-application-specific code.  (Or it will, after the Util class
 is removed.)
