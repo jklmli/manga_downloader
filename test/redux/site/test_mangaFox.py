@@ -15,3 +15,8 @@ class TestMangaFox(TestCase):
 
     def test_chapter_pages(self):
         self.assertEqual(len(TestMangaFox.CHAPTERS[0].pages), 43)
+
+    def test_for_image_url(self):
+        url = TestMangaFox.CHAPTERS[0].pages[0].image.url
+        self.assertGreater(len(url), 0)
+        self.assertEqual(url[:7], 'http://')
