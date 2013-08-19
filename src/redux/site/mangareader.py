@@ -9,7 +9,7 @@ class MangaReader(Aftv):
         TOTAL_PAGES_FROM_SOURCE_REGEX = re.compile('</select> of (?P<count>\d*)(\s)*</div>')
 
     class Page(Aftv.Page):
-        IMAGE_FROM_SOURCE_REGEX = re.compile('img id="img" .* src="(?P<link>[^"]*)"')
+        IMAGE_FROM_SOURCE_REGEX = re.compile('img id="img" .*? src="(?P<link>[^"]*)"')
 
     class Series(Aftv.Series):
         TEMPLATE_URL = 'http://www.mangareader.net{path}'
