@@ -18,5 +18,5 @@ class TestMangaPanda(TestCase):
 
     def test_for_image_url(self):
         url = TestMangaPanda.CHAPTERS[0].pages[0].image.url
-        self.assertGreater(len(url), 0)
+        self.assertTrue(len(url) > 0)
         self.assertEqual(url[:7], 'http://')
