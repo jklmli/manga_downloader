@@ -12,3 +12,6 @@ class TestMangaHere(TestCase):
 
     def test_chapter_title(self):
         self.assertEqual(TestMangaHere.CHAPTERS[-2].title, 'Lightning Counterstrike')
+
+    def test_chapter_pages(self):
+        self.assertEqual(len(TestMangaHere.CHAPTERS[0].pages), 43)
