@@ -26,7 +26,7 @@ class Util:
         """
         Loop to get around server denies for info or minor disconnects.
         """
-        if (proxy <> None):
+        if (proxy != None):
             if (NO_SOCKS):
                 raise RuntimeError('socks library required to use proxy (e.g. SocksiPy)')
             proxySettings = proxy.split(':')
