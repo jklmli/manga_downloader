@@ -5,7 +5,7 @@ from noez import Noez
 
 class MangaFox(Noez):
     class Chapter(Noez.Chapter):
-        VOLUME_AND_CHAPTER_FROM_URL_REGEX = re.compile('http://mangafox.me/manga/[^/]*/(v(?P<volume>[^/]*/))?c(?P<chapter>[^/]*)')
+        VOLUME_AND_CHAPTER_FROM_URL_REGEX = re.compile('http://mangafox.me/manga/[^/]*/(v(?P<volume>[^/]*)/)?c(?P<chapter>[^/]*)')
         TOTAL_PAGES_FROM_SOURCE_REGEX = re.compile('var total_pages=(?P<count>[^;]*?);')
 
     class Page(Noez.Page):
