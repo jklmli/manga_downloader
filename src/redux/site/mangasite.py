@@ -84,7 +84,7 @@ class MangaSite(object):
             """
             :rtype: Image
             """
-            return Image(self.IMAGE_FROM_SOURCE_REGEX.search(self.source).group('link'))
+            return Image(str(self.IMAGE_FROM_SOURCE_REGEX.search(self.source).group('link')))
 
     class Series(HasUrl):
         __metaclass__ = ABCMeta
