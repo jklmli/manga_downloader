@@ -12,5 +12,5 @@ class MangaFox(Noez):
         IMAGE_FROM_SOURCE_REGEX = re.compile('"><img src="(?P<link>[^"]*)"')
 
     class Series(Noez.Series):
-        CHAPTER_FROM_SOURCE_REGEX = re.compile('a href="(?P<url>.*)/[^"]*?" title')
+        CHAPTER_FROM_SOURCE_REGEX = re.compile('a href="(?P<url>[^"]*)" title=.*?(title nowrap">(?P<title>[^<]*))?<\/span>', re.DOTALL)
         TEMPLATE_URL = 'http://mangafox.me/manga/{name}/'

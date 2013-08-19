@@ -12,5 +12,5 @@ class MangaHere(Noez):
         IMAGE_FROM_SOURCE_REGEX = re.compile('<img src="(?P<link>[^"]*.jpg)[^"]*"')
 
     class Series(Noez.Series):
-        CHAPTER_FROM_SOURCE_REGEX = re.compile('a.*?href="(?P<url>[^"]*)"[^>]*>[^<]*</a>[^<]*<span class="mr6"')
+        CHAPTER_FROM_SOURCE_REGEX = re.compile('0077" href="(?P<url>[^"]*)" >.*?<span class="mr6">[^<]*?</span>(?P<title>.*?)</span>', re.DOTALL)
         TEMPLATE_URL = 'http://www.mangahere.com/manga/{name}/'

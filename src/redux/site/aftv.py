@@ -21,6 +21,8 @@ class Aftv(MangaSite):
             return [self.series.site.Page(self, page_base_url.format(index)) for index in range(1, self.number_of_pages + 1)]
 
     class Series(MangaSite.Series):
+        CHAPTER_FROM_SOURCE_REGEX = re.compile('<a href="(?P<path>[^"]*)">[^<]*</a>[^:]*: (?P<title>[^<]*)</td>')
+
         class Metadata(object):
             def __init__(self, name1, picture_link, name2, author_name, path, id):
                 self.name = name1
@@ -35,7 +37,7 @@ class Aftv(MangaSite):
 
         @property
         def chapters(self):
-            ret = [self.site.Chapter(self, self.TEMPLATE_URL.format(path=match.group('path'))) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
+            ret = [self.site.Chapter(self, match.group('title') or '', self.TEMPLATE_URL.format(path=match.group('path'))) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
 
             return ret
 

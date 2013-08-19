@@ -18,13 +18,16 @@ class MangaSite(object):
 
         VOLUME_AND_CHAPTER_FROM_URL_REGEX = NotImplemented
         TOTAL_PAGES_FROM_SOURCE_REGEX = NotImplemented
+        CHAPTER_TITLE_FROM_SOURCE_REGEX = NotImplemented
 
-        def __init__(self, series, url):
+        def __init__(self, series, title, url):
             """
             :type series: Series
+            :type title: str
             :type url: str
             """
             self.series = series
+            self.title = title
             self.url = url
 
         @property

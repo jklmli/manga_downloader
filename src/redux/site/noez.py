@@ -25,7 +25,7 @@ class Noez(MangaSite):
 
         @property
         def chapters(self):
-            ret = [self.site.Chapter(self, match.group('url')) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
+            ret = [self.site.Chapter(self, match.group('title') or '', match.group('url')) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
             ret.reverse()
 
             return ret
