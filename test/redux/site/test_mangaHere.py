@@ -4,7 +4,7 @@ from redux.site.mangahere import MangaHere
 
 
 class TestMangaHere(TestCase):
-    SERIES = MangaHere.series('toriko')
+    SERIES = MangaHere.series('gantz')
 
     def test_chapter_count(self):
-        self.assertEqual(len(TestMangaHere.SERIES.chapters), 237)
+        self.assertEqual(len(TestMangaHere.SERIES.chapters), 377)

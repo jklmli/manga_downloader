@@ -4,7 +4,7 @@ from redux.site.mangapanda import MangaPanda
 
 
 class TestMangaPanda(TestCase):
-    SERIES = MangaPanda.series('toriko')
+    SERIES = MangaPanda.series('gantz')
 
     def test_chapter_count(self):
-        self.assertEqual(len(TestMangaPanda.SERIES.chapters), 237)
+        self.assertEqual(len(TestMangaPanda.SERIES.chapters), 383)

@@ -4,7 +4,7 @@ from redux.site.mangareader import MangaReader
 
 
 class TestMangaFox(TestCase):
-    SERIES = MangaReader.series('toriko')
+    SERIES = MangaReader.series('gantz')
 
     def test_chapter_count(self):
-        self.assertEqual(len(TestMangaFox.SERIES.chapters), 237)
+        self.assertEqual(len(TestMangaFox.SERIES.chapters), 383)
