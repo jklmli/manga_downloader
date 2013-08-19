@@ -8,7 +8,7 @@ class Noez(MangaSite):
     class Chapter(MangaSite.Chapter):
         @property
         def pages(self):
-            return [self.series.site.Page(self, '{}/{}.html'.format(self.url, index)) for index in range(1, self.number_of_pages + 1)]
+            return [self.series.site.Page(self, '{url}/{index}.html'.format(url=self.url, index=index)) for index in range(1, self.number_of_pages + 1)]
 
     class Series(MangaSite.Series):
         @property

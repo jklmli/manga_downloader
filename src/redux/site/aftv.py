@@ -14,11 +14,11 @@ class Aftv(MangaSite):
         @property
         def pages(self):
             if self.url.endswith('.html'):
-                page_base_url = re.sub('(\d+)-(\d+)-(\d+)', '\\1-\\2-{}', self.url)
+                page_base_url = re.sub('(\d+)-(\d+)-(\d+)', '\\1-\\2-{index}', self.url)
             else:
-                page_base_url = self.url + '/{}'
+                page_base_url = self.url + '/{index}'
 
-            return [self.series.site.Page(self, page_base_url.format(index)) for index in range(1, self.number_of_pages + 1)]
+            return [self.series.site.Page(self, page_base_url.format(index=index)) for index in range(1, self.number_of_pages + 1)]
 
     class Series(MangaSite.Series):
         CHAPTER_FROM_SOURCE_REGEX = re.compile('<a href="(?P<path>[^"]*)">[^<]*</a>[^:]*: (?P<title>[^<]*)</td>')
@@ -48,7 +48,7 @@ class Aftv(MangaSite):
         @property
         @memoize
         def metadata(self):
-            url = self.TEMPLATE_URL.format(path=('/actions/search/?q={}'.format(self.name.replace(' ', '+'))))
+            url = self.TEMPLATE_URL.format(path=('/actions/search/?q={name}'.format(name=self.name.replace(' ', '+'))))
 
             lines = urllib2.urlopen(url)
             first_result = lines.readline()
