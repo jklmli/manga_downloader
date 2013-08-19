@@ -54,6 +54,6 @@ class Aftv(MangaSite):
             url = self.TEMPLATE_URL.format(path=('/actions/search/?q={name}'.format(name=self.name.replace(' ', '+'))))
 
             lines = urllib2.urlopen(url)
-            first_result = lines.readline()
+            first_result = str(lines.readline())
 
             return self.Metadata(*first_result.split('|'))
