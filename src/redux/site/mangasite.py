@@ -10,6 +10,7 @@ class MangaSite(object):
     __metaclass__ = ABCMeta
 
     @classmethod
+    @memoize
     def series(cls, name):
         return cls.Series(cls, name)
 
