@@ -1,6 +1,6 @@
 import re
 
-from aftv import Aftv
+from redux.site.aftv import Aftv
 
 
 class MangaReader(Aftv):

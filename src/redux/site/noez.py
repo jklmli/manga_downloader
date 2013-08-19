@@ -1,7 +1,7 @@
 import re
 import string
 
-from mangasite import MangaSite
+from redux.site.mangasite import MangaSite
 
 
 class Noez(MangaSite):

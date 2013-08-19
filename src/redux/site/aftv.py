@@ -2,7 +2,7 @@ import re
 import urllib2
 
 from redux.helper.decorators import memoize
-from mangasite import MangaSite
+from redux.site.mangasite import MangaSite
 
 
 class Aftv(MangaSite):

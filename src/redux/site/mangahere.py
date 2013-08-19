@@ -1,6 +1,6 @@
 import re
 
-from noez import Noez
+from redux.site.noez import Noez
 
 
 class MangaHere(Noez):
