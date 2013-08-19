@@ -58,6 +58,7 @@ class Util:
                     # idea from wget
                     time.sleep(random.uniform(0.5*waitRetryTime, 1.5*waitRetryTime))
                     maxRetries -= 1
+        ret = str(ret)
         if returnRedirctUrl:
             return ret, f.geturl()
         else:
