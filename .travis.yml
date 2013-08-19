@@ -4,4 +4,10 @@ python:
   - "2.7"
   - "3.2"
   - "3.3"
-script: nosetests
+install:
+  - pip install -r requirements.txt --use-mirrors
+  - pip install coveralls --use-mirrors
+script:
+  - nosetests --with-coverage --cover-package=redux
+after_success:
+  - coveralls
