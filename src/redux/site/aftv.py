@@ -13,7 +13,7 @@ class Aftv(MangaSite):
 
         @property
         def pages(self):
-            if (self.url.endswith('.html')):
+            if self.url.endswith('.html'):
                 page_base_url = re.sub('(\d+)-(\d+)-(\d+)', '\\1-\\2-{}', self.url)
             else:
                 page_base_url = self.url + '/{}'
