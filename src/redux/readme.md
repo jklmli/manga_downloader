@@ -1,6 +1,7 @@
 # Redux
 
 [![Build Status](https://travis-ci.org/jiaweihli/manga_downloader.png)](https://travis-ci.org/jiaweihli/manga_downloader)
+[![Coverage Status](https://coveralls.io/repos/jiaweihli/manga_downloader/badge.png?branch=refactoring)](https://coveralls.io/r/jiaweihli/manga_downloader?branch=refactoring)
 
 ## Layout
 `helper` contains some shared, non-application-specific code.  (Or it will, after the Util class
