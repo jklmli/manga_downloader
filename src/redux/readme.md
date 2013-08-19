@@ -35,3 +35,6 @@ Step 2:
 
 > 'http://z.mfcdn.net/store/manga/3660/01-001.0/compressed/toriko_v01_c01_01.jpg'
 
+## Version Support
+
+Support is maintained on Python 2.6, 2.7, 3.2, and 3.3.
