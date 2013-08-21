@@ -4,6 +4,7 @@ from abc import ABCMeta
 from redux.helper.decorators import memoize
 from redux.helper.image import Image
 from redux.helper.traits.hasurl import HasUrl
+from redux.helper.util import Util
 
 
 class MangaSite(object):
@@ -38,16 +39,24 @@ class MangaSite(object):
             :rtype: str or None
             """
             match = self.VOLUME_AND_CHAPTER_FROM_URL_REGEX.match(self.url)
-            return match.group('volume').lstrip('0') if (match is not None and match.group('volume') is not None) else None
+
+            if match is not None and match.group('volume') is not None:
+                return Util.normalize_value(match.group('volume'))
+            else:
+                return None
 
         @property
         @memoize
         def chapter(self):
             """
-            :rtype: str
+            :rtype: str or None
             """
             match = self.VOLUME_AND_CHAPTER_FROM_URL_REGEX.match(self.url)
-            return match.group('chapter').lstrip('0') if (match is not None and match.group('chapter') is not None) else None
+
+            if match is not None and match.group('chapter') is not None:
+                return Util.normalize_value(match.group('chapter'))
+            else:
+                return None
 
         @property
         @memoize
