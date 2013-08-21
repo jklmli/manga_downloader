@@ -81,13 +81,6 @@ class Util:
             return str(int(float(s)) if int(float(s)) == float(s) else float(s))
 
     @staticmethod
-    def flatten(l):
-        """
-        :rtype: list
-        """
-        return [item for sublist in l for item in sublist]
-
-    @staticmethod
     # :SEE: http://stackoverflow.com/a/8940266/759714
     def natural_sort(l, key=lambda s:s):
         """
