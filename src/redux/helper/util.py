@@ -1,29 +1,33 @@
-####################
-
 import gzip
 import io
 import random
+import re
 import time
+
 try:
     import socks
     NO_SOCKS = False
 except ImportError:
     NO_SOCKS = True
 import socket
-###################
 
 try:
     import urllib2
 except ImportError:
     import urllib.request as urllib2
 
-####################
+try:
+    import HTMLParser
+except ImportError:
+    import html.parser as HTMLParser
 
 
 class Util:
     @staticmethod
     def getSourceCode(url, proxy = None, returnRedirctUrl = False, maxRetries=1, waitRetryTime=1):
         """
+        :rtype: str
+
         Loop to get around server denies for info or minor disconnects.
         """
         if (proxy != None):
@@ -63,3 +67,44 @@ class Util:
             return ret, f.geturl()
         else:
             return ret
+
+    @staticmethod
+    def normalize_value(s):
+        """
+        :rtype: str
+        """
+        try:
+            float(s)
+        except ValueError:
+            return s
+        else:
+            return str(int(float(s)) if int(float(s)) == float(s) else float(s))
+
+    @staticmethod
+    def flatten(l):
+        """
+        :rtype: list
+        """
+        return [item for sublist in l for item in sublist]
+
+    @staticmethod
+    # :SEE: http://stackoverflow.com/a/8940266/759714
+    def natural_sort(l, key=lambda s:s):
+        """
+        :rtype: list
+
+        Return a copy of the list in natural alphanumeric order.
+        """
+        def get_alphanum_key_func(key):
+            convert = lambda text: int(text) if text.isdigit() else text
+            return lambda s: [convert(c) for c in re.split('([0-9]+)', key(s))]
+        sort_key = get_alphanum_key_func(key)
+        return sorted(l, key=sort_key)
+
+    @staticmethod
+    # :SEE: http://stackoverflow.com/a/275246/759714
+    def unescape(s):
+        """
+        :rtype: str
+        """
+        return HTMLParser.HTMLParser().unescape(s)
