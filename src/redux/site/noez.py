@@ -1,6 +1,7 @@
 import re
 import string
 
+from redux.helper.util import Util
 from redux.site.mangasite import MangaSite
 
 
@@ -25,7 +26,7 @@ class Noez(MangaSite):
 
         @property
         def chapters(self):
-            ret = [self.site.Chapter(self, match.group('title') or '', match.group('url')) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
+            ret = [self.site.Chapter(self, Util.unescape(match.group('title') or ''), match.group('url')) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
             ret.reverse()
 
             return ret

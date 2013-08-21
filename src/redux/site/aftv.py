@@ -5,6 +5,7 @@ except ImportError:
     import urllib.request as urllib2
 
 from redux.helper.decorators import memoize
+from redux.helper.util import Util
 from redux.site.mangasite import MangaSite
 
 
@@ -40,7 +41,7 @@ class Aftv(MangaSite):
 
         @property
         def chapters(self):
-            ret = [self.site.Chapter(self, match.group('title') or '', self.TEMPLATE_URL.format(path=match.group('path'))) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
+            ret = [self.site.Chapter(self, Util.unescape(match.group('title') or ''), self.TEMPLATE_URL.format(path=match.group('path'))) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
 
             return ret
 
