@@ -91,9 +91,9 @@ class MangaSite(object):
         @memoize
         def image(self):
             """
-            :rtype: Image
+            :rtype: Image or None
             """
-            return Image(str(self.IMAGE_FROM_SOURCE_REGEX.search(self.source).group('link')))
+            return Image(str(self.IMAGE_FROM_SOURCE_REGEX.search(self.source).group('link'))) if self.IMAGE_FROM_SOURCE_REGEX.search(self.source) is not None else None
 
     class Series(HasUrl):
         __metaclass__ = ABCMeta
