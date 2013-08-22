@@ -6,6 +6,7 @@ import time
 
 try:
     import socks
+
     NO_SOCKS = False
 except ImportError:
     NO_SOCKS = True
@@ -24,7 +25,7 @@ except ImportError:
 
 class Util:
     @staticmethod
-    def getSourceCode(url, proxy = None, returnRedirctUrl = False, maxRetries=1, waitRetryTime=1):
+    def getSourceCode(url, proxy=None, returnRedirctUrl=False, maxRetries=1, waitRetryTime=1):
         """
         :rtype: str
 
@@ -34,11 +35,13 @@ class Util:
             if (NO_SOCKS):
                 raise RuntimeError('socks library required to use proxy (e.g. SocksiPy)')
             proxySettings = proxy.split(':')
-            socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS4, proxySettings[0], int(proxySettings[1]), True)
+            socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS4, proxySettings[0], int(proxySettings[1]),
+                                  True)
             socket.socket = socks.socksocket
         ret = None
         request = urllib2.Request(url, headers={
-            'User-agent': """Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.14 Safari/534.3""",
+            'User-agent': """Mozilla/5.0 (X11; U; Linux i686; en-US) AppleWebKit/534.3 (KHTML,
+            like Gecko) Chrome/6.0.472.14 Safari/534.3""",
             'Accept-encoding': 'gzip'
         })
         while (ret == None):
@@ -60,7 +63,7 @@ class Util:
                 else:
                     # random dist. for further protection against anti-leech
                     # idea from wget
-                    time.sleep(random.uniform(0.5*waitRetryTime, 1.5*waitRetryTime))
+                    time.sleep(random.uniform(0.5 * waitRetryTime, 1.5 * waitRetryTime))
                     maxRetries -= 1
         ret = str(ret)
         if returnRedirctUrl:
@@ -82,15 +85,17 @@ class Util:
 
     @staticmethod
     # :SEE: http://stackoverflow.com/a/8940266/759714
-    def natural_sort(l, key=lambda s:s):
+    def natural_sort(l, key=lambda s: s):
         """
         :rtype: list
 
         Return a copy of the list in natural alphanumeric order.
         """
+
         def get_alphanum_key_func(key):
             convert = lambda text: int(text) if text.isdigit() else text
             return lambda s: [convert(c) for c in re.split('([0-9]+)', key(s))]
+
         sort_key = get_alphanum_key_func(key)
         return sorted(l, key=sort_key)
 

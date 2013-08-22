@@ -1,4 +1,5 @@
 import re
+
 try:
     import urllib2
 except ImportError:
@@ -22,10 +23,12 @@ class Aftv(MangaSite):
             else:
                 page_base_url = self.url + '/{index}'
 
-            return [self.series.site.Page(self, page_base_url.format(index=index)) for index in range(1, self.number_of_pages + 1)]
+            return [self.series.site.Page(self, page_base_url.format(index=index)) for index in
+                    range(1, self.number_of_pages + 1)]
 
     class Series(MangaSite.Series):
-        CHAPTER_FROM_SOURCE_REGEX = re.compile('<a href="(?P<path>[^"]*)">[^<]*</a>[^:]*: (?P<title>[^<]*)</td>')
+        CHAPTER_FROM_SOURCE_REGEX = re.compile(
+            '<a href="(?P<path>[^"]*)">[^<]*</a>[^:]*: (?P<title>[^<]*)</td>')
 
         class Metadata(object):
             def __init__(self, name1, picture_link, name2, author_name, path, id):
@@ -41,7 +44,9 @@ class Aftv(MangaSite):
 
         @property
         def chapters(self):
-            ret = [self.site.Chapter(self, Util.unescape(match.group('title') or ''), self.TEMPLATE_URL.format(path=match.group('path'))) for match in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
+            ret = [self.site.Chapter(self, Util.unescape(match.group('title') or ''),
+                                     self.TEMPLATE_URL.format(path=match.group('path'))) for match
+                   in self.CHAPTER_FROM_SOURCE_REGEX.finditer(self.source)]
 
             return ret
 
@@ -52,7 +57,8 @@ class Aftv(MangaSite):
         @property
         @memoize
         def metadata(self):
-            url = self.TEMPLATE_URL.format(path=('/actions/search/?q={name}'.format(name=self.name.replace(' ', '+'))))
+            url = self.TEMPLATE_URL.format(
+                path=('/actions/search/?q={name}'.format(name=self.name.replace(' ', '+'))))
 
             lines = urllib2.urlopen(url)
             first_result = str(lines.readline())

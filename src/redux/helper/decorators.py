@@ -10,7 +10,9 @@ def memoize(obj):
         if key not in cache:
             cache[key] = obj(*args, **kwargs)
         return cache[key]
+
     return memoizer
+
 
 def post_hookable(cls):
     cls.post_hook()

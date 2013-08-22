@@ -49,7 +49,7 @@ def chapters(series):
 def itemize(args):
     for chapter_number, chapter_objects in chapters(args.series).items():
         titles = [chapter.title for chapter in chapter_objects if chapter.title.strip() != '']
-        print "(%s) %s" % (chapter_number, titles[0] if len(titles) > 0 else '')
+        print("(%s) %s" % (chapter_number, titles[0] if len(titles) > 0 else ''))
 
 
 def download(args):
