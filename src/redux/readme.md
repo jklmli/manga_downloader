@@ -44,7 +44,7 @@ issues related to error correction that are being worked out however):
 
 > \>\>\> from metasite import MetaSite
 
-> \>\>\> search = MetaSite(dict())
+> \>\>\> search = MetaSite([MangaFox, MangaHere, MangaPanda, MangaReader])
 
 > \>\>\> from redux.site.mangafox import MangaFox
 
@@ -53,8 +53,6 @@ issues related to error correction that are being worked out however):
 > \>\>\> from redux.site.mangapanda import MangaPanda
 
 > \>\>\> from redux.site.mangareader import MangaReader
-
-> \>\>\> search.modules = [MangaFox, MangaHere, MangaPanda, MangaReader]
 
 > \>\>\> search.series('death note').chapters['22'].pages[0].image.url
 
