@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from metasite import MetaSite
+from src.redux.metasite import MetaSite
 from src.redux.site.mangafox import MangaFox
 from src.redux.site.mangahere import MangaHere
 from src.redux.site.mangapanda import MangaPanda

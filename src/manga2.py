@@ -1,6 +1,6 @@
 import argparse
 
-from metasite import MetaSite
+from redux.metasite import MetaSite
 from redux.site.mangafox import MangaFox
 from redux.site.mangahere import MangaHere
 from redux.site.mangapanda import MangaPanda
