@@ -7,9 +7,9 @@ from redux.helper.util import Util
 
 
 class MetaSite(object):
-    def __init__(self, options):
+    def __init__(self, modules=[], options={}):
+        self.modules = modules
         self.options = options
-        self.modules = None
 
     @memoize
     def series(self, name):
