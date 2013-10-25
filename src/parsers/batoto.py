@@ -54,7 +54,7 @@ class Batoto(SiteParserBase):
             
         manga = self.selectFromResults(seriesl)
         if self.verbose_FLAG:
-            print manga
+            print(manga)
         mname = [i for i in seriesl if i[0] == manga][0][1]
         s = getSourceCode(manga, self.proxy)
         soup = BeautifulSoup(s)
@@ -83,7 +83,7 @@ class Batoto(SiteParserBase):
             if len(i) == 1 or sc == None:
                 if sc != None and sc[2] != i[0][2]:
                     if self.verbose_FLAG:
-                        print "switched to {} at {}".format(i[0][2], i[0][3])
+                        print("switched to {} at {}".format(i[0][2], i[0][3]))
                 sc = i[0]
                 del i[1:]
                 continue
@@ -92,7 +92,7 @@ class Batoto(SiteParserBase):
                 c = self.get_next_url(sc[0])
                 i[0] = [n for n in i if n[0] == c][0]
                 if self.verbose_FLAG:
-                    print "Anomaly at chapter {} ({} matches, chose {})".format(i[0][3], len(ll), i[0][2])
+                    print("Anomaly at chapter {} ({} matches, chose {})".format(i[0][3], len(ll), i[0][2]))
                 del i[1:]
                 sc = i[0]
                 continue
@@ -101,7 +101,7 @@ class Batoto(SiteParserBase):
             del i[1:]
         self.chapters = [i[0] for i in self.chapters]
         for n,c in enumerate(self.chapters):
-            print "{:03d}. {}".format(n+1, c[1].encode('utf-8'))
+            print("{:03d}. {}".format(n+1, c[1].encode('utf-8')))
         self.chapters_to_download = self.selectChapters(self.chapters)
 
     def downloadChapter(self, downloadThread, max_pages, url, manga_chapter_prefix, current_chapter):
@@ -112,6 +112,6 @@ class Batoto(SiteParserBase):
         n = 1
         for i in ol:
             if self.verbose_FLAG:
-                print i['value']
+                print(i['value'])
             self.downloadImage(downloadThread, n, i['value'], manga_chapter_prefix)
             n += 1
