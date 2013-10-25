@@ -59,7 +59,7 @@ class BookConvert():
                 base = os.path.join(directory, unicode(self.book.title))
                 mangaName = base + '.manga'
                 if (self.verbose):
-               		print mangaName
+               		print(mangaName)
                 if self.book.overwrite or not os.path.isfile(mangaName):
                     manga = open(mangaName, 'w')
                     manga.write('\x00')
@@ -84,13 +84,13 @@ class BookConvert():
             if self.book.overwrite or not os.path.isfile(target):
                 image.convertImage(newSource, target, str(self.book.device), self.book.imageFlags)
                 if (self.verbose):
-                	print source + " -> " + target
+                	print(source + " -> " + target)
                 else:	
                 	self.outputMgr.updateOutputObj( outputIdx )	
 
 					
           except RuntimeError, error:
-              print "ERROR"
+              print("ERROR")
           finally:
           	os.renames(newSource, source)
  

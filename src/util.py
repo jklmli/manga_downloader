@@ -49,7 +49,7 @@ def getSourceCode(url, proxy, returnRedirctUrl = False, maxRetries=1, waitRetryT
 	"""
 	Loop to get around server denies for info or minor disconnects.
 	"""
-	if (proxy <> None):
+	if (proxy is not None):
 		if (NO_SOCKS):
 			raise FatalError('socks library required to use proxy (e.g. SocksiPy)')
 		proxySettings = proxy.split(':')
