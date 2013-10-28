@@ -42,7 +42,8 @@ class MangaFox(SiteParserBase):
 		if self.verbose_FLAG:
 			print(url)
 		
-		source, redirectURL = getSourceCode(url, self.proxy, True)
+		source_bytes, redirectURL = getSourceCode(url, self.proxy, True)
+		source = source_bytes.decode()
 
 		if (redirectURL != url or source is None or 'the page you have requested cannot be found' in source):
 			# Could not find the manga page by guessing 
@@ -54,7 +55,7 @@ class MangaFox(SiteParserBase):
 				source = getSourceCode(url, self.proxy)
 				seriesResults = []
 				if source is not None:
-					seriesResults = MangaFox.re_getSeries.findall(source)
+					seriesResults = MangaFox.re_getSeries.findall(source.decode())
 				
 				if ( 0 == len(seriesResults) ):
 					url = 'http://mangafox.me/search.php?name_method=cw&name=%s&is_completed=&advopts=1' % '+'.join(self.manga.split())
@@ -62,7 +63,7 @@ class MangaFox(SiteParserBase):
 						print(url)
 					source = getSourceCode(url, self.proxy)
 					if source is not None:
-						seriesResults = MangaFox.re_getSeries.findall(source)
+						seriesResults = MangaFox.re_getSeries.findall(source.decode())
 					
 			# 0 results
 			except AttributeError:

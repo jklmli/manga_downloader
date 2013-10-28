@@ -40,7 +40,7 @@ class progressBarManager(outputManager):
 		
 		self.outputListLock.acquire(True)
 		if (len(self.outputObjs) > 0):
-			keys = self.outputObjs.iterkeys()
+			keys = self.outputObjs.keys()
 			for key in keys:
 				index = key
 				break 
