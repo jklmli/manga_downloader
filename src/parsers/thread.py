@@ -38,7 +38,7 @@ class SiteParserThread( threading.Thread ):
 			# create download directory if not found
 			try:
 				if os.path.exists(self.downloadPath) is False:
-					os.mkdir(self.downloadPath)
+					os.makedirs(self.downloadPath)
 			except OSError:
 				print("""Unable to create download directory. There may be a file 
 					with the same name, or you may not have permissions to write 

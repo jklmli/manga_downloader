@@ -46,6 +46,9 @@ class MangaXmlParser:
 			except IndexError:
 				download_path = ('./' + fixFormatting(name))
 			
+			if self.options.downloadPath != 'DEFAULT_VALUE':
+				download_path = os.path.join(self.options.downloadPath, download_path)
+			
 			self.options.site = site
 			self.options.manga = name
 			self.options.downloadPath = download_path
