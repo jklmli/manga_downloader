@@ -231,12 +231,11 @@ def main():
 			
 				if SetDownloadPathToName_Flag:		
 					options.downloadPath = ('./' + fixFormatting(options.manga, options.spaceToken))
-			
+            
 				if SetOutputPathToDefault_Flag:	
 					options.outputDir = options.downloadPath 
 			
 				options.downloadPath = os.path.realpath(options.downloadPath) + os.sep
-				
 			
 				# site selection
 				if HAVE_SOUP:
@@ -256,7 +255,7 @@ def main():
 					raise InvalidSite('Site selection invalid.')	
 			
 				threadPool.append(SiteParserThread(options, None, None))
-			
+            
 			for thread in threadPool: 
 				thread.start()
 				thread.join()
