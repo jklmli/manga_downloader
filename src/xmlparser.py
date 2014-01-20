@@ -33,8 +33,9 @@ class MangaXmlParser:
 			SetOutputPathToName_Flag = True
 			
 		for node in dom.getElementsByTagName("MangaSeries"):
-			name = getText(node.getElementsByTagName('name')[0])
-			site = getText(node.getElementsByTagName('HostSite')[0])
+			seriesOptions = self.options
+			seriesOptions.manga = getText(node.getElementsByTagName('name')[0])
+			seriesOptions.site = getText(node.getElementsByTagName('HostSite')[0])
 			
 			try:
 				lastDownloaded = getText(node.getElementsByTagName('LastChapterDownloaded')[0])
@@ -44,17 +45,15 @@ class MangaXmlParser:
 			try:
 				download_path =	getText(node.getElementsByTagName('downloadPath')[0])
 			except IndexError:
-				download_path = ('./' + fixFormatting(name))
+				download_path = ('./' + fixFormatting(seriesOptions.manga))
 			
-			if self.options.downloadPath != 'DEFAULT_VALUE':
+			if self.options.downloadPath != 'DEFAULT_VALUE' and not os.path.isabs(download_path):
 				download_path = os.path.join(self.options.downloadPath, download_path)
 			
-			self.options.site = site
-			self.options.manga = name
-			self.options.downloadPath = download_path
-			self.options.lastDownloaded = lastDownloaded
+			seriesOptions.downloadPath = download_path
+			seriesOptions.lastDownloaded = lastDownloaded
 			if SetOutputPathToName_Flag:
-				self.options.outputDir = download_path
+				seriesOptions.outputDir = download_path
 			
 			# Because the SiteParserThread constructor parses the site to retrieve which chapters to 
 			# download the following code would be faster
@@ -67,7 +66,7 @@ class MangaXmlParser:
 			# the print statement would intermingle with the progress bar. It would be very difficult to 
 			# understand what was happening. Do not believe this change is worth it.
 			
-			threadPool.append(SiteParserThread(self.options, dom, node))
+			threadPool.append(SiteParserThread(seriesOptions, dom, node))
 		
 		for thread in threadPool: 
 			thread.start()
