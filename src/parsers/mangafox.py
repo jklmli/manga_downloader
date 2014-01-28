@@ -71,7 +71,9 @@ class MangaFox(SiteParserBase):
 				keyword = self.selectFromResults(seriesResults)
 				if self.verbose_FLAG:
 					print ("Keyword: %s" % keyword)
-				url = 'http://www.mangafox.me/manga/%s/' % keyword			
+				url = 'http://mangafox.me/manga/%s/' % keyword	
+				if self.verbose_FLAG:
+					print ("URL: %s" % url)				
 				source = getSourceCode(url, self.proxy)
 				
 				if (source is None):
@@ -88,7 +90,7 @@ class MangaFox(SiteParserBase):
 			
 
 		# that's nice of them
-		#url = 'http://www.mangafox.me/cache/manga/%s/chapters.js' % keyword
+		#url = 'http://mangafox.me/cache/manga/%s/chapters.js' % keyword
 		#source = getSourceCode(url, self.proxy)
 		
 		# chapters is a 2-tuple
@@ -122,13 +124,13 @@ class MangaFox(SiteParserBase):
 					if (self.lastDownloaded == self.chapters[i]):
 						lowerRange = i + 1
 												
-				self.chapters[i] = ('http://www.mangafox.me/manga/%s/%s' % (keyword, self.chapters[i]), self.chapters[i], self.chapters[i])
+				self.chapters[i] = ('http://mangafox.me/manga/%s/%s' % (keyword, self.chapters[i]), self.chapters[i], self.chapters[i])
 
 		else:				
 			for i in range(0, len(self.chapters)):
 				if self.verbose_FLAG:
 					print("%s %s" % (self.chapters[i][0], self.chapters[i][1]))
-				self.chapters[i] = ('http://www.mangafox.me/manga/%s/%s/%s' % (keyword, self.chapters[i][0], self.chapters[i][1]), self.chapters[i][0] + "." + self.chapters[i][1], self.chapters[i][1])
+				self.chapters[i] = ('http://mangafox.me/manga/%s/%s/%s' % (keyword, self.chapters[i][0], self.chapters[i][1]), self.chapters[i][0] + "." + self.chapters[i][1], self.chapters[i][1])
 				if (not self.auto):
 					print('(%i) %s' % (i + 1, self.chapters[i][1]))
 				else:
