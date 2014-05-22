@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import re
-from bs4 import BeautifulSoup
 
 from parsers.base import SiteParserBase
 from util import getSourceCode
