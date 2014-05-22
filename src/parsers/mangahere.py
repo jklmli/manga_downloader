@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 ####################
 
@@ -161,7 +162,7 @@ class MangaHere(SiteParserBase):
 			print("Validating chapter: %s" % self.chapters[upperRange - 1][0])
 		source = getSourceCode(self.chapters[upperRange - 1][0], self.proxy)
 
-		if ('not available yet' in source):
+		if ('not available yet' in source) or ('Sorry, the page you have requested can’t be found' in source):
 			# If the last chapter is not available remove it from the list
 			del self.chapters[upperRange - 1]
 			upperRange = upperRange - 1;
