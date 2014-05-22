@@ -26,7 +26,7 @@ class EatManga(SiteParserBase):
         source = getSourceCode(url, self.proxy)
 
         self.chapters = EatManga.re_getChapters.findall(source)
-        self.chapters[0]
+        self.chapters[0] 
 
 
     def downloadChapter(self, downloadThread, max_pages, url, manga_chapter_prefix, current_chapter):
