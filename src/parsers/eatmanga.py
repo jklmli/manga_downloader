@@ -32,11 +32,15 @@ class EatManga(SiteParserBase):
         self.chapters = EatManga.re_getChapters.findall(source)
         self.chapters.reverse()
 
+        if not self.chapters:
+            raise self.MangaNotFound
+
         lowerRange = 0
 
         for i in range(0, len(self.chapters)):
             if 'upcoming' in self.chapters[i][0]:
                 #Skip not available chapters
+                del self.chapters[i]
                 continue
 
             self.chapters[i] = ('http://eatmanga.com%s' % self.chapters[i][0], self.chapters[i][2], self.chapters[i][2])
