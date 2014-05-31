@@ -6,6 +6,7 @@ from parsers.mangafox import MangaFox
 from parsers.mangareader import MangaReader
 from parsers.mangapanda import MangaPanda
 from parsers.mangahere import MangaHere
+from parsers.eatmanga import EatManga
 try:
 	from bs4 import BeautifulSoup
 	from parsers.batoto import Batoto
@@ -24,13 +25,15 @@ class SiteParserFactory():
 				'[mf]'        : MangaFox,
 				'[mr]'        : MangaReader,
 				'[mp]'        : MangaPanda,
-				'[mh]'        : MangaHere, 
-			        '[bt]'        : Batoto,
+				'[mh]'        : MangaHere,
+				'[em]'        : EatManga,
+				'[bt]'        : Batoto,
 				'MangaFox'    : MangaFox,
 				'MangaReader' : MangaReader,
 				'MangaPanda'  : MangaPanda,
 				'MangaHere'   : MangaHere,
-			        'Batoto'      : Batoto,
+				'EatManga'    : EatManga,
+				'Batoto'      : Batoto,
 
 				}.get(options.site, None)
 
