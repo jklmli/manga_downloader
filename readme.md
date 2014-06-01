@@ -1,8 +1,8 @@
 # Manga-Downloader
 
-**Note: There is an ongoing rewrite in the 1.0.0 branch (pull requests welcome!), which will break
-backwards-compatibility with the current version (0.x).  Once it's released, this version will be 
-deprecated and all development and support will be dropped.**
+**Note: There is an ongoing rewrite in the [1.0.0 branch](https://github.com/jiaweihli/manga_downloader/tree/1.0.0) 
+(pull requests welcome!), which will break backwards-compatibility with the current version (0.x).  
+Once it's released, this version will be deprecated and all development and support will be dropped.**
 
 Manga-Downloader is a cross-platform Windows/Mac/Linux Python 2/3 script.
 
