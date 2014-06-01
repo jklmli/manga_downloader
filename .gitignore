@@ -1,17 +1,4 @@
 # Compiled source #
 ###################
 *.pyc
-src/__pycache__/
-bin/
-
-# Vim temp #
-############
-*~
-*.swp
-
-# Eclipse #
-###########
-.settings/
-.project
-.pydevproject
-
+__pycache__/
