@@ -165,6 +165,10 @@ def main():
 	parser.add_option( 	'--proxy',
 				dest = 'proxy',
 				help = 'Specifies the proxy.'				)
+	
+	parser.add_option( '--disableCompression',
+						action = 'store_true',
+						help = 'Download the images to outputDir without compression')
 
 	(options, args) = parser.parse_args()
 

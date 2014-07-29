@@ -163,8 +163,12 @@ class SiteParserBase:
 		# Loop to protect against server denies for requests and/or minor disconnects
 		while True:
 			try:
-				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
-				urllib.urlretrieve(img_url, temp_path)
+				if self.disableCompression:
+					path = os.path.join(self.outputDir, manga_chapter_prefix + '_' + str(page).zfill(3))
+					urllib.urlretrieve(img_url, path)
+				else:
+					temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
+					urllib.urlretrieve(img_url, temp_path)
 			except IOError:
 				pass
 			else:
@@ -380,6 +384,8 @@ class SiteParserBase:
 			print("%s (End Time): %s" % (manga_chapter_prefix, str(time.time())))
 
 		SiteParserBase.DownloadChapterThread.releaseSemaphore()
+		if self.disableCompression:
+			return
 		compressedFile = self.compress(manga_chapter_prefix, max_pages)
 		self.convertChapter( compressedFile )	
 	
