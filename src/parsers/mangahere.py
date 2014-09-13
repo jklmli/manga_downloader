@@ -34,7 +34,17 @@ class MangaHere(SiteParserBase):
 
 	def chapter_compare(self, x, y):
 		non_decimal = re.compile(r'[^\d.]+')
-
+		x_chapter = float(non_decimal.sub('', x[0]))
+		y_chapter = float(non_decimal.sub('', y[0]))
+		
+		if x_chapter != y_chapter:
+			return 1 if x_chapter > y_chapter else -1
+		
+		return 0			  
+    
+	def volume_compare(self, x, y):
+		non_decimal = re.compile(r'[^\d.]+')
+		
 		x_vol = float(non_decimal.sub('', x[0]))
 		y_vol = float(non_decimal.sub('', y[0]))
 		if x_vol != y_vol:
@@ -128,13 +138,13 @@ class MangaHere(SiteParserBase):
 			re_getChapters = re.compile('a.*?href="http://.*?mangahere.*?/manga/%s/(c[\d]+(\.[\d]+)?)/[^"]*?"' % keyword)
 			self.chapters = re_getChapters.findall(source)
 
-		#Sort chapters by volume and chapter number. Needed because next chapter isn't always accurate.
-		self.chapters = sorted(self.chapters, cmp=self.chapter_compare)
-
 		# code used to both fix URL from relative to absolute as well as verify last downloaded chapter for XML component
 		lowerRange = 0
 
 		if isChapterOnly:
+			#Sort chapters by volume and chapter number. Needed because next chapter isn't always accurate.
+			self.chapters = sorted(self.chapters, cmp=self.chapter_compare)
+
 			for i in range(0, len(self.chapters)):
 				if self.verbose_FLAG:
 					print("%s" % self.chapters[i][0])
@@ -145,6 +155,9 @@ class MangaHere(SiteParserBase):
 				self.chapters[i] = ('http://www.mangahere.com/manga/%s/%s' % (keyword, self.chapters[i][0]), self.chapters[i][0], self.chapters[i][0])
 
 		else:
+			#Sort chapters by volume and chapter number. Needed because next chapter isn't always accurate.
+			self.chapters = sorted(self.chapters, cmp=self.volume_compare)
+		
 			for i in range(0, len(self.chapters)):
 				if self.verbose_FLAG:
 					print("%s %s" % (self.chapters[i][0], self.chapters[i][1]))
@@ -171,9 +184,6 @@ class MangaHere(SiteParserBase):
 		# which ones do we want?
 		if (not self.auto):
 			for i in range(0, upperRange):
-				if isChapterOnly:
-					print('(%i) %s' % (i + 1, self.chapters[i][0]))
-				else:
 					print('(%i) %s' % (i + 1, self.chapters[i][1]))
 
 			self.chapters_to_download = self.selectChapters(self.chapters)
