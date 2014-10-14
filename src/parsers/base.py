@@ -137,7 +137,7 @@ class SiteParserBase:
 				if (self.verbose_FLAG):
 					print(pageUrl)
 				source_code = getSourceCode(pageUrl, self.proxy)
-				img_url = self.__class__.re_getImage.search(source_code).group(1)
+				img_url = self.__class__.re_getImage.search(source_code.decode()).group(1)
 				if (self.verbose_FLAG):
 					print("Image URL: %s" % img_url)
 			except AttributeError:
@@ -164,7 +164,7 @@ class SiteParserBase:
 		while True:
 			try:
 				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
-				urllib.urlretrieve(img_url, temp_path)
+				urllib.request.urlretrieve(img_url, temp_path)
 			except IOError:
 				pass
 			else:
@@ -187,12 +187,12 @@ class SiteParserBase:
 			else:	
 				manga_chapter_prefix = zeroFillStr(fixFormatting(self.chapters[current_chapter][2], self.spaceToken), 3)
 		else:
-			manga_chapter_prefix = fixFormatting(self.manga, self.spaceToken) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1].decode('utf-8'), self.spaceToken), 3)
+			manga_chapter_prefix = fixFormatting(self.manga, self.spaceToken) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1], self.spaceToken), 3)
 
 		
 		# we already have it
 		if os.path.exists(os.path.join(self.downloadPath, manga_chapter_prefix) + self.downloadFormat) and self.overwrite_FLAG == False:
-			print(self.chapters[current_chapter][1].decode('utf-8') + ' already downloaded, skipping to next chapter...')
+			print(self.chapters[current_chapter][1] + ' already downloaded, skipping to next chapter...')
 			return
 
 		SiteParserBase.DownloadChapterThread.acquireSemaphore()
@@ -210,7 +210,7 @@ class SiteParserBase:
 		
 		source = getSourceCode(url, self.proxy)
 
-		max_pages = int(self.__class__.re_getMaxPages.search(source).group(1))
+		max_pages = int(self.__class__.re_getMaxPages.search(source.decode()).group(1))
 		
 		if (self.verbose_FLAG):
 				print ("Pages: "+ str(max_pages))
@@ -233,7 +233,7 @@ class SiteParserBase:
 		chapterArray = []
 		
 		if(self.all_chapters_FLAG == False):
-			inputChapterString = raw_input('\nDownload which chapters?\n')
+			inputChapterString = input('\nDownload which chapters?\n')
 			
 		if(self.all_chapters_FLAG == True or inputChapterString.lower() == 'all'):
 			print('\nDownloading all chapters...')
@@ -267,7 +267,7 @@ class SiteParserBase:
 		
 		# Translate the manga name to lower case
 		# Need to handle if it contains NonASCII characters
-		actualName = (self.manga.decode('utf-8')).lower()
+		actualName = self.manga.lower()
 		
 		# each element in results is a 2-tuple
 		# elem[0] contains a keyword or string that needs to be passed back (generally the URL to the manga homepage)
@@ -275,7 +275,7 @@ class SiteParserBase:
 		# When asking y/n, we pessimistically only accept 'y'
 		
 		for elem in results:
-			proposedName = (elem[1].decode('utf-8')).lower()
+			proposedName = elem[1].lower()
 			
 			if actualName in proposedName:
 				# manual mode
@@ -292,7 +292,7 @@ class SiteParserBase:
 					# only request input in manual mode
 					if (not self.auto):
 						print('Did you mean: %s? (y/n)' % elem[1])
-						answer = raw_input();
+						answer = input();
 	
 						if (answer == 'y'):
 							self.manga = elem[1]
