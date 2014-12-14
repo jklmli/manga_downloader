@@ -203,14 +203,22 @@ class SiteParserBase:
 		
 		# mangafox .js sometimes leaves up invalid chapters
 		if (url == None):
+			print('Failed to find '+ self.chapters[current_chapter][1].decode('utf-8')+', skipping to next chapter...')
 			return
 		
 		if (self.verbose_FLAG):
 			print("PrepareDownload: " + url)
 		
 		source = getSourceCode(url, self.proxy)
+		max_page_search = self.__class__.re_getMaxPages.search(source)
+		
+		# MangaHere sometimes leaves up links to invalid chapter and
+		# the max page search fails
+		if (max_page_search == None):
+			print('Failed to find '+ self.chapters[current_chapter][1].decode('utf-8')+', skipping to next chapter...')
+			return
 
-		max_pages = int(self.__class__.re_getMaxPages.search(source).group(1))
+		max_pages = int(max_page_search.group(1))
 		
 		if (self.verbose_FLAG):
 				print ("Pages: "+ str(max_pages))
