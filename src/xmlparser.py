@@ -9,6 +9,7 @@ from xml.dom import minidom
 from parsers.thread import SiteParserThread
 from util import fixFormatting, getText
 import os
+import copy
 ######################
 
 class MangaXmlParser:
@@ -33,7 +34,7 @@ class MangaXmlParser:
 			SetOutputPathToName_Flag = True
 
 		for node in dom.getElementsByTagName("MangaSeries"):
-			seriesOptions = self.options
+			seriesOptions = copy.copy(self.options)
 			seriesOptions.manga = getText(node.getElementsByTagName('name')[0])
 			seriesOptions.site = getText(node.getElementsByTagName('HostSite')[0])
 
