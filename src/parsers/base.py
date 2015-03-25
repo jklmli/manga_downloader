@@ -187,7 +187,7 @@ class SiteParserBase:
 			else:	
 				manga_chapter_prefix = zeroFillStr(fixFormatting(self.chapters[current_chapter][2], self.spaceToken), 3)
 		else:
-			manga_chapter_prefix = fixFormatting(self.manga, self.spaceToken) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1].decode('utf-8'), self.spaceToken), 3)
+			manga_chapter_prefix = fixFormatting(self.manga, self.spaceToken) + '.' +  self.site + '.' + zeroFillStr(fixFormatting(self.chapters[current_chapter][1], self.spaceToken), 3)
 
 		
 		# we already have it
