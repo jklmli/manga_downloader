@@ -9,6 +9,7 @@ import shutil
 import tempfile
 import threading
 import time
+import urllib2
 import zipfile
 
 #####################
@@ -21,6 +22,10 @@ except ImportError:
 #####################
 
 from util import * 
+
+#####################
+
+UA = """Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36"""
 
 #####################
 
@@ -164,9 +169,20 @@ class SiteParserBase:
 		while True:
 			try:
 				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
-				urllib.urlretrieve(img_url, temp_path)
+
+				request = urllib2.Request(img_url, headers={'User-Agent': UA})
+				f = open(temp_path, 'wr')
+				i = urllib2.urlopen(request)
+				f.write(i.read())
+
+				f.close()
+				i.close()
+
 			except IOError:
-				pass
+				if f:
+					f.close()
+				if i:
+					i.close()
 			else:
 				break
 		if (not self.verbose_FLAG):
