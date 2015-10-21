@@ -23,11 +23,9 @@ except ImportError:
 
 ####################
 
+UA = """Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36"""
 # overwrite user agent for spoofing, enable GZIP
-urlReqHeaders = {	'User-agent':	"""Mozilla/5.0 (X11; U; Linux i686; 
-					en-US) AppleWebKit/534.3 (KHTML, like 
-					Gecko) Chrome/6.0.472.14 Safari/534.3""",
-			'Accept-encoding':'gzip'				}
+urlReqHeaders = {'User-agent': UA, 'Accept-encoding': 'gzip'}
 
 ####################
 
