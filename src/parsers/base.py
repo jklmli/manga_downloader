@@ -166,7 +166,12 @@ class SiteParserBase:
 			print(img_url)
 		
 		# Loop to protect against server denies for requests and/or minor disconnects
+		maxRetries = 5
 		while True:
+			if (maxRetries == 0):
+				break;
+
+			i = None
 			try:
 				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
 
@@ -183,6 +188,8 @@ class SiteParserBase:
 					f.close()
 				if i:
 					i.close()
+				
+				maxRetries -= 1
 			else:
 				break
 		if (not self.verbose_FLAG):
