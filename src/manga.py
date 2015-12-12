@@ -43,15 +43,14 @@ from outputManager.progressBarManager import progressBarManager
 VERSION = 'v0.8.8'
 
 siteDict = {
-		''  : '[mf]',
-		'1' : '[mf]',
-		'2' : '[mr]',
-		'3' : '[mp]',
-		'4' : '[mh]',
-		'5' : '[em]',
+		1 : ('[mf]','(1) MangaFox'),
+		2 : ('[mr]','(2) MangaReader'),
+		3 : ('[mp]','(3) MangaPanda'),
+		4 : ('[mh]','(4) MangaHere'),
+		5 : ('[em]','(5) EatManga'),
 					}
 if HAVE_SOUP:
-	siteDict['6'] = '[bt]'
+	siteDict[6] = ('[bt]','(6) Batoto')
 
 ##########
 
@@ -90,7 +89,8 @@ def main():
 				maxChapterThreads = 3,
 				useShortName = False,
 				spaceToken = '.',
-				proxy = None
+				proxy = None,
+				siteSelect = 0
 				)
 
 	parser.add_option(	'--all',
@@ -166,7 +166,16 @@ def main():
 				dest = 'proxy',
 				help = 'Specifies the proxy.'				)
 
+	parser.add_option( 	'-s', '--site',
+				dest = 'siteSelect',
+				help = 'Specifies the site to download from.'				)
+
 	(options, args) = parser.parse_args()
+
+	try:
+		options.siteSelect = int(options.siteSelect)
+	except:
+		options.siteSelect = 0
 
 	try:
 		options.maxChapterThreads = int(options.maxChapterThreads)
@@ -239,19 +248,19 @@ def main():
 				options.downloadPath = os.path.realpath(options.downloadPath) + os.sep
 
 				# site selection
-				if HAVE_SOUP:
-					print('\nWhich site?\n(1) MangaFox\n(2) MangaReader\n(3) MangaPanda\n(4) MangaHere\n(5) EatManga\n(6) Batoto\n')
-				else:
-					print('\nWhich site?\n(1) MangaFox\n(2) MangaReader\n(3) MangaPanda\n(4) MangaHere\n(5) EatManga\n')
+				if(options.siteSelect == 0):
+					print('Which site?')
+					for i in siteDict:
+						print(siteDict[i][1])
 
-				# Python3 fix - removal of raw_input()
-				try:
-					site = raw_input()
-				except NameError:
-					site = input()
+					# Python3 fix - removal of raw_input()
+					try:
+						options.siteSelect = raw_input()
+					except NameError:
+						options.siteSelect = input()
 
 				try:
-					options.site = siteDict[site]
+					options.site = siteDict[int(options.siteSelect)][0]
 				except KeyError:
 					raise InvalidSite('Site selection invalid.')
 
