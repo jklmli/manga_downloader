@@ -13,7 +13,7 @@ of over 10,000 mangas. Downloads into .cbz format, can optionally download into 
 
 ## Dependencies
 
-Python 2.6+, including 3.x
+Python 2.7+, including 3.x
 
 PIL if using Kindle conversion.
 
