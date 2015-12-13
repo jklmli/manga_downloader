@@ -171,23 +171,34 @@ class SiteParserBase:
 			if (maxRetries == 0):
 				break;
 
-			i = None
+			response = None
 			try:
-				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
-
 				request = urllib2.Request(img_url, headers={'User-Agent': UA})
-				f = open(temp_path, 'wr')
-				i = urllib2.urlopen(request)
-				f.write(i.read())
+				response = urllib2.urlopen(request, timeout=45)
+				responseInfo = response.info()
+				contentLength = int(responseInfo["Content-Length"])
+
+				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
+				f = open(temp_path, 'w')
+
+				f.write(response.read())
+				response.close()
 
 				f.close()
-				i.close()
+
+				# Check file size
+				fileSize = os.path.getsize(temp_path)
+				if fileSize < contentLength:
+					if self.verbose_FLAG:
+						print("File Size (" + str(fileSize) + ") < Content Length (" + str(contentLength) + ")")
+					maxRetries -= 1
+					continue
 
 			except IOError:
 				if f:
 					f.close()
-				if i:
-					i.close()
+				if response:
+					response.close()
 				
 				maxRetries -= 1
 			else:
