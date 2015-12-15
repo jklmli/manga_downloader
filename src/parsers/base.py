@@ -172,6 +172,7 @@ class SiteParserBase:
 				break;
 
 			response = None
+			f = None
 			try:
 				request = urllib2.Request(img_url, headers={'User-Agent': UA})
 				response = urllib2.urlopen(request, timeout=45)
