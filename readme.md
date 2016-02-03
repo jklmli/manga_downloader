@@ -77,7 +77,7 @@ Downloads using `.zip` compression.  Omitting this option defaults to `.cbz.`
 
 Converts the files that are downloaded to a Format/Size ratio acceptable to the device specified by
 the `device` parameter. The converted images are saved in the directory specified by the
-`outputDirectory` paraemter.
+`outputDirectory` parameter.
 
 > `--device`
 
