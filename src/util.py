@@ -37,7 +37,7 @@ def fixFormatting(s, spaceToken):
 	"""
 	Special character fix for filesystem paths.
 	"""
-	
+	s = s.decode('utf-8').encode('ascii', 'ignore')
 	for i in string.punctuation:
 		if(i != '-' and i != spaceToken):
 			s = s.replace(i, '')
