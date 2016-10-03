@@ -62,7 +62,10 @@ class Batoto(SiteParserBase):
         mname = [i for i in seriesl if i[0] == manga][0][1]
         s = getSourceCode(manga, self.proxy)
         soup = BeautifulSoup(s)
-        t = soup.find("table", class_="chapters_list").tbody
+        t = soup.find("table", class_="chapters_list")
+        if not t:
+        	raise self.NoChaptersFound
+        t = t.tbody
         cl = t.find_all("tr", class_="lang_English")
         self.chapters = [[]]
         cnum = self.chapters[0]

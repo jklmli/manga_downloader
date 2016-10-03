@@ -49,6 +49,15 @@ class SiteParserBase:
 
 		def __str__(self):
 			return self.errorMsg
+
+	# Manga was found, but no chapters were found to download
+	class NoChaptersFound(Exception):
+		
+		def __init__(self, errorMsg=''):
+			self.errorMsg = 'No chapters found. %s' % errorMsg
+		
+		def __str__(self):
+			return self.errorMsg
 		
 #####
 
