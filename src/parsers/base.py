@@ -189,7 +189,7 @@ class SiteParserBase:
 				contentLength = int(responseInfo["Content-Length"])
 
 				temp_path = os.path.join(self.tempFolder, manga_chapter_prefix + '_' + str(page).zfill(3))
-				f = open(temp_path, 'w')
+				f = open(temp_path, 'wb')
 
 				f.write(response.read())
 				response.close()
