@@ -90,7 +90,8 @@ def main():
 				useShortName = False,
 				spaceToken = '.',
 				proxy = None,
-				siteSelect = 0
+				siteSelect = 0,
+				chaptersInTankoubon = 1
 				)
 
 	parser.add_option(	'--all',
@@ -169,6 +170,10 @@ def main():
 	parser.add_option( 	'-s', '--site',
 				dest = 'siteSelect',
 				help = 'Specifies the site to download from.'				)
+	
+	parser.add_option('-k', '--tankoubon',
+					dest='chaptersInTankoubon',
+					help="Allows you to specify how many chapters you want in each tankoubon. Defaults to: %default.")
 
 	(options, args) = parser.parse_args()
 
@@ -184,6 +189,18 @@ def main():
 
 	if (options.maxChapterThreads <= 0):
 		options.maxChapterThreads = 2;
+		
+	# Check and sanitize the chaptersInTankoubon option
+	try:
+		options.chaptersInTankoubon = int(options.chaptersInTankoubon)
+	except:
+		options.chaptersInTankoubon = 1
+	
+	if (options.chaptersInTankoubon <= 0):
+		options.chaptersInTankoubon = 1
+	
+	options.shouldBuildTankoubon = True if options.chaptersInTankoubon > 1 else False
+	
 
 	if(len(args) == 0 and ( not (options.convert_Directory or options.xmlfile_path != None) )):
 		parser.error('Manga not specified.')

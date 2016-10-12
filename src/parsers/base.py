@@ -68,6 +68,7 @@ class SiteParserBase:
 		self.chapters_to_download = []
 		self.tempFolder = tempfile.mkdtemp()
 		self.garbageImages = {}
+		self.downloadedChaptersFilenames = {}
 		
 		# should be defined by subclasses
 		self.re_getImage = None
@@ -425,14 +426,27 @@ class SiteParserBase:
 			if (isAllPassed and thread.isThreadFailed):
 				isAllPassed = False
 		
+		if (isAllPassed and self.shouldBuildTankoubon):
+			self.buildTankoubon()
+		
 		return isAllPassed
 
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
 		if (self.timeLogging_FLAG):
 			print("%s (End Time): %s" % (manga_chapter_prefix, str(time.time())))
 
-		SiteParserBase.DownloadChapterThread.releaseSemaphore()
+		if (not self.shouldBuildTankoubon):
+			# If we don't need to build a Tankoubon, release the semaphore earlier
+			#  otherwise, hold on to it so that we can write to the shared list
+			#  of files
+			SiteParserBase.DownloadChapterThread.releaseSemaphore()
+			
 		compressedFile = self.compress(manga_chapter_prefix, max_pages)
+		
+		if (self.shouldBuildTankoubon):
+			self.downloadedChaptersFilenames[manga_chapter_prefix] = compressedFile
+			SiteParserBase.DownloadChapterThread.releaseSemaphore()
+			
 		self.convertChapter( compressedFile )	
 	
 	def convertChapter(self, compressedFile):
@@ -447,3 +461,8 @@ class SiteParserBase:
 				
 				if (compressedFile != None and self.outputDir != None):
 					convertFile.convert(self.outputMgr, compressedFile, self.outputDir, self.device, self.verbose_FLAG)
+	
+	def buildTankoubon(self):
+		print("Building a tankoubon!")
+		raise NotImplementedError("We'll implement this later!")
+	
