@@ -427,7 +427,7 @@ class SiteParserBase:
 				isAllPassed = False
 		
 		if (isAllPassed and self.shouldBuildTankoubon):
-			self.buildTankoubon()
+			self.buildTankoubon(self.downloadedChaptersFilenames, self.chaptersInTankoubon)
 		
 		return isAllPassed
 
@@ -462,7 +462,26 @@ class SiteParserBase:
 				if (compressedFile != None and self.outputDir != None):
 					convertFile.convert(self.outputMgr, compressedFile, self.outputDir, self.device, self.verbose_FLAG)
 	
-	def buildTankoubon(self):
+	def buildTankoubon(self, downloadedChaptersFilenames, chaptersInTankoubon):
 		print("Building a tankoubon!")
+		# First we need to get all indexes in the dictionary and order them
+		#  before we think of getting the locations
+		volumesWithChapters = []
+		orderedChaptersNames = list(downloadedChaptersFilenames.keys())
+		orderedChaptersNames.sort()		
+		
+		""" 
+		    Now that we have the indexes ordered, let's build a blueprint of what
+		     chapters should go into each volume, we can further improve on this
+		     and use it in the future to feed the list of volumes into threads!
+		"""
+		tankoubonVolume = 1
+		while (orderedChaptersNames): # This is, while we have something in the list
+			print("Tankoubon number: %s" % str(tankoubonVolume))
+			volumesWithChapters.append(orderedChaptersNames[:chaptersInTankoubon])
+			del orderedChaptersNames[:chaptersInTankoubon]
+			tankoubonVolume += 1
+		print(volumesWithChapters)
+				
 		raise NotImplementedError("We'll implement this later!")
 	
