@@ -11,6 +11,7 @@ import threading
 import time
 import urllib2
 import zipfile
+from tankoubonBuilder.tankoubon import Tankoubon
 
 #####################
 
@@ -466,7 +467,7 @@ class SiteParserBase:
 		print("Building a tankoubon!")
 		# First we need to get all indexes in the dictionary and order them
 		#  before we think of getting the locations
-		volumesWithChapters = []
+		tankoubonsToCreate = []
 		orderedChaptersNames = list(downloadedChaptersFilenames.keys())
 		orderedChaptersNames.sort()		
 		
@@ -478,10 +479,13 @@ class SiteParserBase:
 		tankoubonVolume = 1
 		while (orderedChaptersNames): # This is, while we have something in the list
 			print("Tankoubon number: %s" % str(tankoubonVolume))
-			volumesWithChapters.append(orderedChaptersNames[:chaptersInTankoubon])
+			tankoubonsToCreate.append(
+				Tankoubon(self.manga,
+						orderedChaptersNames[:chaptersInTankoubon],
+						self.downloadedChaptersFilenames, tankoubonVolume)
+				)
 			del orderedChaptersNames[:chaptersInTankoubon]
 			tankoubonVolume += 1
-		print(volumesWithChapters)
 				
 		raise NotImplementedError("We'll implement this later!")
 	
