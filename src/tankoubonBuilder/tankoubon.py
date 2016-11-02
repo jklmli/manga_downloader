@@ -58,13 +58,17 @@ def createTankoubonFiles( tankoubonsToCreate, siteParser ):
 			for chapterName in t.chapters:
 				#  write every chapter file to the Tankoubon Zip file
 				#  close chapter
-				with zipfile.ZipFile( t.chaptersLocation.get( chapterName ), "r" ) as chapZ:
+				chapterLocation =  t.chaptersLocation.get( chapterName )
+				with zipfile.ZipFile( chapterLocation, "r" ) as chapZ:
 					imageNamelist = [( s, chapZ.read( s ) ) for s in chapZ.namelist()]
 					
 					for image in imageNamelist:
 						filename = image[0]
 						actualFile = image[1]
 						tankZ.writestr( filename, actualFile )
+						
+				if (siteParser.cleanChaptersAfterBuildingTankoubon):
+					os.remove(chapterLocation)
 		
 		# Move Zip file to DownloadLocation specified
 		if ( siteParser.overwrite_FLAG == True ):

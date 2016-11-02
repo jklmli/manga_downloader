@@ -91,7 +91,8 @@ def main():
 				spaceToken = '.',
 				proxy = None,
 				siteSelect = 0,
-				chaptersInTankoubon = 1
+				chaptersInTankoubon = 1,
+				cleanChaptersAfterBuildingTankoubon = False
 				)
 
 	parser.add_option(	'--all',
@@ -172,8 +173,14 @@ def main():
 				help = 'Specifies the site to download from.'				)
 	
 	parser.add_option('-k', '--tankoubon',
+					type = int,
 					dest='chaptersInTankoubon',
 					help="Allows you to specify how many chapters you want in each tankoubon. Defaults to: %default.")
+	
+	parser.add_option('--cleanChapters',
+					action = "store_true",
+					dest='cleanChaptersAfterBuildingTankoubon',
+					help="If -k is specified, this will remove the individual chapter files after building the tankoubon. It has no effect if -k is not specified. Defaults to: %default.")
 
 	(options, args) = parser.parse_args()
 
@@ -190,12 +197,7 @@ def main():
 	if (options.maxChapterThreads <= 0):
 		options.maxChapterThreads = 2;
 		
-	# Check and sanitize the chaptersInTankoubon option
-	try:
-		options.chaptersInTankoubon = int(options.chaptersInTankoubon)
-	except:
-		options.chaptersInTankoubon = 1
-	
+	# Check the chaptersInTankoubon option
 	if (options.chaptersInTankoubon <= 0):
 		options.chaptersInTankoubon = 1
 	
