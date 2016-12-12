@@ -235,7 +235,8 @@ def main():
 			xmlParser.downloadManga()
 		else:
 			threadPool = []
-			for manga in args:
+			xabc=[1]
+			for manga in xabc:
 				manga=str(args)
                                 
 				options.manga = manga
