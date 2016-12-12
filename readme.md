@@ -97,6 +97,14 @@ The directory containing the images to convert when `convertDirectory` is specif
 The directory to store the converted Images. Omitting this option defaults to
 `DOWNLOAD_PATH/Pictures`.
 
+> `-k <number of chapters in tankoubon>, --tankoubon=<number of chapters in tankoubon>`
+
+Allows you to build a tankoubon (a volume file with multiple chapters in it) and specify how many chapters you want in each of them. Defaults to: 1, which means no tankoubon will be created.
+
+> `--cleanChapters`
+
+If -k is specified, this will remove the individual chapter files after building the tankoubon. It has no effect if -k is not specified. Omitting this option defaults to: False.
+
 ### Usage
 
 > `manga.py -d "C:\Documents and Settings\admin\Documents\Manga\" -z Bleach`

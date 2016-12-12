@@ -11,6 +11,7 @@ import threading
 import time
 import urllib2
 import zipfile
+from tankoubonBuilder.tankoubon import * 
 
 #####################
 
@@ -68,6 +69,7 @@ class SiteParserBase:
 		self.chapters_to_download = []
 		self.tempFolder = tempfile.mkdtemp()
 		self.garbageImages = {}
+		self.downloadedChaptersFilenames = {}
 		
 		# should be defined by subclasses
 		self.re_getImage = None
@@ -425,14 +427,27 @@ class SiteParserBase:
 			if (isAllPassed and thread.isThreadFailed):
 				isAllPassed = False
 		
+		if (isAllPassed and self.shouldBuildTankoubon):
+			self.buildTankoubon(self.downloadedChaptersFilenames, self.chaptersInTankoubon)
+		
 		return isAllPassed
 
 	def postDownloadProcessing(self, manga_chapter_prefix, max_pages):
 		if (self.timeLogging_FLAG):
 			print("%s (End Time): %s" % (manga_chapter_prefix, str(time.time())))
 
-		SiteParserBase.DownloadChapterThread.releaseSemaphore()
+		if (not self.shouldBuildTankoubon):
+			# If we don't need to build a Tankoubon, release the semaphore earlier
+			#  otherwise, hold on to it so that we can write to the shared list
+			#  of files
+			SiteParserBase.DownloadChapterThread.releaseSemaphore()
+			
 		compressedFile = self.compress(manga_chapter_prefix, max_pages)
+		
+		if (self.shouldBuildTankoubon):
+			self.downloadedChaptersFilenames[manga_chapter_prefix] = compressedFile
+			SiteParserBase.DownloadChapterThread.releaseSemaphore()
+			
 		self.convertChapter( compressedFile )	
 	
 	def convertChapter(self, compressedFile):
@@ -447,3 +462,30 @@ class SiteParserBase:
 				
 				if (compressedFile != None and self.outputDir != None):
 					convertFile.convert(self.outputMgr, compressedFile, self.outputDir, self.device, self.verbose_FLAG)
+	
+	def buildTankoubon(self, downloadedChaptersFilenames, chaptersInTankoubon):
+		print("Building tankoubon!")
+		# First we need to get all indexes in the dictionary and order them
+		#  before we think of getting the locations
+		tankoubonsToCreate = []
+		orderedChaptersNames = list(downloadedChaptersFilenames.keys())
+		orderedChaptersNames.sort()		
+		
+		""" 
+		    Now that we have the indexes ordered, let's build a blueprint of what
+		     chapters should go into each volume, we can further improve on this
+		     and use it in the future to feed the list of volumes into threads!
+		"""
+		tankoubonVolume = 1
+		while (orderedChaptersNames): # This is, while we have something in the list
+			tankoubonsToCreate.append(
+				Tankoubon(self.manga,
+						orderedChaptersNames[:chaptersInTankoubon],
+						self.downloadedChaptersFilenames,
+						tankoubonVolume,
+						self.downloadFormat)
+				)
+			del orderedChaptersNames[:chaptersInTankoubon]
+			tankoubonVolume += 1
+				
+		createTankoubonFiles(tankoubonsToCreate, self)
