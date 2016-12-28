@@ -16,7 +16,7 @@ class MangaFox(SiteParserBase):
 	re_getSeries = re.compile('a href="http://.*?mangafox.*?/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
 	#re_getSeries = re.compile('a href="/manga/([^/]*)/[^"]*?" class=[^>]*>([^<]*)</a>')
 	#re_getChapters = re.compile('"(.*?Ch.[\d.]*)[^"]*","([^"]*)"')
-	re_getImage = re.compile('"><img src="([^"]*)"')
+	re_getImage = re.compile('<img src="([^"]*)".*?id="image"')
 	re_getMaxPages = re.compile('var total_pages=([^;]*?);')
 	
 	def fixFormatting(self, s):
