@@ -100,13 +100,13 @@ class MangaFox(SiteParserBase):
 		isChapterOnly = False
 		
 		# can't pre-compile this because relies on class name
-		re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(v[\d]+)/(c[\d]+)/[^"]*?" title' % keyword)
+		re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(v[\d|(TBD)]+)/(c[\d\.]+)/[^"]*?" title' % keyword)
 		self.chapters = re_getChapters.findall(source)
 		if not self.chapters:
 			if self.verbose_FLAG:
 				print ("Trying chapter only regex")
 			isChapterOnly = True
-			re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(c[\d]+)/[^"]*?" title' % keyword)
+			re_getChapters = re.compile('a href="http://.*?mangafox.*?/manga/%s/(c[\d\.]+)/[^"]*?" title' % keyword)
 			self.chapters = re_getChapters.findall(source)
 			
 		self.chapters.reverse()
