@@ -393,7 +393,7 @@ class SiteParserBase:
 		def run (self):
 			try:
 				self.siteParser.processChapter(self, self.chapter)	
-			except Exception as exception:
+			except Exception:
 				# Assume semaphore has not been release
 				# This assumption could be faulty if the error was thrown in the compression function
 				# The worst case is that releasing the semaphore would allow one more thread to 
@@ -402,7 +402,8 @@ class SiteParserBase:
 				# If the semaphore was not released before the exception, it could cause deadlock
 				chapterThreadSemaphore.release()
 				self.isThreadFailed = True
-				raise FatalError("Thread crashed while downloading chapter: %s" % str(exception))
+				print("Thread crashed while downloading chapter: %s - %s" % (self.siteParser.manga, str(self.chapter)))
+				raise
 	
 	def download(self):
 		threadPool = []
