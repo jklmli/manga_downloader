@@ -13,14 +13,9 @@ of over 10,000 mangas. Downloads into .cbz format, can optionally download into 
 
 ## Dependencies
 
-Python 2.6+, including 3.x
+Python 2.7
 
 PIL if using Kindle conversion.
-
-How to backport to:
-
-  - 2.5 - change the exception-handling code and use `StringIO` instead of `io` module
-  - 2.4 - removing parentheses after class declarations
 
 ## Usage
 
